@@ -25,14 +25,29 @@ const int HEADER_KEY_OUT_1 = 74;
 const int HEADER_KEY_OUT_2 = 225;
 
 
+/* *** TIME CONSTANTS *** */
+
+const int DELAY_COUNTER = 5; // delay each loop (ms)
+
+
+/* ** LED ** */
 
 const int LED_PIN = 13;
 int ledState = LOW;  // Is the LED on or off?
 
-// Value written to a motor that stops it from spinning.
-// Also the init value for the ESC.
+
+/* *** SENSOR CONSTANTS *** */
+
+const int NUM_SENSORS = 6;
+const int SENSOR_PORTS[NUM_SENSORS] = {A0, A1, A2, A3, A4, A5};
+
+
+/* *** MOTOR CONSTANTS and GLOBALS *** */
+
+// Value written to a motor that stops it from spinning; also the init value for the ESC.
 const int MOTOR_ZERO = 1500;
-const int MOTOR_HALF_RANGE = 360;  // motor range is MOTOR_ZERO +- MOTOR_HALF_RANGE
+// motor range is MOTOR_ZERO +- MOTOR_HALF_RANGE
+const int MOTOR_HALF_RANGE = 360;
 const int MOTOR_MIN_SPEED = MOTOR_ZERO - MOTOR_HALF_RANGE;
 const int MOTOR_MAX_SPEED = MOTOR_ZERO + MOTOR_HALF_RANGE;
 
@@ -41,8 +56,18 @@ const int NUM_MOTORS = 6;
 // Corresponds to a motor's pin number that its ESC is wired to on the Arduino.
 const int MOTOR_PINS[NUM_MOTORS] = {2, 3, 4, 5, 6, 7};
 
+// Where motor structs are stored as values
 Motor Motors[NUM_MOTORS];
 
+
+
+/* *** MOTOR FUCTIONS *** */
+
+// Compute and set new motor speed given an 8-bit byte.
+// Scales byte to the motor's speed range and adds to motor's minimum speed.
+// Only changes the "spd" field of the motor struct; does not change
+// the real-world, physical speed of the spinning motor.
+// User must call fire_motor() for speed changes to take physical effect.
 void compute_and_set_new_motor_speed (Motor *motor, int motor_power_byte) {
   int power = (int)((float)motor_power_byte * (2. * (float)MOTOR_HALF_RANGE / 256.) + (float)MOTOR_MIN_SPEED);
   motor->spd = power;
@@ -57,9 +82,15 @@ void attach_motor_to_pin (Motor *motor, int pin) {
 }
 
 // Abstraction: sets a motor's speed field to the supplied value.
-// Keeps motor speeds within the acceptable operating ranges
+// Keeps motor speeds within acceptable operating ranges
 void set_motor_speed (Motor *motor, int newspeed) {
-  motor->spd = newspeed;  // Add in error checking code later
+  if (newspeed < MOTOR_MIN_SPEED) {
+    motor->spd = MOTOR_MIN_SPEED;
+  } else if (newspeed > MOTOR_MAX_SPEED) {
+    motor->spd = MOTOR_MAX_SPEED;
+  } else {
+    motor->spd = newspeed;
+  }
 }
 
 // Takes a motor struct's speed and writes it to the ESC.
@@ -90,6 +121,67 @@ void fire_all_motors () {
   }
 }
 
+/* ** LED ** */
+
+void handle_led() {
+  digitalWrite(LED_PIN, ledState);
+}
+
+/* *** COMMUNICATION *** */
+
+void write_packet (int byte1, int byte2) {
+  Serial.write(HEADER_KEY_OUT_1);
+  Serial.write(HEADER_KEY_OUT_2);
+  Serial.write(byte1);
+  Serial.write(byte2);
+}
+
+void send_sensor_data() {
+  for (int i = 0; i < NUM_SENSORS; i++) {
+    // Send a packet containing the sensor index number and its value
+    write_packet(i, analogRead(SENSOR_PORTS[i]));
+  }
+}
+
+void read_and_discard_n_packets (int n) {
+  int i;
+  for (i = 0; i < n; i++) {
+    Serial.read();
+  }
+}
+
+void read_and_discard_one_packet () {
+  Serial.read();  // :)
+}
+
+int read_and_verify_next_packet_headers () {
+  return (Serial.read() == HEADER_KEY_IN_1 && Serial.read() == HEADER_KEY_IN_2);
+}
+
+void read_and_process_packets () {
+  int control_byte, motor_number, motor_power_byte;
+  while (Serial.available() >= PACKET_SIZE) {
+    if (read_and_verify_next_packet_headers()) {
+      control_byte = Serial.read();
+      switch (control_byte) {
+      case HEADER_KEY_LIGHT:  // Toggle LED
+        ledState = !ledState;
+        read_and_discard_one_packet();
+        break;
+      case HEADER_KEY_PING:   // Ping back to surface
+        write_packet(HEADER_KEY_PING, Serial.read());
+        break;
+      default:                // Packet assumed to control motors
+        motor_number = Serial.read();
+        motor_power_byte = Serial.read();
+        compute_and_set_new_motor_speed(&Motors[motor_number], motor_power_byte);
+        break;
+      }
+    }
+  }
+}
+
+
 void setup() {
   // Initialize comms.
   Serial.begin(9600);
@@ -102,50 +194,16 @@ void setup() {
   
 }
 
-void write_packet (int byte1, int byte2) {
-  Serial.write(HEADER_KEY_OUT_1);
-  Serial.write(HEADER_KEY_OUT_2);
-  Serial.write(byte1);
-  Serial.write(byte2);
-}
-
-void read_and_discard_n_packets (int n) {
-  int i;
-  for (i = 0; i < n; i++) {
-    Serial.read();
-  }
-}
-
-int read_and_verify_next_packet_headers () {
-  return (Serial.read() == HEADER_KEY_IN_1 && Serial.read() == HEADER_KEY_IN_2);
-}
-
-void handle_led() {
-  digitalWrite(LED_PIN, ledState);
-}
-
-void read_and_process_packets () {
-  int control_byte;
-  while (Serial.available() >= PACKET_SIZE) {
-    if (read_and_verify_next_packet_headers()) {
-      control_byte = Serial.read();
-      switch (control_byte) {
-        case HEADER_KEY_LIGHT:
-          ledState = !ledState;
-          break;
-      default:
-        int motor_number = Serial.read();
-        int motor_power_byte = Serial.read();
-        compute_and_set_new_motor_speed(&Motors[motor_number], motor_power_byte);
-        break;
-      }
-    }
-  }
-}
-
-
 void loop() {
+  int sensorLoopCounter = 0;
   read_and_process_packets();
   fire_all_motors();
   handle_led();
+  // read and send sensor data every SENSOR_ITERATION iterations
+  if (++sensorLoopCounter == SENSOR_ITERATION) {
+    sensorLoopCounter = 0;
+    send_sensor_data();
+  }
+
+  delay(DELAY_COUNTER);
 }
