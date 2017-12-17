@@ -7,7 +7,27 @@ typedef struct Motor {
   Servo servo;
 };
 
+/* *** PACKET HEADERS and CONSTANTS *** */
+
+const int PACKET_SIZE = 2;
+
+/* headers for incoming data */
+const int HEADER_KEY_IN_1 = 17;
+const int HEADER_KEY_IN_2 = 151;
+
+/* control bytes */
+
+const int HEADER_KEY_LIGHT = 101; // switching LED state
+const int HEADER_KEY_PING = 102; // returning ping
+
+/* headers for outgoing data */
+const int HEADER_KEY_OUT_1 = 74;
+const int HEADER_KEY_OUT_2 = 225;
+
+
+
 const int LED_PIN = 13;
+int ledState = LOW;  // Is the LED on or off?
 
 // Value written to a motor that stops it from spinning.
 // Also the init value for the ESC.
@@ -82,11 +102,50 @@ void setup() {
   
 }
 
-void loop() {
-  while (Serial.available() >= 2) {
-    int motor_number = Serial.read();
-    int motor_power_byte = Serial.read();
-    compute_and_set_new_motor_speed(&Motors[motor_number], motor_power_byte);
+void write_packet (int byte1, int byte2) {
+  Serial.write(HEADER_KEY_OUT_1);
+  Serial.write(HEADER_KEY_OUT_2);
+  Serial.write(byte1);
+  Serial.write(byte2);
+}
+
+void read_and_discard_n_packets (int n) {
+  int i;
+  for (i = 0; i < n; i++) {
+    Serial.read();
   }
+}
+
+int read_and_verify_next_packet_headers () {
+  return (Serial.read() == HEADER_KEY_IN_1 && Serial.read() == HEADER_KEY_IN_2);
+}
+
+void handle_led() {
+  digitalWrite(LED_PIN, ledState);
+}
+
+void read_and_process_packets () {
+  int control_byte;
+  while (Serial.available() >= PACKET_SIZE) {
+    if (read_and_verify_next_packet_headers()) {
+      control_byte = Serial.read();
+      switch (control_byte) {
+        case HEADER_KEY_LIGHT:
+          ledState = !ledState;
+          break;
+      default:
+        int motor_number = Serial.read();
+        int motor_power_byte = Serial.read();
+        compute_and_set_new_motor_speed(&Motors[motor_number], motor_power_byte);
+        break;
+      }
+    }
+  }
+}
+
+
+void loop() {
+  read_and_process_packets();
   fire_all_motors();
+  handle_led();
 }
