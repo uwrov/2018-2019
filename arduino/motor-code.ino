@@ -19,7 +19,10 @@ const int HEADER_KEY_IN_2 = 151;
 
 const int HEADER_KEY_LIGHT = 101; // switching LED state
 const int HEADER_KEY_PING = 102; // returning ping
+<<<<<<< HEAD
 const int HEADER_KEY_QUERY_MOTOR_SPEED = 103; // Ask for speed of motor
+=======
+>>>>>>> 8c5da37acf6ef6d26e38fadf2d79a7bb57738e74
 
 /* headers for outgoing data */
 const int HEADER_KEY_OUT_1 = 74;
@@ -29,7 +32,10 @@ const int HEADER_KEY_OUT_2 = 225;
 /* *** TIME CONSTANTS *** */
 
 const int DELAY_COUNTER = 5; // delay each loop (ms)
+<<<<<<< HEAD
 const int SENSOR_ITERATION = 10;  // number of times loop() must be executed in order for sensor data to be read and sent.
+=======
+>>>>>>> 8c5da37acf6ef6d26e38fadf2d79a7bb57738e74
 
 
 /* ** LED ** */
@@ -38,11 +44,18 @@ const int LED_PIN = 13;
 int ledState = LOW;  // Is the LED on or off?
 
 
+<<<<<<< HEAD
 /* *** SENSOR CONSTANTS and GLOBALS *** */
 
 const int NUM_SENSORS = 6;
 const int SENSOR_PORTS[NUM_SENSORS] = {A0, A1, A2, A3, A4, A5};
 int sensorLoopCounter = 0;
+=======
+/* *** SENSOR CONSTANTS *** */
+
+const int NUM_SENSORS = 6;
+const int SENSOR_PORTS[NUM_SENSORS] = {A0, A1, A2, A3, A4, A5};
+>>>>>>> 8c5da37acf6ef6d26e38fadf2d79a7bb57738e74
 
 
 /* *** MOTOR CONSTANTS and GLOBALS *** */
@@ -174,10 +187,13 @@ void read_and_process_packets () {
       case HEADER_KEY_PING:   // Ping back to surface
         write_packet(HEADER_KEY_PING, Serial.read());
         break;
+<<<<<<< HEAD
       case HEADER_KEY_QUERY_MOTOR_SPEED:
         // send speed of motor indicated by next byte back to surface
         write_packet(HEADER_KEY_QUERY_MOTOR_SPEED, Motors[Serial.read()].spd);
         break;
+=======
+>>>>>>> 8c5da37acf6ef6d26e38fadf2d79a7bb57738e74
       default:                // Packet assumed to control motors
         motor_number = Serial.read();
         motor_power_byte = Serial.read();
@@ -202,6 +218,10 @@ void setup() {
 }
 
 void loop() {
+<<<<<<< HEAD
+=======
+  int sensorLoopCounter = 0;
+>>>>>>> 8c5da37acf6ef6d26e38fadf2d79a7bb57738e74
   read_and_process_packets();
   fire_all_motors();
   handle_led();
