@@ -1,0 +1,97 @@
+<!--
+Features:
+Three img sections for camera feed
+	-One main, large one
+	-Two small, secondary one
+	-All are displayed simultaneously and can be swapped
+•Sensor data display
+	-Updated several times a second and shown in a display feed
+•Resizable/Collapsable panel areas
+•Configurations panel
+	-Camera feed IP and port config
+	-Ability to send actions to the camera (e.g. quit, restart)
+	-Links to camera config file settings
+•Gamepad
+	-Panel with visual output of controller buttons and axes
+	-Button mapping
+
+Gamepad API:
+https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API#Browser_compatibility
+-->
+
+<html>
+<head>
+	<title>UWROV Interface</title>
+	<link rel="icon" href="images/favicon.ico">
+
+	<script type="text/javascript" src="external/jquery/jquery.js"></script>
+	<script type="text/javascript" src="jquery-ui.js"></script>
+	<script type="text/javascript" src="jquery-layout-1.4.0.js"></script>
+	<script type="text/javascript" src="rov-interface.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<!-- Main camera display -->
+	<div id="main-display" class="ui-layout-center">
+		<div id="cam-one-area">
+			<p class="cam-text">Cam 1</p>
+			<img src="images/loading.gif" class="loading" alt="loading" hidden	>
+			<img id="cam-one" class="cam" alt="Main Camera Feed" draggable="false" src="http://placehold.it/1000x800">
+		</div>
+	</div>
+
+	<!-- Configurable Options -->
+	<div id="options" class="ui-layout-north">
+		<h2>CONFIG OPTIONS</h2>
+		<div id="options-panel-one">
+			IP: <input id="cam-ip" type="text" = name="ip" value="192.168.8.105"> <br />
+			CAM 1 Port: <input id="cam1port" type="text" name="port" value="8081"> <br />
+			CAM 2 Port: <input id="cam2port" type="text" name="port" value="8082"> <br />
+			CAM 3 Port: <input id="cam3port" type="text" name="port" value="8083"> <br />
+			<button id="set-ips">Set IPs</button> <br />
+			Show Camera Labels: <input id="cam-labels-checkbox" type="checkbox" name="cam-labels" checked>
+		</div>
+		<div id="options-panel-two">
+			CAM 1: <a id="cam1-config" href="" target="_blank">Config</a> <button id="cam1-quit">Quit</button> <button id="cam1-restart">Restart</button><br />
+			CAM 2: <a id="cam2-config" href="" target="_blank">Config</a> <button id="cam2-quit">Quit</button> <button id="cam2-restart">Restart</button><br />
+			CAM 3: <a id="cam3-config" href="" target="_blank">Config</a> <button id="cam3-quit">Quit</button> <button id="cam3-restart">Restart</button><br />
+			Brightness: <span id="brightness-config">0%</span> <input id="brightness-slider" type="range" name="brightness" min="0" max="255" value="0"><br />
+			Contrast: <span id="contrast-config">0%</span> <input id="contrast-slider" type="range" name="contrast" min="0" max="255" value="0">
+		</div>
+	</div>
+
+	<!-- Other cameras and sensor data -->
+	<div id="secondary-display" class="ui-layout-east">
+		<!-- 2nd camera display -->
+		<div class="ui-layout-north">
+			<div id="cam-two-area">
+				<p class="cam-text">Cam 2</p>
+				<img src="images/loading.gif" class="loading" alt="loading" hidden>
+				<img id="cam-two" class="cam" alt="Camera Feed 2" draggable="false" src="http://placehold.it/300x700">
+			</div>
+		</div>
+		<!-- 3rd camera display -->
+		<div class="ui-layout-center">
+			<div id="cam-three-area">
+				<p class="cam-text">Cam 3</p>
+				<img src="images/loading.gif" class="loading" alt="loading" hidden>
+				<img id="cam-three" class="cam" alt="Camera Feed 3" draggable="false" src="http://placehold.it/800x500">
+			</div>
+		</div>
+		<!-- Sensor data display -->
+		<div class="ui-layout-south">
+			<div id="sensors">
+				<h2>SENSORS</h2>
+				<p>Sensor 1: <span class="data">Data<span></p>
+				<p>Sensor 2: <span class="data">Data<span></p>
+				<p>Sensor 3: <span class="data">Data<span></p>
+			</div>
+		</div>
+	</div>
+
+	<div id="controller-display" class="ui-layout-south"></div>
+</body>
+</html>
+
+

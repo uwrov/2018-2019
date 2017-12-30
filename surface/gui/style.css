@@ -1,0 +1,64 @@
+body, h2 {
+	font-family: "Arial Black", sans-serif;
+}
+
+div {
+	padding: 0 !important;
+}
+
+h2 {
+	margin-top: 0;
+	font-size: 20pt;
+	border-bottom: 1px solid gray
+}
+
+.loading {
+	width: 50px;
+	height: 50px;
+}
+
+.ui-layout-resizer-dragging {
+	background-color: rgb(200,250,200) !important;
+}
+
+.pressed {
+	color: blue;
+}
+
+#sensors {
+	font-family: monospace;
+	font-size: 15pt;
+}
+
+#options, #sensors, #controller-display {
+	padding: 10px !important;
+}
+
+#options-panel-one {
+	float: left;
+	width: 50%;
+	height: 100%;
+	border-right: 1px solid gray
+}
+
+#options-panel-two {
+	overflow: hidden;
+	padding-left: 10px !important;
+}
+
+#cam-one-area, #cam-two-area, #cam-three-area {
+	position: relative;
+}
+
+.cam-text {
+	color: rgba(200,200,200,100);
+	font-size: 20pt;
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 5px;
+}
+
+#controller-display {
+	font-size: 11pt;
+}
