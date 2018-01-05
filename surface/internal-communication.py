@@ -95,7 +95,7 @@ def readAllPackets():
                 pingTime = pingEndTime - pingStartTime
                 print("Ping interval " + str(pingTime) + " received at " + str(pingEndTime))
             elif controlByte == HEADER_KEY_QUERY_MOTOR_SPEED:
-                print("Motor speed: " + str(__readByte__(ser)))
+                print("Motor speed: " + str(dataByte))
             else:
                 # controlByte is assumed to be the sensor number
                 # dataByte assumed to be the value read from sensor

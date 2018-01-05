@@ -14,7 +14,7 @@ def test_transform(value):
 def getsensor():
     return json.dumps(sensors)
 
-@get('/motor/<number>/<value>')
+@get('/motor/<motor>/<value>')
 # Expects motor arguement to be motor numbers as indicated in the motor diagram
 # in internal-communication.py and value to be a float between -1 and 1,
 # where -1 is reverse full thrust and 1 is forward full thrust.
