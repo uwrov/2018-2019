@@ -176,9 +176,10 @@ void read_and_process_packets () {
         write_packet(HEADER_KEY_PING, Serial.read());
         break;
       case HEADER_KEY_QUERY_MOTOR_SPEED:
+        //        int power = (int)((float)motor_power_byte * (2. * (float)MOTOR_HALF_RANGE / 256.) + (float)MOTOR_MIN_SPEED);
         // send speed of motor indicated by next byte back to surface
         write_packet(HEADER_KEY_QUERY_MOTOR_SPEED,
-                     255 * (Motors[Serial.read()].spd - MOTOR_ZERO) / MOTOR_HALF_RANGE);
+                     255 * (Motors[Serial.read()].spd - (float)MOTOR_MIN_SPEED) / (float)MOTOR_HALF_RANGE / 2.);
         break;
       default:                // Packet assumed to control motors
         // Control byte is assumed to refer to the motor number (array index)
@@ -200,7 +201,7 @@ void setup() {
 
   delay(3000); // Part of motor initialization routine
   pinMode(LED_PIN, OUTPUT);
-  
+
 }
 
 void loop() {

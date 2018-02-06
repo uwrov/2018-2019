@@ -1,5 +1,5 @@
 ### Communication between different parts inside the robot ---
-### Arduino - Raspberry Pi
+### Arduino <-> Raspberry Pi.  (This code runs on the Pi or separate computer)
 
 import serial
 from time import clock, sleep
@@ -61,9 +61,14 @@ def arduinoSetup(serialPort):
     except (OSError, serial.SerialException):
         print "arduinoSetup: Serial '" + str(serialPort) + "' did not connect"
         return -1
-    
-#    start_new_thread(__updateData__, ())
+    # Periodically read data on seperate thread
+    start_new_thread(__updateData__, ())
     return 0
+
+def __updateData__():
+    while True:
+        sleep(WAIT_TIME)  # wait, then read any packets that have come in.
+        readAllPackets()
 
 # ser.write() normally takes a string; we instead provide an array of bytes of out choosing
 def writePacket(dataByte1, dataByte2):
@@ -120,5 +125,8 @@ def toggleLED():
 # Abstraction.  Send a packet telling the Arduino to change the speed of the indicated motor to that indicated by the speed byte
 def sendMotorSignal(motorNumber, motorSpeedByte):
     writePacket(motorNumber, motorSpeedByte)
+
+def queryMotorSpeed(motorNumber):
+    writePacket(HEADER_KEY_QUERY_MOTOR_SPEED, motorNumber)
 
 
