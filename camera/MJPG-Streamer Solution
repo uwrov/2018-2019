@@ -1,0 +1,21 @@
+MJPG-Streamer Solution
+-------------------------------------------------------------------------------------------------------------------------------------------
+Feb.09.2018.Fri
+Status:
+Accessed the camera with the MJPEG (instead of the YUYV) format.
+
+Solution from:
+https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=109352&p=751735#p751735
+
+Problem description:
+MJPG-Streamer requires a new patch after the raspberry pi's kernel update.
+
+Next Goal:
+Mount on two cameras and stream in the browser without lagging.
+
+Additional Notes:
+Execution script: "/usr/local/bin/streamer.sh"
+Camera address: http://192.168.8.100:8081
+"Ctrl + C" does not kill the MJPG-Streamer process. 
+Change some flags in the script may solve the issue. 
+May use "pkill mjpg_streamer".
