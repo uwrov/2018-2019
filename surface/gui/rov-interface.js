@@ -414,8 +414,14 @@
    		$("#controller-display").append(d);
 
 	  	//Map buttons to functions
-	  	buttonMappings[BUTTON.back].func = switchCams;
-		buttonMappings[BUTTON.rt].func = httpGet("/movement/right-trigger/<gamepadValue>");
+	        buttonMappings[BUTTON.back].func = switchCams;
+                // EXPERIMENTAL function binding for buttons.
+	        buttonMappings[BUTTON.rt].func = function () {
+                    httpGet("/movement/right-trigger/1.0");
+                }
+	        buttonMappings[BUTTON.a].func = function () {
+                    httpGetWithResponse("http://localhost:8085/movement/right-trigger/1.0", function () {});
+                }
 
 	  	requestAnimationFrame(updateStatus);
 	  }

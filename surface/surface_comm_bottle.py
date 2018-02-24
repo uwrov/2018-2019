@@ -46,6 +46,7 @@ def accelerate_forward_backward(gamepadValue):
 # Moving up and down
 @get("/movement/right-trigger/<gamepadValue>")
 def vertical_movement(gamepadValue):
+    print(gamepadValue)
     # insert means to store value
 
 run(host='localhost', port=8085)

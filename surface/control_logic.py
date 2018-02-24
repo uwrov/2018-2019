@@ -2,8 +2,10 @@
 # appropriately.
 
 from math import sqrt
-from internal_communication import sendMotorSignal
+from internal_communication import sendMotorSignal, WAIT_TIME
 from surface_comm_bottle import Motor_Joystick_X, Motor_Joystick_Y, DPad_X, DPad_Y
+from thread import start_new_thread
+from time import clock, sleep
 
 # The following are the states of the four lateral motors.
 # Each state is an array with values representing the relative speeds of motors
@@ -78,6 +80,8 @@ def compute_and_transmit_motor_states():
     for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
         sendMotorSignal(motor_number, motor_speed)
     # Need to implement up/down motors here.
+    sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
 
+# This expression will start the period computations and transmissions of states
+# start_new_thread(compute_and_transmit_motor_states, ())
 
-    
