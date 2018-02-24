@@ -390,18 +390,18 @@
 	 			func: null
 	 		};
 	 		e.className = "button";
-    		//e.id = "b" + i;
-    		e.innerHTML = i + " ";
-    		b.appendChild(e);
+    			//e.id = "b" + i;
+    			e.innerHTML = i + " ";
+    			b.appendChild(e);
     	        }
-    	d.appendChild(b);
+    		d.appendChild(b);
 
-    	//Create display for the controller's joysticks
-    	var a = document.createElement("div");
-    	a.className = "axes";
-    	for (var i = 0; i < gamepad.axes.length; i++) {
-    		var p = document.createElement("progress");
-    		p.className = "axis";
+	    	//Create display for the controller's joysticks
+	    	var a = document.createElement("div");
+	    	a.className = "axes";
+	    	for (var i = 0; i < gamepad.axes.length; i++) {
+	    		var p = document.createElement("progress");
+	    		p.className = "axis";
    			// p.id = "a" + i;
    			p.setAttribute("max", "2");
    			p.setAttribute("value", "1");
@@ -415,6 +415,7 @@
 
 	  	//Map buttons to functions
 	  	buttonMappings[BUTTON.back].func = switchCams;
+		buttonMappings[BUTTON.rt].func = httpGet("/movement/right-trigger/<gamepadValue>");
 
 	  	requestAnimationFrame(updateStatus);
 	  }
