@@ -23,7 +23,11 @@ def getsensor():
 #                     trunc(value * 256) + 128)  # scale to 8-bit byte
 
 # For input on how to move left and right ("strafing")
-@get("/movement/left-right/<gamepadValue>")
+@get("/movement/dpad-x/<gamepadValue>")
+@get("/movement/dpad-y/<gamepadValue>")
+@get("/movement/right-trigger/<gamepadValue>")
+@get("/movement/right-joystick-x/<gamepadValue>")
+@get("/movement/right-joystick-y/<gamepadValue>")
 def straf_left_right(gamepadValue):
     # insert code to fire motors appropriately.
 
