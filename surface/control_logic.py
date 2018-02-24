@@ -2,6 +2,7 @@
 # appropriately.
 
 from math import sqrt
+from internal_communication import sendMotorSignal
 
 # The following are the states of the four lateral motors.
 # Each state is an array with values representing the relative speeds of motors
@@ -47,6 +48,8 @@ def normalize_list(lst):
 def shift_and_scale_to_motor_byte (lst):
     [int(speed + 128) for speed in scale_list(lst, 128)]
 
+
+# Computes speeds of motors by composing and scaling states for joystick and dpad.
 def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x, strafe_y):  # This ain't terribly functional.
     # Give weight to Rotating_State and Forward_State; add two together.
     net_state = add_lists(scale_list(Rotating_State, m_joystick_x),
@@ -59,10 +62,21 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
                           scale_list(Strafe_X_State, strafe_x * Strafe_Magnitude),
                           scale_list(Strafe_Y_State, strafe_y * Strafe_Magnitude))
     net_state = normalize_list(net_state)
-    shift_and_scale_to_motor_byte(net_state)
+    return shift_and_scale_to_motor_byte(net_state)
 
 
 # TODO: Add function to call compute_lateral_motor_composite_state()
 # with the proper gamepad values and transmit the proper motor values
 # to Arduino.
 # Run this to-be-defined function in a seperate thread.
+
+# Computes and transmits motor states to Arduino.
+def compute_and_transmit_motor_states():
+    lateral_motor_speeds = compute_lateral_motor_composite_state(Motor_Joystick_X, Motor_Joystick_Y, DPad_X, DPad_Y)
+    # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
+    for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
+        sendMotorSignal(motor_number, motor_speed)
+    # Need to implement up/down motors here.
+
+
+    

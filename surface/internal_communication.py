@@ -70,7 +70,7 @@ def __updateData__():
         sleep(WAIT_TIME)  # wait, then read any packets that have come in.
         readAllPackets()
 
-# ser.write() normally takes a string; we instead provide an array of bytes of out choosing
+# ser.write() normally takes a string; we instead provide an array of bytes of our choosing
 def writePacket(dataByte1, dataByte2):
     ser.write(bytearray([HEADER_KEY_OUT_1, HEADER_KEY_OUT_2,
                          dataByte1, dataByte2]))
