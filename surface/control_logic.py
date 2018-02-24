@@ -3,6 +3,7 @@
 
 from math import sqrt
 from internal_communication import sendMotorSignal
+from surface_comm_bottle import Motor_Joystick_X, Motor_Joystick_Y, DPad_X, DPad_Y
 
 # The following are the states of the four lateral motors.
 # Each state is an array with values representing the relative speeds of motors
