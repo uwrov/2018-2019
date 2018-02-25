@@ -173,6 +173,7 @@
 			cam.style.height = "100%";
 			cam.style.width = "auto";
 		}
+		//This block will never run??  Is that intentional??
 		if(panel.offsetWidth < panel.offsetWidth) {
 			cam.style.width = "100%";
 			cam.style.height = "auto";
