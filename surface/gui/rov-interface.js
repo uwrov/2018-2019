@@ -23,6 +23,18 @@
 		xb: 16			//Xbox button
 	}
 
+    // Indices of Xbox axes.
+    var AXIS = {
+        lstick_x: 0,  // Left stick, x axis
+        lstick_y: 1,  // Go figure.
+        ltrigger: 2,  // Left trigger
+        rstick_x: 3,  // Strangely, the pattern repeats.
+        rstick_y: 4,
+        rtrigger: 5,
+        dpad_x: 6,
+        dpad_y: 7
+    }
+
 	//Delay between sensor update (milliseconds)
 	var SENSOR_UPDATE_DELAY = 10;
 	//Main camera port (for config)
@@ -438,6 +450,35 @@
 	 	$("#controller-display").css("background-color", "gray");
 	 }
 
+    // Determines from the supplied index the appropriate URL at the robot
+    // to send the axis value to, then sends.
+    function transmit_axis_value(index, value) {
+        // Change the URL in operation to correct IP address
+        var url = "http://localhost:8085/movement/";
+        switch(index){
+          case AXIS.rstick_x:
+            url += "right-joystick-x";
+            break;
+          case AXIS.rstick_y:
+            url += "right-joystick-y";
+            break;
+          case AXIS.dpad_x:
+            url += "dpad-x";
+            break;
+          case AXIS.dpad_y:
+            url += "dpad-y";
+            break;
+          case AXIS.rtrigger:
+            url += "right-trigger";
+            break;
+          default:
+            url = null;
+        }
+        if (url != null) {
+            url += "/" + String(value);
+            httpGetWithResponse(url, function () {});
+        }
+    }
 	/*
 	 * Updates using the connected gamepads' states. Updates display, button and
 	 * axis states, and handles button and axis input.
@@ -493,11 +534,13 @@
 	 		}
 
 	 		//Update controller joystick displays
-	 		var axes = d.getElementsByClassName("axis");
+	 		var axes_progress_bars = d.getElementsByClassName("axis");
 	 		for (i = 0; i < controller.axes.length; i++) {
-	 			var a = axes[i];
+	 			var a = axes_progress_bars[i];
 	 			a.innerHTML = i + ": " + controller.axes[i].toFixed(4);
-	 			a.setAttribute("value", controller.axes[i] + 1);
+	 		        a.setAttribute("value", controller.axes[i] + 1);
+                                // Send axis value to robot
+                                transmit_axis_value(i, controller.axes[i]);
 	 		}
 	 	}
 
