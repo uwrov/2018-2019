@@ -23,6 +23,15 @@
 		xb: 16			//Xbox button
 	}
 
+    // Temporary fix
+    function abs (number) {
+        if (number < 0){
+            return -number;
+        } else {
+            return number;
+        }
+    }
+
     // Indices of Xbox axes.
     var AXIS = {
         lstick_x: 0,  // Left stick, x axis
@@ -34,6 +43,16 @@
         dpad_x: 6,
         dpad_y: 7
     }
+
+    // Previous values forr axes; used to compare and determine if
+    // the joystick has moved significantly.
+    // Data ---> axis_index : value
+    // (axis_index is the numbers from AXIS)
+    // Everything is initially zero.
+    var AXIS_PREVIOUS_VALUE = {0 : 0, 1 : 0, 2 : 0, 3 : 0, 4 : 0, 5 : 0, 6 : 0, 7 : 0};
+    // Minimum value a stick on the controller must be displaced by
+    // in order for the value to be transmitted.
+    var MIN_STICK_DISP = 0.005;
 
 	//Delay between sensor update (milliseconds)
 	var SENSOR_UPDATE_DELAY = 10;
@@ -453,31 +472,36 @@
 
     // Determines from the supplied index the appropriate URL at the robot
     // to send the axis value to, then sends.
-    function transmit_axis_value(index, value) {
-        // Change the URL in operation to correct IP address
-        var url = "http://localhost:8085/movement/";
-        switch(index){
-          case AXIS.rstick_x:
-            url += "right-joystick-x";
-            break;
-          case AXIS.rstick_y:
-            url += "right-joystick-y";
-            break;
-          case AXIS.dpad_x:
-            url += "dpad-x";
-            break;
-          case AXIS.dpad_y:
-            url += "dpad-y";
-            break;
-          case AXIS.rtrigger:
-            url += "right-trigger";
-            break;
-          default:
-            url = null;
-        }
-        if (url != null) {
-            url += "/" + String(value);
-            httpGetWithResponse(url, function () {});
+    function maybe_transmit_axis_value(index, value) {
+        // Did the joystick move significantly?
+        if (abs(AXIS_PREVIOUS_VALUE[index] - value) > MIN_STICK_DISP) {
+            // store new value, then transmit accordingly.
+            AXIS_PREVIOUS_VALUE[index] = value;
+            // FIXME: Change the URL in operation to correct IP address
+            var url = "http://localhost:8085/movement/";
+            switch(index){
+            case AXIS.rstick_x:
+                url += "right-joystick-x";
+                break;
+            case AXIS.rstick_y:
+                url += "right-joystick-y";
+                break;
+            case AXIS.dpad_x:
+                url += "dpad-x";
+                break;
+            case AXIS.dpad_y:
+                url += "dpad-y";
+                break;
+            case AXIS.rtrigger:
+                url += "right-trigger";
+                break;
+            default:
+                url = null;
+            }
+            if (url != null) {
+                url += "/" + String(value);
+                httpGetWithResponse(url, function () {});
+            }
         }
     }
 	/*
@@ -541,7 +565,7 @@
 	 			a.innerHTML = i + ": " + controller.axes[i].toFixed(4);
 	 		        a.setAttribute("value", controller.axes[i] + 1);
                                 // Send axis value to robot
-                                transmit_axis_value(i, controller.axes[i]);
+                                maybe_transmit_axis_value(i, controller.axes[i]);
 	 		}
 	 	}
 
