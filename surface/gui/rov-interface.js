@@ -23,14 +23,6 @@
 		xb: 16			//Xbox button
 	}
 
-    // Temporary fix
-    function abs (number) {
-        if (number < 0){
-            return -number;
-        } else {
-            return number;
-        }
-    }
 
     // Indices of Xbox axes.
     var AXIS = {
@@ -474,11 +466,11 @@
     // to send the axis value to, then sends.
     function maybe_transmit_axis_value(index, value) {
         // Did the joystick move significantly?
-        if (abs(AXIS_PREVIOUS_VALUE[index] - value) > MIN_STICK_DISP) {
+        if (Math.abs(AXIS_PREVIOUS_VALUE[index] - value) > MIN_STICK_DISP) {
             // store new value, then transmit accordingly.
             AXIS_PREVIOUS_VALUE[index] = value;
             // FIXME: Change the URL in operation to correct IP address
-            var url = "http://localhost:8085/movement/";
+            var url = "http://192.168.8.101:8085/movement/";
             switch(index){
             case AXIS.rstick_x:
                 url += "right-joystick-x";

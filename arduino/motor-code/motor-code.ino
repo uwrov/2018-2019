@@ -19,7 +19,8 @@ const int HEADER_KEY_IN_2 = 151;
 
 const int HEADER_KEY_LIGHT = 101; // switching LED state
 const int HEADER_KEY_PING = 102; // returning ping
-const int HEADER_KEY_QUERY_MOTOR_SPEED = 103; // Ask for speed of motor
+const int HEADER_KEY_QUERY_MOTOR_SPEED = 103; // ask for speed of motor
+const int HEADER_KEY_REINIT_MOTORS = 104;  // reinitilize motors
 
 
 /* headers for outgoing data */
@@ -155,7 +156,7 @@ void read_and_discard_n_packets (int n) {
 }
 
 void read_and_discard_one_packet () {
-  Serial.read();  // :)
+  Serial.read();  // Abstraction function for clarity.  :)
 }
 
 int read_and_verify_next_packet_headers () {
@@ -181,6 +182,9 @@ void read_and_process_packets () {
         write_packet(HEADER_KEY_QUERY_MOTOR_SPEED,
                      255 * (Motors[Serial.read()].spd - (float)MOTOR_MIN_SPEED) / (float)MOTOR_HALF_RANGE / 2.);
         break;
+      case HEADER_KEY_REINIT_MOTORS:
+        init_all_motors();
+        read_and_discard_one_packet();
       default:                // Packet assumed to control motors
         // Control byte is assumed to refer to the motor number (array index)
         motor_power_byte = Serial.read();

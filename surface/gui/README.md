@@ -25,7 +25,7 @@ The top panel, when expanded, will display configurable options for the camera I
 [List of all configurable options](http://www.lavrsen.dk/foswiki/bin/view/Motion/MotionGuideBasicFeatures)
 
 **Gamepad Display**
-The bottom panel will display the button and axe values of any connected controllers. The pane will be empty and grayed out when no controllers are detected.
+The bottom panel will display the button and axes values of any connected controllers. The pane will be empty and grayed out when no controllers are detected.
 
 ## Controls
 **Xbox:**  
@@ -35,3 +35,9 @@ The bottom panel will display the button and axe values of any connected control
 **Double click main camera** - Cycle cameras  
 
 [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API#Browser_compatibility)
+
+Cross-Origin Request Permissions:
+
+https://stackoverflow.com/questions/667519/firefox-setting-to-enable-cross-domain-ajax-request
+https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+

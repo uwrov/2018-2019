@@ -5,15 +5,19 @@ import serial
 from time import clock, sleep
 from thread import start_new_thread
 
-# Data Headers
+## Packet Headers
+# Output packet headers  (same values as "HEADER_KEY_IN_*" in motor-code.ino)
 HEADER_KEY_OUT_1 = 17
 HEADER_KEY_OUT_2 = 151
+# Input packet headers (ditto for "HEADER_KEY_OUT_*" in motor-code.ino)
 HEADER_KEY_IN_1 = 74
 HEADER_KEY_IN_2 = 225
+# Hardware control headers
 HEADER_KEY_PNEUMATICS = 100
-HEADER_KEY_LIGHT = 101
+HEADER_KEY_LIGHT = 101  # Toggle LED
 HEADER_KEY_PING = 102
 HEADER_KEY_QUERY_MOTOR_SPEED = 103
+HEADER_KEY_REINIT_MOTORS = 104
 HEADER_KEY_HOLD_ON = 110
 HEADER_KEY_HOLD_OFF = 111
 
@@ -43,34 +47,17 @@ motors = {0 : 128, 1: 128, 2: 128, 3: 128, 4: 128, 5: 128}
 #
 #  1 /_____\ 2
 #    |     |
-#    |  5  |
-#    |  6  |
+#    |     |
+#   5|     |6
+#    |     |
 #    |_____|
 #  4 \     / 3
+#
+# Lateral motors: 1,2,3,4.     Vertical motors: 5,6
 
 
-# Set up serial communication and start data reading thread
-# Returns -1 if an error occurred during serial connection 
-# Returns 0 otherwise
-# On Unix-like systems, serialPort is the name of the serial device file
-def arduinoSetup(serialPort):
-    global ser
-
-    try:
-        ser = serial.Serial(serialPort)
-    except (OSError, serial.SerialException):
-        print "arduinoSetup: Serial '" + str(serialPort) + "' did not connect"
-        return -1
-    # Periodically read data on seperate thread
-    start_new_thread(__updateData__, ())
-    return 0
-
-def __updateData__():
-    while True:
-        sleep(WAIT_TIME)  # wait, then read any packets that have come in.
-        readAllPackets()
-
-# ser.write() normally takes a string; we instead provide an array of bytes of our choosing
+# ser.write() normally takes a string; we instead provide an array of bytes
+# composed of two header bytes and two data bytes.
 def writePacket(dataByte1, dataByte2):
     ser.write(bytearray([HEADER_KEY_OUT_1, HEADER_KEY_OUT_2,
                          dataByte1, dataByte2]))
@@ -111,7 +98,7 @@ def sendPing():
     global pingStartTime
 
     pingStartTime = clock()
-    # Zeros are garbage data
+    # Zero is garbage data
     writePacket(HEADER_KEY_PING, 0)
 
 def getPingTime():
@@ -129,4 +116,28 @@ def sendMotorSignal(motorNumber, motorSpeedByte):
 def queryMotorSpeed(motorNumber):
     writePacket(HEADER_KEY_QUERY_MOTOR_SPEED, motorNumber)
 
+def reinit_all_motors():
+    writePacket(HEADER_KEY_REINIT_MOTORS, 0)  # Zero is a filler byte
 
+# Set up serial communication and start data reading thread
+# Returns -1 if an error occurred during serial connection 
+# Returns 0 otherwise
+# On Unix-like systems, serialPort is the name of the serial device file
+def arduinoSetup(serialPort):
+    global ser
+
+    try:
+        ser = serial.Serial(serialPort)
+    except (OSError, serial.SerialException):
+        print "arduinoSetup: Serial '" + str(serialPort) + "' did not connect"
+        return -1
+    # Reinitialize motors
+    reinit_all_motors()
+    # Periodically read data on seperate thread
+    start_new_thread(__updateData__, ())
+    return 0
+
+def __updateData__():
+    while True:
+        sleep(WAIT_TIME)  # wait, then read any packets that have come in.
+        readAllPackets()

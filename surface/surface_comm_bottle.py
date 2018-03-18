@@ -19,18 +19,6 @@ def store_state(component, state):
     # transmitted from the web interface)
     controller_state[component] = float(state)
 
-
-# global Motor_Joystick_X
-# global Motor_Joystick_Y
-# global DPad_X
-# global DPad_Y
-# global Right_Trigger
-
-# Motor_Joystick_X = 0
-# Motor_Joystick_Y = 0
-# DPad_X = 0
-# DPad_Y = 0
-
 def test_transform(value):
     return "look at me! I work!" + value
 
@@ -42,14 +30,6 @@ def getsensor():
     # in order for the web interface to communicate at all.
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     return json.dumps(sensors)
-
-# @get('/motor/<motor>/<value>')
-# # Expects motor arguement to be motor numbers as indicated in the motor diagram
-# # in internal_communication.py and value to be a float between -1 and 1,
-# # where -1 is reverse full thrust and 1 is forward full thrust.
-# def compute_and_set_motor_speed(motor, value):
-#     sendMotorSignal(motor - 1,  # decrease motor by one to get index of motor in array Motors[] aboard the Arduino
-#                     trunc(value * 256) + 128)  # scale to 8-bit byte
 
 
 # For input on moving left and right ("strafing")
