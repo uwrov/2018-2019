@@ -2,7 +2,7 @@
 # appropriately.
 
 from math import sqrt
-from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed
+from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing
 from thread import start_new_thread
 from time import clock, sleep
 import bottle, surface_comm_bottle
@@ -109,7 +109,7 @@ def compute_and_transmit_motor_states():
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
 
 # Init communications
-if (arduinoSetup("/dev/ttyACM1") == 0):
+if (arduinoSetup("/dev/ttyACM0") == 0):
     # This expression will start periodically computating and transmitting motor states
     start_new_thread(compute_and_transmit_motor_states, ())
     start_new_thread(lambda : bottle.run(host='localhost', port=8085), ())

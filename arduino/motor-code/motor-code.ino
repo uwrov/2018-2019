@@ -20,7 +20,7 @@ const int HEADER_KEY_IN_2 = 151;
 const int HEADER_KEY_LIGHT = 101; // switching LED state
 const int HEADER_KEY_PING = 102; // returning ping
 const int HEADER_KEY_QUERY_MOTOR_SPEED = 103; // ask for speed of motor
-const int HEADER_KEY_REINIT_MOTORS = 104;  // reinitilize motors
+const int HEADER_KEY_ZERO_ALL_MOTORS = 104;  // Rezero all motors and wait 3 seconds
 
 
 /* headers for outgoing data */
@@ -117,6 +117,15 @@ void init_all_motors () {
     attach_motor_to_pin(&Motors[i], MOTOR_PINS[i]);
     zero_motor(&Motors[i]);
   }
+  delay(3000); // Part of motor initialization routine
+}
+
+void zero_all_motors () {
+  int i;
+  for (i = 0; i < NUM_MOTORS; i++) {
+    zero_motor(&Motors[i]);
+  }
+  delay(3000);
 }
 
 void fire_all_motors () {
@@ -182,14 +191,14 @@ void read_and_process_packets () {
         write_packet(HEADER_KEY_QUERY_MOTOR_SPEED,
                      255 * (Motors[Serial.read()].spd - (float)MOTOR_MIN_SPEED) / (float)MOTOR_HALF_RANGE / 2.);
         break;
-      case HEADER_KEY_REINIT_MOTORS:
-        init_all_motors();
+      case HEADER_KEY_ZERO_ALL_MOTORS:
+        zero_all_motors();
         read_and_discard_one_packet();
+        break;
       default:                // Packet assumed to control motors
         // Control byte is assumed to refer to the motor number (array index)
         motor_power_byte = Serial.read();
         compute_and_set_new_motor_speed(&Motors[control_byte], motor_power_byte);
-        break;
       }
     }
   }
@@ -203,7 +212,6 @@ void setup() {
 
   init_all_motors();
 
-  delay(3000); // Part of motor initialization routine
   pinMode(LED_PIN, OUTPUT);
 
 }

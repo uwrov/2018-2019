@@ -17,7 +17,7 @@ HEADER_KEY_PNEUMATICS = 100
 HEADER_KEY_LIGHT = 101  # Toggle LED
 HEADER_KEY_PING = 102
 HEADER_KEY_QUERY_MOTOR_SPEED = 103
-HEADER_KEY_REINIT_MOTORS = 104
+HEADER_KEY_ZERO_ALL_MOTORS = 104
 HEADER_KEY_HOLD_ON = 110
 HEADER_KEY_HOLD_OFF = 111
 
@@ -116,8 +116,9 @@ def sendMotorSignal(motorNumber, motorSpeedByte):
 def queryMotorSpeed(motorNumber):
     writePacket(HEADER_KEY_QUERY_MOTOR_SPEED, motorNumber)
 
-def reinit_all_motors():
-    writePacket(HEADER_KEY_REINIT_MOTORS, 0)  # Zero is a filler byte
+def zero_all_motors():
+    print("Motors Zeroed.")
+    writePacket(HEADER_KEY_ZERO_ALL_MOTORS, 0)  # Zero is a filler byte
 
 # Set up serial communication and start data reading thread
 # Returns -1 if an error occurred during serial connection 
@@ -131,8 +132,8 @@ def arduinoSetup(serialPort):
     except (OSError, serial.SerialException):
         print "arduinoSetup: Serial '" + str(serialPort) + "' did not connect"
         return -1
-    # Reinitialize motors
-    reinit_all_motors()
+    # Zero motors
+    zero_all_motors()
     # Periodically read data on seperate thread
     start_new_thread(__updateData__, ())
     return 0
