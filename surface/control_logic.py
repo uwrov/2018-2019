@@ -6,7 +6,6 @@ from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, que
 from thread import start_new_thread
 from time import clock, sleep
 import bottle, surface_comm_bottle
-# import Motor_Joystick_X, Motor_Joystick_Y, DPad_X, DPad_Y
 
 # The following are the states of the four lateral motors.
 # Each state is an array with values representing the relative speeds of motors
@@ -24,6 +23,11 @@ Strafe_Right_State = [1, -1, 1, -1]
 Strafe_Forward_State = [1, 1, 1, 1]
 Strafe_Magnitude = 0.5  # default weight given to strafing
 
+def joystick_updated_p():
+    return surface_comm_bottle.state_of("update-required")
+
+def reset_joystick_updated():
+    surface_comm_bottle.store_state("update-required", False)
 
 # Adds lists of numbers together.  All lists must be the same length.
 def add_lists(*lists):
@@ -95,17 +99,19 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
 # Computes and transmits motor states to Arduino.
 def compute_and_transmit_motor_states():
     while True:
-        lateral_motor_speeds = compute_lateral_motor_composite_state(
-            surface_comm_bottle.state_of("rstick-x"),
-            surface_comm_bottle.state_of("rstick-y"),
-            surface_comm_bottle.state_of("dpad-x"),
-            surface_comm_bottle.state_of("dpad-y"))
-        # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
-        for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
-            sendMotorSignal(motor_number, motor_speed)
-        # Vertical motors
-        sendMotorSignal(4, int(192 + 63 * surface_comm_bottle.state_of("rtrigger")))
-        sendMotorSignal(5, int(192 + 63 * surface_comm_bottle.state_of("rtrigger")))
+        if joystick_updated_p():  # only compute and transmit if state has changed
+            reset_joystick_updated()
+            lateral_motor_speeds = compute_lateral_motor_composite_state(
+                surface_comm_bottle.state_of("rstick-x"),
+                surface_comm_bottle.state_of("rstick-y"),
+                surface_comm_bottle.state_of("dpad-x"),
+                surface_comm_bottle.state_of("dpad-y"))
+            # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
+            for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
+                sendMotorSignal(motor_number, motor_speed)
+            # Vertical motors
+            sendMotorSignal(4, int(192 + 63 * surface_comm_bottle.state_of("rtrigger")))
+            sendMotorSignal(5, int(192 + 63 * surface_comm_bottle.state_of("rtrigger")))
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
 
 # Init communications

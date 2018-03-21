@@ -178,10 +178,6 @@ void read_and_process_packets () {
     if (read_and_verify_next_packet_headers()) {
       control_byte = Serial.read();
       switch (control_byte) {
-      case HEADER_KEY_LIGHT:  // Toggle LED
-        ledState = !ledState;
-        read_and_discard_one_packet();
-        break;
       case HEADER_KEY_PING:   // Ping back to surface
         write_packet(HEADER_KEY_PING, Serial.read());
         break;
@@ -193,6 +189,10 @@ void read_and_process_packets () {
         break;
       case HEADER_KEY_ZERO_ALL_MOTORS:
         zero_all_motors();
+        read_and_discard_one_packet();
+        break;
+      case HEADER_KEY_LIGHT:  // Toggle LED
+        ledState = !ledState;
         read_and_discard_one_packet();
         break;
       default:                // Packet assumed to control motors
@@ -213,6 +213,7 @@ void setup() {
   init_all_motors();
 
   pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
 
 }
 

@@ -8,7 +8,7 @@ from math import trunc
 
 # Joystick state variables
 
-controller_state = {"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "dpad-x" : 0, "dpad-y" : 0, "rtrigger" : -1}
+controller_state = {"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "dpad-x" : 0, "dpad-y" : 0, "rtrigger" : -1, "update-required": False}
 
 def state_of(component):
     return controller_state[component]
@@ -18,6 +18,7 @@ def store_state(component, state):
     # state is a string that represents a float (the joystick value
     # transmitted from the web interface)
     controller_state[component] = float(state)
+    controller_state["update-required"] = True
 
 def test_transform(value):
     return "look at me! I work!" + value
