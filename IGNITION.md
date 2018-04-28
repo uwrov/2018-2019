@@ -94,7 +94,7 @@ Find the line resembling
 ```python
     start_new_thread(lambda : bottle.run(host='192.168.8.100', port=8085), ())
 ```
-(it very near the end of the file).
+(it is very near the end of the file).
 Replace the IP address (the `host=` argument) with the IP address of the Pi
 as needed.  Save the file and exit the editor.
 
