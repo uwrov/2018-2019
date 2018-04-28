@@ -61,7 +61,7 @@ router to the Pi.  Enter password when prompted.
 
 _Note: Due to a closed-source incompatibility with Microsoft's implementation
 of gamepad drivers, users of NT-derived operating systems will not have full
-control or functionality of the ROV.  It is recommended that one uses a
+control or functionality of the ROV.  It is recommended that one use a
 Unix-like operating system on the surface system connected to the gamepad._
 
 
