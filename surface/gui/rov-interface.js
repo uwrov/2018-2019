@@ -470,7 +470,10 @@
             // store new value, then transmit accordingly.
             AXIS_PREVIOUS_VALUE[index] = value;
             // FIXME: Change the URL in operation to correct IP address
-            var url = "http://localhost:8085/movement/";
+            // 192.168.8.100
+            // 192.168.8.101
+            // localhost
+            var url = "http://192.168.8.101:8085/movement/";
             switch(index){
             case AXIS.rstick_x:
                 url += "right-joystick-x";
