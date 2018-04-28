@@ -1,0 +1,78 @@
+Author: Nick Liu
+Date  : Apr.27.2018 19:42
+
+This document provides general directions to get live streaming from the 
+cameras mounted on the ROV.
+===============================================================================
+Requirements: 
+1. The ROV is powered (or the routers and pi are powered and connected with 
+   camera(s))
+   
+2. Connection to the router (ip address: 192.168.8.1)
+
+3. Putty (or other equivalent applications) to access pi's terminal
+
+4. Mount at least one camera
+
+5. Access to a browser
+===============================================================================
+Step 1: Find the ip address of pi
+1. Type "192.168.8.1" on the browser to access the router interface
+
+2. Login with user "admin" and password "admin"
+
+3. Go to "Advanced Settings" -> "DHCP Server" -> "DHCP Client List"
+
+4. Get the ip address (192.168.8.10X) assigned to the pi
+
+Note: Usually the pi gets assigned to the same ip address (192.168.8.100), 
+	  but there is no guarantee. 
+===============================================================================
+Step 2: Log into pi
+1. Enter pi's ip address (192.168.8.10X) to Putty's "Host Name" section; leave
+   the "Port" to "22"
+   
+2. Open a new session; a terminal of pi should pop up
+
+3. Login with user "pi" and password "raspberry"
+
+4. The camera(s) should startup automatically, indicated by the blue LED on the
+   camera(s) and commands of MJPG_STREAMER on the terminal
+
+Note: At startup, pi first runs the shell script "stop.sh" to release any 
+	  occupation on the camera(s), and then "streamer.sh" to start a 
+	  MJPG_STREAMER process for each mounted camera. The two shell scripts are
+	  located under the "/usr/local/bin/" directory. 
+===============================================================================
+Step 3: Get live streaming
+1. Open the browser, either on the device remotely accessing the pi or on the 
+   pi directly using VNCViewer (require both VNCServer and VNCViewer)
+   
+2. Type "http://192.168.8.10X:8081/?action=stream" (replace X with the digit in
+   the pi's ip address) to access the streaming of the first camera
+   
+3. Increment the port number by 1 each time to access other cameras if applied
+   For example, type "http://192.168.8.10X:8082/?action=stream" to access the 
+   second camer.
+===============================================================================
+Additional Notes:
+1. "sudo" command is required to edit "stop.sh" and "streamer.sh". 
+
+2. Please do not move these shell scripts to other directories. 
+
+3. "stop.sh" is a temporary solution to deal with the occupation on the cameras
+   at startup. It tries to kill the MJPG_STREAMER processes for a hard-coded(5)
+   amount of time, in case the script runs into an infinite loop. Future 
+   modification is desired, but not required. 
+   
+4. After "streamer.sh" starts the MJPG_STREAMER processes for all cameras, you
+   can kill these processes using the keyboard combination "Ctrl + C" and
+   run "streamer.sh" again manually. 
+   
+5. However, "Ctrl + C" cannot kill the MJPG_STREAMER processes afterwards 
+   within the same session. You need to use bash command "kill $(pgrep mjpg)" 
+   or "pkill mjpg_streamer" to kill the MJPG_STREAMER processes. An explanation
+   of this behavior is desirable.
+
+6. The surface interface for the streaming has not been implemented. It is 
+   desirable to know how to send commands such as restart to the pi. 
