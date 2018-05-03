@@ -59,9 +59,14 @@ def accelerate_forward_backward(gamepadValue):
 
 # Moving up and down
 @get("/movement/right-trigger/<gamepadValue>")
-def vertical_movement(gamepadValue):
+def vertical_movement_down(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("rtrigger", gamepadValue)
+
+@get("/movement/left-trigger/<gamepadValue>")
+def vertical_movement_up(gamepadValue):
+    bottle.response.set_header("Access-Control-Allow-Origin", "*")
+    store_state("ltrigger", gamepadValue)
 
 
 # This form starts the web server (run() is from bottle)

@@ -1,5 +1,4 @@
-# Interprets data received from surface GUI and fires motors and arms
-# appropriately.
+# Interprets data received from surface GUI and fires motors appropriately.
 
 from math import sqrt
 from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing
@@ -19,7 +18,7 @@ import bottle, surface_comm_bottle
 Rotating_State = [1, -1, 1, -1]
 # Robot moves straight forward
 Forward_State = [1, 1, 1, 1]
-Strafe_Right_State = [1, -1, 1, -1]
+Strafe_Right_State = [1, -1, -1, 1]
 Strafe_Forward_State = [1, 1, 1, 1]
 Strafe_Magnitude = 0.5  # default weight given to strafing
 
@@ -81,7 +80,7 @@ def convert_list_to_motor_bytes (lst):
 # Computes speeds of motors by composing and scaling states for joystick and dpad.
 def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x, strafe_y):  # This ain't terribly functional.
     # Give weight to Rotating_State and Forward_State; add two together.
-    # Joystick y must be degated because the controller reports full forward
+    # Joystick y must be negated because the controller reports full forward
     # as -1 .
     net_state = add_lists(scale_list(Rotating_State, m_joystick_x),
                           scale_list(Forward_State, -m_joystick_y))
@@ -109,16 +108,19 @@ def compute_and_transmit_motor_states():
             # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
             for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
                 sendMotorSignal(motor_number, motor_speed)
-            # Vertical motors
-            sendMotorSignal(4, int(192 + 63 * surface_comm_bottle.state_of("rtrigger")))
-            sendMotorSignal(5, int(192 + 63 * surface_comm_bottle.state_of("rtrigger")))
+            # Vertical motors --- right gamepad trigger pushes robot up; left one pushes robot down.
+            vert_motor_byte = int(128 + 127 * (surface_comm_bottle.state_of("rtrigger")
+                                              - surface_comm_bottle.state_of("ltrigger")))
+            sendMotorSignal(4, vert_motor_byte)
+            sendMotorSignal(5, vert_motor_byte)
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
 
 # Init communications
 if (arduinoSetup("/dev/ttyACM0") == 0):
     # This expression will start periodically computating and transmitting motor states
     start_new_thread(compute_and_transmit_motor_states, ())
-    start_new_thread(lambda : bottle.run(host='localhost', port=8085), ())
+    # Start the Bottle server to receive communications from surface
+    start_new_thread(lambda : bottle.run(host='192.168.8.101', port=8085), ())
 
 
 # def tester():
