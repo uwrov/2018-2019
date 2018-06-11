@@ -54,6 +54,7 @@ motors = {0 : 128, 1: 128, 2: 128, 3: 128, 4: 128, 5: 128}
 #  4 \     / 3
 #
 # Lateral motors: 1,2,3,4.     Vertical motors: 5,6
+# FIXME: Check to see if the above diagram is correct, especially for the lateral motors.
 
 
 # ser.write() normally takes a string; we instead provide an array of bytes
@@ -110,6 +111,12 @@ def toggleLED():
     writePacket(HEADER_KEY_LIGHT, 0)
 
 # Abstraction.  Send a packet telling the Arduino to change the speed of the indicated motor to that indicated by the speed byte
+# A motor's motorNumber is two less than the pin number the motor is
+# connected to on the Arduino, one less than the associated number in the
+# robot schematic near the top of this file (hopefully...), and equal
+# to the index of the motor in the array that holds motor --structs--
+# on the Arduino (these three formulas should give the same number).
+#   --> Upshot: motorNumbers of 0-3 indicate the lateral motors; 4 & 5 indicate the vertical ones.
 def sendMotorSignal(motorNumber, motorSpeedByte):
     writePacket(motorNumber, motorSpeedByte)
 

@@ -67,19 +67,20 @@ Unix-like operating system on the surface system connected to the gamepad._
 
 ## Start Python server
 
+**Please be advised:** The following section has been automated by placing the
+commands indicated below in the file `~/.bashrc`.  The Python server should
+start up automagically in interactive mode upon login to the Pi.  No attempt
+is made to determine the correct IP address; it is assumed that the router has
+assigned the Pi to `192.168.8.101`.  If this has changed, then you ***should***
+follow the instructions below to manually configure the IP address and start
+the server.  Note also that in `~/.bashrc`, the permissions of `/dev/ttyACM0`
+are not set using `chmod`.
+
+
+
 This is a pain.
 
-Once you have logged into the Pi, run the following in the Pi's console
-to obtain access to the serial device that the Pi uses to communicate with
-the Arduino:
-```
-sudo chmod 666 /dev/ttyACM0
-```
-_(Note: If `/dev/ttyACM0` does not exist, try `/dev/ttyACM1`.  If this occurs,
-you will also have to replace the former with the latter in the file
-"surface/control_logic.py" similar to the instructions below)_
-
-Enter the following at the Pi's console:
+Once you have logged into the Pi, enter the following at the Pi's console:
 ```
 cd 2017-2018/surface
 ```
@@ -92,7 +93,7 @@ nano control_logic.py
 _(You must be in the directory "2017-2018/surface" for the above to work.)_
 Find the line resembling
 ```python
-    start_new_thread(lambda : bottle.run(host='192.168.8.100', port=8085), ())
+    start_new_thread(lambda : bottle.run(host='192.168.8.101', port=8085), ())
 ```
 (it is very near the end of the file).
 Replace the IP address (the `host=` argument) with the IP address of the Pi
@@ -110,6 +111,19 @@ command line.
 
 **TODO:** Store Pi's IP address in an environment variable to avoid having to
 edit "control_logic.py".
+**TODO:** Move ~/.bashrc commands to a different file that executes only upon login, not upon starting a new shell.
+
+
+**If** Python complains about not having permission to open `/dev/ttyACM0`,
+run the following in the Pi's console to obtain access to `/dev/ttyACM0`
+(the serial device that the Pi uses to communicate with the Arduino):
+```
+sudo chmod 666 /dev/ttyACM0
+```
+If `/dev/ttyACM0` does not exist, try `/dev/ttyACM1`.  If this occurs,
+you will also have to replace the former with the latter in the file
+"surface/control_logic.py" similar to the instructions above)_
+
 
 
 ## Start web interface

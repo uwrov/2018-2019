@@ -1,7 +1,7 @@
 # Interprets data received from surface GUI and fires motors appropriately.
 
 from math import sqrt
-from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing
+from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing, zero_all_motors
 from thread import start_new_thread
 from time import clock, sleep
 import bottle, surface_comm_bottle

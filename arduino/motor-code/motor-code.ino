@@ -9,6 +9,12 @@ typedef struct Motor {
 
 /* *** PACKET HEADERS and CONSTANTS *** */
 
+/* A packet consists of four 8-bit bytes.  The first two bytes are always */
+/* HEADER_KEY_IN_1 and HEADER_KEY_IN_2 .  The third byte is a control byte */
+/* that determines what action to take; the fourth byte is a data byte */
+/* whose meaning depends on the value of the control byte --- see */
+/* read_and_process_packets() for details. */
+
 const int PACKET_SIZE = 4;
 
 /* headers for incoming data */
@@ -37,7 +43,7 @@ const int SENSOR_ITERATION = 10;  // number of times loop() must be executed in 
 /* ** LED ** */
 
 const int LED_PIN = 13;
-int ledState = LOW;  // Is the LED on or off?
+int ledState = LOW;  // Is the LED on or off?  (LOW --> off)
 
 
 /* *** SENSOR CONSTANTS and GLOBALS *** */
@@ -143,6 +149,7 @@ void handle_led() {
 
 /* *** COMMUNICATION *** */
 
+// Send a packet back to Pi
 void write_packet (int byte1, int byte2) {
   Serial.write(HEADER_KEY_OUT_1);
   Serial.write(HEADER_KEY_OUT_2);
@@ -168,15 +175,21 @@ void read_and_discard_one_packet () {
   Serial.read();  // Abstraction function for clarity.  :)
 }
 
+/* Reads first two bytes of next packet and returns boolean indicating */
+/* whether or not they match the correct header bytes.  If they do not, 
+/* then the packet is assumed to be corrupted and a logical FALSE is returned. */
 int read_and_verify_next_packet_headers () {
   return (Serial.read() == HEADER_KEY_IN_1 && Serial.read() == HEADER_KEY_IN_2);
 }
 
 void read_and_process_packets () {
   int control_byte, motor_power_byte;
+  // Are there enough bytes to make a packet?
   while (Serial.available() >= PACKET_SIZE) {
+    // Are the first two bytes of the next packet correct?
     if (read_and_verify_next_packet_headers()) {
       control_byte = Serial.read();
+      // Determine what to do with rest of packet on basis of control byte.
       switch (control_byte) {
       case HEADER_KEY_PING:   // Ping back to surface
         write_packet(HEADER_KEY_PING, Serial.read());
@@ -196,7 +209,11 @@ void read_and_process_packets () {
         read_and_discard_one_packet();
         break;
       default:                // Packet assumed to control motors
-        // Control byte is assumed to refer to the motor number (array index)
+        /* Control byte is assumed to refer to the index of the motor in the array Motors[]. */
+        /* Therefore, a control-byte of 0 would refer to the motor connected to */
+        /* pin 2 (the first number in constant array MOTOR_PINS) */
+        /* In other words, control bytes are two less than the pin number */
+        /* of the motor they refer to. */
         motor_power_byte = Serial.read();
         compute_and_set_new_motor_speed(&Motors[control_byte], motor_power_byte);
       }
