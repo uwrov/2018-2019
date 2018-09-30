@@ -6,7 +6,7 @@ from thread import start_new_thread
 from time import clock, sleep
 import bottle, surface_comm_bottle
 
-# The following are the states of the four lateral motors.
+# The following are states for the four lateral motors.
 # Each state is an array with values representing the relative speeds of motors
 # that will rotate the robot, move it forward, and etc.
 # A value of 1 indicates full forward thurst for a motor; -1 indicates
@@ -22,6 +22,28 @@ Strafe_Right_State = [1, -1, -1, 1]
 Strafe_Forward_State = [1, 1, 1, 1]
 Strafe_Magnitude = 0.5  # default weight given to strafing
 
+# When the robot operator tells the robot to move, 
+# this program will take linear combinations of the above states
+# to compute what speeds to run the motors at 
+# in order to move the robot in the instructed fashion.
+# For example, if the operator were pushing the right gamepad stick forward and slightly to the left, 
+# he or she would be telling the robot to move forward while turning left (ccw).
+# This program would see that the joystick is displaced, say, X units on the x-axis and Y units on the y-axis.
+# This programs knows that the gamepad stick's x-axis corresopnds to rotation, 
+# while the y-axis coresponds to forward/backward movement.
+# The program would therefore calculate the following (pseudo-code) using the states defined above:
+#
+#   X*Rotating_State + Y*Forward_State
+#
+# The program then scales the resulting vector such that its largest element has a magnitude of 1.
+# Then the program multiplies the vector by sqrt(X^2+Y^2) 
+# so that the gamepad stick's displacement from center controls the overall speed of the actual movement
+# (the more you displace the gamepad stick, the faster the robot goes).
+# It then scales and shifts the vector so that its values lie in between 0 to 255, the acceptable range of a motor byte
+# used to communicate with the Arduino (see internal_communication.py and arduino/motor-code/motor-code.ino for details).
+# Finally, it transmits the just-computed motor bytes using the functions defined in internal_communication.py
+# to the Arduino, which actuates the motors.
+
 def joystick_updated_p():
     return surface_comm_bottle.state_of("update-required")
 
@@ -32,7 +54,7 @@ def reset_joystick_updated():
 def add_lists(*lists):
     list_of_lists = list(lists)
     result = list_of_lists.pop()  # init result with first list
-    # loop through all lists and add to result.
+    # loop through all remaining lists and add to result.
     for l in list_of_lists:
         for i in range(len(l)):
             result[i] += l[i]
