@@ -177,7 +177,7 @@
 	/*
 	 * Resizes a given camera img feed such that it fills the area it is in
 	 * without stretching or overflowing the area borders.
-	 * 
+	 *
 	 * @param {img DOM Element} cam An HTML img tag to resize
 	 */
 	 function resizeCam(cam) {
@@ -251,9 +251,9 @@
 	 	var cam3ip = cameraIP + ":" + $("#cam3port").val();
 
 		//Set new camera feed ip sources
-		$("#cam-one").attr("src", "http://" + cam1ip);
-		$("#cam-two").attr("src", "http://" + cam2ip);
-		$("#cam-three").attr("src", "http://" + cam3ip);
+		$("#cam-one").attr("src", "http://" + cam1ip + "/?action=stream");
+		$("#cam-two").attr("src", "http://" + cam2ip + "/?action=stream");
+		$("#cam-three").attr("src", "http://" + cam3ip + "/?action=stream");
 
 		//Set config links
 		var configUrlStart = "http://" + cameraIP + ":" + CAMERA_PORT + "/";
@@ -269,7 +269,7 @@
 
 	/*
 	 * Sends a HTTP GET request to a given URL.
-	 * 
+	 *
 	 * @param {String} url The URL to send the request to
 	 */
 	 function httpGet(url) {
@@ -295,7 +295,7 @@
 
 	/*
 	 * Sends a HTTP GET request with a given motion action for a given camera.
-	 * 
+	 *
 	 * @param {Number} camNum The number of the camera
 	 * @param {String} action The motion action of the camera (e.g. quit, restart)
 	 */
@@ -307,7 +307,7 @@
 	 /*
 	  * Sends a HTTP GET request to set a given config option to a given value
 	  * for a given camera.
-	  * 
+	  *
 	  * @param {Number} camNum The number of the camera
 	  * @param {String} option The name of the config option to set
 	  * @param {Number} value The value to set the config option to
