@@ -28,12 +28,8 @@
     var AXIS = {
         lstick_x: 0,  // Left stick, x axis
         lstick_y: 1,  // Go figure.
-        ltrigger: 2,  // Left trigger
-        rstick_x: 3,  // Strangely, the pattern repeats.
-        rstick_y: 4,
-        rtrigger: 5,
-        dpad_x: 6,
-        dpad_y: 7
+        rstick_x: 2,  // Strangely, the pattern repeats.
+        rstick_y: 3
     }
 
     // Previous values forr axes; used to compare and determine if
@@ -441,10 +437,10 @@
 	        buttonMappings[BUTTON.back].func = switchCams;
                 // EXPERIMENTAL function binding for buttons.
 	        buttonMappings[BUTTON.rt].func = function () {
-                    httpGet("/movement/right-trigger/1.0");
+                    httpGetWithResponse("http://192.168.8.102:8085/movement/right-trigger/1.0");
                 }
 	        buttonMappings[BUTTON.a].func = function () {
-                    httpGetWithResponse("http://localhost:8085/movement/right-trigger/1.0", function () {});
+                    httpGetWithResponse("http://192.168.8.102:8085/movement/right-trigger/1.0", function () {});
                 }
 
 	  	requestAnimationFrame(updateStatus);
@@ -473,7 +469,7 @@
             // 192.168.8.100
             // 192.168.8.101
             // localhost
-            var url = "http://192.168.8.101:8085/movement/";
+            var url = "http://192.168.8.102:8085/movement/";
             switch(index){
             case AXIS.rstick_x:
                 url += "right-joystick-x";
@@ -481,14 +477,11 @@
             case AXIS.rstick_y:
                 url += "right-joystick-y";
                 break;
-            case AXIS.dpad_x:
-                url += "dpad-x";
+            case AXIS.lstick_x:
+                url += "left-joystick-x";
                 break;
-            case AXIS.dpad_y:
-                url += "dpad-y";
-                break;
-            case AXIS.rtrigger:
-                url += "right-trigger";
+            case AXIS.lstick_y:
+                url += "left-joystick-y";
                 break;
             default:
                 url = null;
@@ -558,9 +551,9 @@
 	 		for (i = 0; i < controller.axes.length; i++) {
 	 			var a = axes_progress_bars[i];
 	 			a.innerHTML = i + ": " + controller.axes[i].toFixed(4);
-	 		        a.setAttribute("value", controller.axes[i] + 1);
-                                // Send axis value to robot
-                                maybe_transmit_axis_value(i, controller.axes[i]);
+        a.setAttribute("value", controller.axes[i] + 1);
+        // Send axis value to robot
+        maybe_transmit_axis_value(i, controller.axes[i]);
 	 		}
 	 	}
 

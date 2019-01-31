@@ -8,7 +8,7 @@ from math import trunc
 
 # Joystick state variables
 
-controller_state = {"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "dpad-x" : 0, "dpad-y" : 0, "rtrigger" : -1, "update-required": False}
+controller_state = {"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "dpad-x" : 0, "dpad-y" : 0, "rtrigger" : -1, "ltrigger" : 1, "update-required": False}
 
 def state_of(component):
     return controller_state[component]
