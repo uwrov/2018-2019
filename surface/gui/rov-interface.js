@@ -23,6 +23,12 @@
 		xb: 16			//Xbox button
 	}
 
+	var BUTTONID = {
+		0: "a",
+		1: "b",
+		
+	}
+
 
     // Indices of Xbox axes.
     var AXIS = {
@@ -433,18 +439,35 @@
    		//Add controller display to its panel
    		$("#controller-display").append(d);
 
-	  	//Map buttons to functions
-	        buttonMappings[BUTTON.back].func = switchCams;
-                // EXPERIMENTAL function binding for buttons.
-	        buttonMappings[BUTTON.rt].func = function () {
-                    httpGetWithResponse("http://192.168.8.102:8085/movement/right-trigger/1.0");
-                }
-	        buttonMappings[BUTTON.a].func = function () {
-                    httpGetWithResponse("http://192.168.8.102:8085/movement/right-trigger/1.0", function () {});
-                }
+		  //Map buttons to functions
+		
+		buttonMappings[BUTTON.back].func = switchCams;
+			// EXPERIMENTAL function binding for buttons.
+		buttonMappings[BUTTON.rt].func = function () {
+				httpGetWithResponse("http://192.168.8.102:8085/movement/right-trigger/1.0");
+			}
+		buttonMappings[BUTTON.lt].func = function () {
+				httpGetWithResponse("http://192.168.8.102:8085/movement/left-trigger/1.0");
+			}	
+		
 
 	  	requestAnimationFrame(updateStatus);
 	  }
+
+	//Decides functionality for each button input type
+	function processButtonInput(buttonID, pressed) {
+		switch (buttonID){
+			case BUTTON.back:
+				switchCams();
+				break;
+			default :
+				var status = 0.0;
+				if(pressed)
+					status = 1.0;
+				
+		}
+
+	}
 
 	/*
 	 * Removes the gamepad display for the given gamepad.
