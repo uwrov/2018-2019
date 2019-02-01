@@ -57,7 +57,8 @@
     // Data ---> axis_index : value
     // (axis_index is the numbers from AXIS)
     // Everything is initially zero.
-    var AXIS_PREVIOUS_VALUE = {0 : 0, 1 : 0, 2 : 0, 3 : 0, 4 : 0, 5 : 0, 6 : 0, 7 : 0};
+    var AXIS_PREVIOUS_VALUE = {0 : 0, 1 : 0, 2 : 0, 3 : 0, 4 : 0, 5 : 0, 6 : 0, 7 : 0, 8 : 0, 9 : 0, 10: 0, 11: 0, 
+		12 : 0, 13:0, 14:0, 15:0, 16:0};
     // Minimum value a stick on the controller must be displaced by
     // in order for the value to be transmitted.
     var MIN_STICK_DISP = 0.005;
@@ -562,7 +563,7 @@
 	 		for (i = 0; i < controller.buttons.length; i++) {
 	 			var b = buttons[i];
 	 			var val = controller.buttons[i];
-	 			var pressed = val == 1.0;
+	 			var pressed = controller.buttons[i];
 	 			if (typeof(val) == "object") {
 	 				pressed = val.pressed;
 	 				val = val.value;
@@ -587,12 +588,12 @@
 
 				//If the button is in a different state, responds by
 				//calling processButtonInput(buttonID, pressed)
-				if(!buttonMappings[i].prevState){
+				if(buttonMappings[i].prevState && buttonMappings[i].prevState != pressed){
 					//Call the function that button is mapped to
 					if(buttonMappings[i].func != null) {
 						//buttonMappings[i].func();
-						processButtonInput(i, pressed);
 					}
+					processButtonInput(i, pressed);
 				}
 	 			buttonMappings[i].prevState = pressed;
 	 		}
