@@ -23,12 +23,26 @@
 		xb: 16			//Xbox button
 	}
 
-	var BUTTONID = {
-		0: "a",
-		1: "b",
-		
+	//maps each integer id to a string
+	var BUTTON_NAME = {
+		0: "a",			//A
+		1: "b",			//B
+		2: "x",			//X
+		3: "y",			//Y
+		4: "lb",			//Left Bumper
+		5: "rb",			//Right Bumper
+		6: "lt",			//Left Trigger
+		7: "rt",			//Right Trigger
+		8: "back",		//Back
+		9: "start",		//Start
+		10: "lstick",		//Left Stick Click
+		11: "rstick",		//Right Stick Click
+		12: "dup",		//D-pad up
+		13: "ddown",		//D-pad down
+		14: "dleft",		//D-pad left
+		15: "dright",		//D-pad right
+		16: "xb"			//Xbox button
 	}
-
 
     // Indices of Xbox axes.
     var AXIS = {
@@ -440,7 +454,7 @@
    		$("#controller-display").append(d);
 
 		  //Map buttons to functions
-		
+
 		buttonMappings[BUTTON.back].func = switchCams;
 			// EXPERIMENTAL function binding for buttons.
 		buttonMappings[BUTTON.rt].func = function () {
@@ -448,23 +462,34 @@
 			}
 		buttonMappings[BUTTON.lt].func = function () {
 				httpGetWithResponse("http://192.168.8.102:8085/movement/left-trigger/1.0");
-			}	
-		
+			}
+
 
 	  	requestAnimationFrame(updateStatus);
 	  }
 
-	//Decides functionality for each button input type
+	//Decides action to take for each button input type when pressed/unpressed
 	function processButtonInput(buttonID, pressed) {
 		switch (buttonID){
-			case BUTTON.back:
-				switchCams();
+			case BUTTON.back: //switches camera views
+				if(pressed)
+					switchCams();
+				break;
+			case BUTTON.start: //reverse-switches camera views
+				if(pressed)
+					switchCams();
+				break;
+			case BUTTON.a:
+			case BUTTON.b:
+			case BUTTON.x:
+			case BUTTON.y:
 				break;
 			default :
 				var status = 0.0;
 				if(pressed)
 					status = 1.0;
-				
+				httpGetWithResponse("http://192.168.8.102:8085/movement/" + BUTTON_NAME[buttonID] + "/" + status);
+
 		}
 
 	}
@@ -556,16 +581,19 @@
 	 			//If the button is pressed...
 	 			if (pressed) {
 	 				b.className = "button pressed";
-
-	 				if(!buttonMappings[i].prevState){
-	 					//Call the function that button is mapped to
-	 					if(buttonMappings[i].func != null) {
-	 						buttonMappings[i].func();
-	 					}
-	 				}
 	 			} else {
 	 				b.className = "button";
 	 			}
+
+				//If the button is in a different state, responds by
+				//calling processButtonInput(buttonID, pressed)
+				if(!buttonMappings[i].prevState){
+					//Call the function that button is mapped to
+					if(buttonMappings[i].func != null) {
+						//buttonMappings[i].func();
+						processButtonInput(i, pressed);
+					}
+				}
 	 			buttonMappings[i].prevState = pressed;
 	 		}
 

@@ -41,9 +41,9 @@ Cross-Origin Request Permissions:
 https://stackoverflow.com/questions/667519/firefox-setting-to-enable-cross-domain-ajax-request
 https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 
-Notes on Xbox Inputs:
+##Notes on Xbox Inputs:
 
-Button inputs are labelled as follows.
+#Button inputs are labelled as follows.
 A, B, X, and Y: a, b, x, y
 Left Bumper, Right Bumper: lb, rb
 Left Trigger, Right Trigger: lt, rt
@@ -53,8 +53,7 @@ D-Pad (up, down, left, right) dup, ddown, dleft, dright
 Xbox Button: xb
 
 Axes are represented in the following array:
-[Left stick x: 0, Left stick y: 1, Right stick x: 2, Right stick y: 3]
+[lstick-x: 0, lstick-y: 1, rstick-x: 2, rstick-y: 3]
 Values range from -1 to 1 for each stick
 x: -1 is left, 1 is right
 y: -1 is up, 1 is down
-
