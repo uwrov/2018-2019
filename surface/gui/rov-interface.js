@@ -487,8 +487,9 @@
 				break;
 			default :
 				var status = 0.0;
-				if(pressed)
+				if(pressed) {
 					status = 1.0;
+				}
 				httpGetWithResponse("http://192.168.8.102:8085/movement/" + BUTTON_NAME[buttonID] + "/" + status);
 
 		}
@@ -563,7 +564,7 @@
 	 		for (i = 0; i < controller.buttons.length; i++) {
 	 			var b = buttons[i];
 	 			var val = controller.buttons[i];
-	 			var pressed = controller.buttons[i];
+	 			var pressed = controller.buttons[i].pressed;
 	 			if (typeof(val) == "object") {
 	 				pressed = val.pressed;
 	 				val = val.value;
@@ -588,7 +589,7 @@
 
 				//If the button is in a different state, responds by
 				//calling processButtonInput(buttonID, pressed)
-				if(buttonMappings[i].prevState && buttonMappings[i].prevState != pressed){
+				if(buttonMappings[i].prevState != null && buttonMappings[i].prevState != pressed){
 					//Call the function that button is mapped to
 					if(buttonMappings[i].func != null) {
 						//buttonMappings[i].func();
@@ -599,15 +600,15 @@
 	 		}
 
 	 		//Update controller joystick displays
-	 		var axes_progress_bars = d.getElementsByClassName("axis");
-	 		for (i = 0; i < controller.axes.length; i++) {
-	 			var a = axes_progress_bars[i];
-	 			a.innerHTML = i + ": " + controller.axes[i].toFixed(4);
-        a.setAttribute("value", controller.axes[i] + 1);
-        // Send axis value to robot
-        maybe_transmit_axis_value(i, controller.axes[i]);
-	 		}
-	 	}
+			var axes_progress_bars = d.getElementsByClassName("axis");
+			for (i = 0; i < controller.axes.length; i++) {
+				var a = axes_progress_bars[i];
+				a.innerHTML = i + ": " + controller.axes[i].toFixed(4);
+				a.setAttribute("value", controller.axes[i] + 1);
+				// Send axis value to robot
+				maybe_transmit_axis_value(i, controller.axes[i]);
+			}
+		}
 
 	 	requestAnimationFrame(updateStatus);
 	 }

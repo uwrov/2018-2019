@@ -8,7 +8,8 @@ from math import trunc
 
 # Joystick state variables
 
-controller_state = {"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "dpad-x" : 0, "dpad-y" : 0, "rtrigger" : -1, "ltrigger" : 1, "update-required": False}
+controller_state = {"rb": 0, "lb": 0, "dup": 0, "ddown": 0, "dleft":0, "dright":0, 
+	"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "ltrigger" : 0, "rtrigger" : 0, "update-required": False}
 
 def state_of(component):
     return controller_state[component]
@@ -34,16 +35,26 @@ def getsensor():
 
 
 # For input on moving left and right ("strafing")
-@get("/movement/dpad-x/<gamepadValue>")
-def strafe_left_right(gamepadValue):
+@get("/movement/dleft/<gamepadValue>")
+def strafe_left(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
-    store_state("dpad-x", gamepadValue)
+    store_state("dleft", gamepadValue)
+	
+@get("/movement/dright/<gamepadValue>")
+def strafe_right(gamepadValue):
+    bottle.response.set_header("Access-Control-Allow-Origin", "*")
+    store_state("dright", gamepadValue)
 
 # Moving forward and backward
-@get("/movement/dpad-y/<gamepadValue>")
-def strafe_forward_backward(gamepadValue):
+@get("/movement/dup/<gamepadValue>")
+def strafe_forward(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
-    store_state("dpad-y", gamepadValue)
+    store_state("dup", gamepadValue)
+	
+@get("/movement/ddown/<gamepadValue>")
+def strafe_backwards(gamepadValue):
+    bottle.response.set_header("Access-Control-Allow-Origin", "*")
+    store_state("ddown", gamepadValue)
 
 # Rotating
 @get("/movement/right-joystick-x/<gamepadValue>")
@@ -56,17 +67,42 @@ def rotate_robot(gamepadValue):
 def accelerate_forward_backward(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("rstick-y", gamepadValue)
+	
+#Strafing
+@get("/movement/left-joystick-x/<gamepadValue>")
+def rotate_robot(gamepadValue):
+    bottle.response.set_header("Access-Control-Allow-Origin", "*")
+    store_state("lstick-x", gamepadValue)
 
-# Moving up and down
-@get("/movement/right-trigger/<gamepadValue>")
-def vertical_movement_down(gamepadValue):
+# Accelerating forward, somewhat in direction of of rotation
+@get("/movement/left-joystick-y/<gamepadValue>")
+def accelerate_forward_backward(gamepadValue):
+    bottle.response.set_header("Access-Control-Allow-Origin", "*")
+    store_state("lstick-y", gamepadValue)
+
+# Changing Speed
+@get("/movement/rt/<gamepadValue>")
+def speed_fine(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("rtrigger", gamepadValue)
 
-@get("/movement/left-trigger/<gamepadValue>")
-def vertical_movement_up(gamepadValue):
+@get("/movement/lt/<gamepadValue>")
+def speed_coarse(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("ltrigger", gamepadValue)
+	
+	# Moving up and down
+@get("/movement/rb/<gamepadValue>")
+def vertical_movement_down(gamepadValue):
+    bottle.response.set_header("Access-Control-Allow-Origin", "*")
+    store_state("rb", gamepadValue)
+
+@get("/movement/lb/<gamepadValue>")
+def vertical_movement_up(gamepadValue):
+    bottle.response.set_header("Access-Control-Allow-Origin", "*")
+    store_state("lb", gamepadValue)
+	
+
 
 
 # This form starts the web server (run() is from bottle)

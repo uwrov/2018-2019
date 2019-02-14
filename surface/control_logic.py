@@ -1,10 +1,10 @@
 # Interprets data received from surface GUI and fires motors appropriately.
 
 from math import sqrt
-from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing, zero_all_motors
+from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing, zero_all_motors, z
 from thread import start_new_thread
 from time import clock, sleep
-import bottle, surface_comm_bottle
+import bottle, surface_comm_bottle, sys
 
 # The following are states for the four lateral motors.
 # Each state is an array with values representing the relative speeds of motors
@@ -21,6 +21,12 @@ Forward_State = [1, 1, 1, 1]
 Strafe_Right_State = [1, -1, -1, 1]
 Strafe_Forward_State = [1, 1, 1, 1]
 Strafe_Magnitude = 0.5  # default weight given to strafing
+
+COARSE_SPEED = 127
+MEDIUM_SPEED = 60
+FINE_SPEED = 20
+
+ENABLE_INPUT = 1;
 
 # When the robot operator tells the robot to move, 
 # this program will take linear combinations of the above states
@@ -45,7 +51,7 @@ Strafe_Magnitude = 0.5  # default weight given to strafing
 # to the Arduino, which actuates the motors.
 
 def joystick_updated_p():
-    return surface_comm_bottle.state_of("update-required")
+    return ENABLE_INPUT and surface_comm_bottle.state_of("update-required")
 
 def reset_joystick_updated():
     surface_comm_bottle.store_state("update-required", False)
@@ -90,14 +96,24 @@ def normalize_list(lst):
     else:
         return scale_list(lst, (-lowest)**(-1))
 
+# Appears to currently be unused.
 def shift_and_scale_to_motor_byte(flt):
     # converts float to 8-bit motor byte; supplied float is assumed to be
     # w/in -1 to 1.
-    return int((flt * 127) + 128)
+    return int((flt * get_speed_mode()) + 128)
 
 # Scales list by factor of 128 and adds 128 to it to create a list of motor power bytes
 def convert_list_to_motor_bytes (lst):
-    return [int(speed + 128) for speed in scale_list(lst, 127)]
+    return [int(speed + 128) for speed in scale_list(lst, get_speed_mode())]
+    
+# Returns the current speed coefficient (RT is fine, LT is coarse, neither is medium).
+# Coefficients can be modified at the top of the program.
+def get_speed_mode():
+    if surface_comm_bottle.state_of("rtrigger") == 1:
+        return FINE_SPEED;
+    elif surface_comm_bottle.state_of("ltrigger") == 1:
+        return COARSE_SPEED;
+    return MEDIUM_SPEED;
 
 # Computes speeds of motors by composing and scaling states for joystick and dpad.
 def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x, strafe_y):  # This ain't terribly functional.
@@ -122,28 +138,47 @@ def compute_and_transmit_motor_states():
     while True:
         if joystick_updated_p():  # only compute and transmit if state has changed
             reset_joystick_updated()
+            #Calculate motor speed
+            strafe_x_in = surface_comm_bottle.state_of("dright") - surface_comm_bottle.state_of("dleft") # Calculate strafe_x and strafe_y
+            strafe_y_in = surface_comm_bottle.state_of("dup") - surface_comm_bottle.state_of("ddown")
+            # Reads joystick if D-Pad has no input (or negates itself)
+            if strafe_x_in == 0 and strafe_y_in == 0:
+                strafe_x_in = surface_comm_bottle.state_of("lstick-x")
+                strafe_y_in = surface_comm_bottle.state_of("lstick-y")
             lateral_motor_speeds = compute_lateral_motor_composite_state(
-                surface_comm_bottle.state_of("rstick-x"),
-                surface_comm_bottle.state_of("rstick-y"),
-                surface_comm_bottle.state_of("dpad-x"),
-                surface_comm_bottle.state_of("dpad-y"))
+                    surface_comm_bottle.state_of("rstick-x"),
+                    surface_comm_bottle.state_of("rstick-y"),
+                    strafe_x_in, 
+                    strafe_y_in)
             # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
             for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
                 sendMotorSignal(motor_number, motor_speed)
             # Vertical motors --- right gamepad trigger pushes robot up; left one pushes robot down.
-            vert_motor_byte = int(128 + 127 * (surface_comm_bottle.state_of("rtrigger")
-                                              - surface_comm_bottle.state_of("ltrigger")))
+            vert_motor_byte = int(128 + get_speed_mode() * (surface_comm_bottle.state_of("rb")
+                                              - surface_comm_bottle.state_of("lb")))
             sendMotorSignal(4, vert_motor_byte)
             sendMotorSignal(5, vert_motor_byte)
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
 
+# Shell command, zeroes the motors and exits the program.
+def kill():
+    z()
+    quit()
+    
 # Init communications
 if (arduinoSetup("/dev/ttyACM0") == 0):
+    if (len(sys.argv) > 1):
+        # IMPORTANT NOTE! PASSING IN AN ARG WILL AUTOMATICALLY SET
+        # THE ROV TO TESTING MODE.
+        print("STARTED IN DEBUG MODE: Run without arguments to disable.")
+        ENABLE_INPUT = 0;
+    else:
+        print("STARTED IN OP MODE: (Run with arguments to enable debug mode.)")
+    print("Type kill() at any time to exit ROV operation safely.")
     # This expression will start periodically computating and transmitting motor states
     start_new_thread(compute_and_transmit_motor_states, ())
     # Start the Bottle server to receive communications from surface
-    start_new_thread(lambda : bottle.run(host='192.168.8.101', port=8085), ())
-
+    start_new_thread(lambda : bottle.run(host='192.168.8.102', port=8085), ())
 
 # def tester():
 #     while 1:
