@@ -6,6 +6,7 @@
 > 1. Turn key.  ROV should now start.
 > _Note: avoid flooding the carburetor._
 
+_Last Updated: 2/14/19 by Peyton Lee and Camila Kang
 
 Basic procedure:
 1. Wire everything up and power on the robot.
@@ -127,6 +128,7 @@ python -i control_logic.py 0
 edit "control_logic.py".
 **TODO:** Move ~/.bashrc commands to a different file that executes only upon login, not upon starting a new shell.
 
+**[TROUBLESHOOTING:]
 
 **If** Python complains about not having permission to open `/dev/ttyACM0`,
 run the following in the Pi's console to obtain access to `/dev/ttyACM0`
@@ -147,7 +149,8 @@ socket.error: [Errno 98] Address already in use
 ```
 ps -fA | grep python
 ```
-3. Locate the process ID number (the second column, usually to the right of the key 'pi') for any existing instance of control_logic.py.
+3. Locate the process ID number (the second column, usually to the right of the key 'pi') 
+for any existing instance of control_logic.py.
 4. LEAVE NO SURVIVORS. Type in the following command to kill the process.
 ```
 kill PROCESS_ID
@@ -178,6 +181,9 @@ Open the file "surface/gui/index.html" in Mozilla Firefox.  Plug a gamepad
 into the surface system.  If desired, click the gray stripe in the bottom-center
 of the page; it should open a pane with progress-bars and readouts that indicate
 what buttons and sticks you are pushing on the gamepad.
+
+Connect to the cameras by changing the IP address in the interface menu (upper
+gray bar) to the address of the Pi, usually 192.168.8.102.
 
 If you look over at the Raspberry Pi's console, you should now see text logging
 received gamepad input if you push a button or stick on the gamepad.  The ROV
