@@ -8,7 +8,7 @@
 
 
 Basic procedure:
-1. Wire everything up and power on the robot
+1. Wire everything up and power on the robot.
 1. Find ROV IP address
 1. Log in via Secure Shell (SSH)
 1. Start Python server.
@@ -51,10 +51,19 @@ Users of Microsoft Windows NT-derived operating systems should refer to Step 2
 ("Log into pi") in the file "camera/Camera_Doc.txt" for instructions on how to
 log into the Pi via SSH.
 
+_
+Step 2: Log into pi
+1. Enter pi's ip address (192.168.8.102) to Putty's "Host Name" section; leave
+   the "Port" to "22"
+   
+2. Open a new session; a terminal of pi should pop up
+
+3. Login with user "pi" and password "raspberry"_
+
 Users of Unix-like operating systems may log into the Pi by entering the
 following at the command line:
 ```
-ssh pi@192.168.8.10X
+ssh pi@192.168.8.102
 ```
 Replace the IP address following the "pi@" with the IP address assigned by the
 router to the Pi.  Enter password when prompted.
@@ -71,12 +80,10 @@ Unix-like operating system on the surface system connected to the gamepad._
 commands indicated below in the file `~/.bashrc`.  The Python server should
 start up automagically in interactive mode upon login to the Pi.  No attempt
 is made to determine the correct IP address; it is assumed that the router has
-assigned the Pi to `192.168.8.101`.  If this has changed, then you ***should***
+assigned the Pi to `192.168.8.102`.  If this has changed, then you ***should***
 follow the instructions below to manually configure the IP address and start
 the server.  Note also that in `~/.bashrc`, the permissions of `/dev/ttyACM0`
 are not set using `chmod`.
-
-
 
 This is a pain.
 
@@ -107,7 +114,14 @@ Python should now start up, start the web server in a separate thread, and enter
 interactive mode.  If you hit the return key, you should get a prompt (`>>> `).
 Typing Control-C will interrupt any command that takes too long to execute;
 Control-D or `exit()` will stop Python and return you the the Raspberry Pi's
-command line.
+command line. 
+
+**USE THE COMMAND kill() TO ZERO MOTORS AND EXIT SAFELY**
+
+_Note: To run the ROV in debug mode, add any argument to the end of the run statement._
+```
+python -i control_logic.py 0
+```
 
 **TODO:** Store Pi's IP address in an environment variable to avoid having to
 edit "control_logic.py".
@@ -124,7 +138,26 @@ If `/dev/ttyACM0` does not exist, try `/dev/ttyACM1`.  If this occurs,
 you will also have to replace the former with the latter in the file
 "surface/control_logic.py" similar to the instructions above)_
 
-
+**If** Python gives the following:
+```
+socket.error: [Errno 98] Address already in use
+```
+1. Exit Python using CTRL+D.
+2. Type the following command to search for instances of python currently running:
+```
+ps -fA | grep python
+```
+3. Locate the process ID number (the second column, usually to the right of the key 'pi') for any existing instance of control_logic.py.
+4. LEAVE NO SURVIVORS. Type in the following command to kill the process.
+```
+kill PROCESS_ID
+```
+5. Repeat step 5 to ensure there are no survivors.
+6. If the process(es) is still running, force their death by adding the following directive.
+```
+kill -9 PROCESS_ID
+```
+7. Revel in destruction.
 
 ## Start web interface
 
