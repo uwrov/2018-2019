@@ -4,7 +4,7 @@ from math import sqrt
 from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing, zero_all_motors, z
 from thread import start_new_thread
 from time import clock, sleep
-import bottle, surface_comm_bottle, sys
+import bottle, surface_comm_bottle, sys, socket, psutil
 
 # The following are states for the four lateral motors.
 # Each state is an array with values representing the relative speeds of motors
@@ -153,7 +153,7 @@ def compute_and_transmit_motor_states():
             # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
             for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
                 sendMotorSignal(motor_number, motor_speed)
-            # Vertical motors --- right gamepad trigger pushes robot up; left one pushes robot down.
+            # Vertical motors --- right gamepad bumper pushes robot down; left one pushes robot up.
             vert_motor_byte = int(128 + get_speed_mode() * (surface_comm_bottle.state_of("rb")
                                               - surface_comm_bottle.state_of("lb")))
             sendMotorSignal(4, vert_motor_byte)
@@ -164,6 +164,24 @@ def compute_and_transmit_motor_states():
 def kill():
     z()
     quit()
+    
+def initiate_communications():
+    # Start the Bottle server to receive communications from surface
+    max_attempts = 5
+    attempts = 0
+    while (attempts < max_attempts):
+        try:
+            #start_new_thread(lambda : bottle.run(host='192.168.8.102', port=8085), ())
+            bottle.run(host='192.168.8.102', port=8085)
+            break
+        except socket.error as serr:
+            print serr
+            print "[Error encountered. Attempt to kill processes and reconnect... ({}/{})]".format(attempts, max_attempts)
+            PROCNAME = "control_logic.py"
+            for proc in psutil.process_iter():
+                if PROCNAME in proc.name():
+                    proc.kill()
+        attempts = attempts - 1
     
 # Init communications
 if (arduinoSetup("/dev/ttyACM0") == 0):
@@ -177,8 +195,7 @@ if (arduinoSetup("/dev/ttyACM0") == 0):
     print("Type kill() at any time to exit ROV operation safely.")
     # This expression will start periodically computating and transmitting motor states
     start_new_thread(compute_and_transmit_motor_states, ())
-    # Start the Bottle server to receive communications from surface
-    start_new_thread(lambda : bottle.run(host='192.168.8.102', port=8085), ())
+    start_new_thread(initiate_communications(), ())
 
 # def tester():
 #     while 1:
