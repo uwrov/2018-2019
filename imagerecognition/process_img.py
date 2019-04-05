@@ -15,6 +15,7 @@ def count_shapes(image):
     print(height,width)
     #contours = filter_contours(contours)
     
+   
     ##Not sure if a single line would be regonized as a countor 
     #with two sides or one, therefore leaving the first dictionary just in case.
     shapes = {
