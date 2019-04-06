@@ -4,7 +4,7 @@ from math import sqrt
 from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing, zero_all_motors, z
 from thread import start_new_thread
 from time import clock, sleep
-import bottle, surface_comm_bottle, sys, socket, psutil
+import bottle, surface_comm_bottle, sys, socket, psutil, os
 
 # The following are states for the four lateral motors.
 # Each state is an array with values representing the relative speeds of motors
@@ -27,6 +27,7 @@ MEDIUM_SPEED = 60
 FINE_SPEED = 20
 
 ENABLE_INPUT = 1;
+MOTORS_ZEROED = 0;
 
 # When the robot operator tells the robot to move, 
 # this program will take linear combinations of the above states
@@ -136,7 +137,12 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
 # Computes and transmits motor states to Arduino.
 def compute_and_transmit_motor_states():
     while True:
-        if joystick_updated_p():  # only compute and transmit if state has changed
+        if surface_comm_bottle.state_of("leftstick") != 0:
+            if MOTORS_ZEROED == 0:
+                MOTORS_ZEROED = 1;
+                zero_all_motors();
+        elif joystick_updated_p():  # only compute and transmit if state has changed
+            MOTORS_ZEROED = 0;
             reset_joystick_updated()
             #Calculate motor speed
             strafe_x_in = surface_comm_bottle.state_of("dright") - surface_comm_bottle.state_of("dleft") # Calculate strafe_x and strafe_y
@@ -168,19 +174,24 @@ def kill():
 def initiate_communications():
     # Start the Bottle server to receive communications from surface
     max_attempts = 5
-    attempts = 0
-    while (attempts < max_attempts):
+    attempts = 5
+    while (attempts >= 0):
         try:
             #start_new_thread(lambda : bottle.run(host='192.168.8.102', port=8085), ())
             bottle.run(host='192.168.8.102', port=8085)
+            print "[Connected successfully.]"
             break
         except socket.error as serr:
             print serr
             print "[Error encountered. Attempt to kill processes and reconnect... ({}/{})]".format(attempts, max_attempts)
-            PROCNAME = "control_logic.py"
+            PROCNAME = "python"
+            myPID = psutil.Process(os.getpid()).pid
+            print myPID
             for proc in psutil.process_iter():
                 if PROCNAME in proc.name():
-                    proc.kill()
+                    if myPID != proc.pid:
+                        print "Attempting kill on {}, {}".format(proc.name(), proc.pid)
+                        proc.kill()
         attempts = attempts - 1
     
 # Init communications
@@ -195,7 +206,7 @@ if (arduinoSetup("/dev/ttyACM0") == 0):
     print("Type kill() at any time to exit ROV operation safely.")
     # This expression will start periodically computating and transmitting motor states
     start_new_thread(compute_and_transmit_motor_states, ())
-    start_new_thread(initiate_communications(), ())
+    start_new_thread(initiate_communications, ())
 
 # def tester():
 #     while 1:
