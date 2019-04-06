@@ -8,7 +8,7 @@ from math import trunc
 
 # Joystick state variables
 
-controller_state = {"rb": 0, "lb": 0, "dup": 0, "ddown": 0, "dleft":0, "dright":0, 
+controller_state = {"rb": 0, "lb": 0, "dup": 0, "ddown": 0, "dleft":0, "dright":0, "leftstick": 0, "rightstick": 0,
 	"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "ltrigger" : 0, "rtrigger" : 0, "update-required": False}
 
 def state_of(component):
@@ -101,7 +101,17 @@ def vertical_movement_down(gamepadValue):
 def vertical_movement_up(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("lb", gamepadValue)
-	
+    
+@get("/movement/lstick/<gamepadValue>")
+def resetMotorsLeft(gamepadValue):
+    bottle.response.set_header("Access-Control-Allow-Origin", "*")
+    store_state("leftstick", gamepadValue)
+
+@get("/movement/rstick/<gamepadValue>")
+def resetMotorsRight(gamepadValue):
+    bottle.response.set_header("Access-Control-Allow-Origin", "*")
+    store_state("rightstick", gamepadValue)
+    
 
 
 

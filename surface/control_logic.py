@@ -4,7 +4,7 @@ from math import sqrt
 from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing, zero_all_motors, z
 from thread import start_new_thread
 from time import clock, sleep
-import bottle, surface_comm_bottle, sys
+import bottle, surface_comm_bottle, sys, socket, psutil, os
 
 # The following are states for the four lateral motors.
 # Each state is an array with values representing the relative speeds of motors
@@ -27,6 +27,7 @@ MEDIUM_SPEED = 60
 FINE_SPEED = 20
 
 ENABLE_INPUT = 1;
+MOTORS_ZEROED = 0;
 
 # When the robot operator tells the robot to move, 
 # this program will take linear combinations of the above states
@@ -136,7 +137,12 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
 # Computes and transmits motor states to Arduino.
 def compute_and_transmit_motor_states():
     while True:
-        if joystick_updated_p():  # only compute and transmit if state has changed
+        if surface_comm_bottle.state_of("leftstick") != 0:
+            if MOTORS_ZEROED == 0:
+                MOTORS_ZEROED = 1;
+                zero_all_motors();
+        elif joystick_updated_p():  # only compute and transmit if state has changed
+            MOTORS_ZEROED = 0;
             reset_joystick_updated()
             #Calculate motor speed
             strafe_x_in = surface_comm_bottle.state_of("dright") - surface_comm_bottle.state_of("dleft") # Calculate strafe_x and strafe_y
@@ -153,7 +159,7 @@ def compute_and_transmit_motor_states():
             # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
             for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
                 sendMotorSignal(motor_number, motor_speed)
-            # Vertical motors --- right gamepad trigger pushes robot up; left one pushes robot down.
+            # Vertical motors --- right gamepad bumper pushes robot down; left one pushes robot up.
             vert_motor_byte = int(128 + get_speed_mode() * (surface_comm_bottle.state_of("rb")
                                               - surface_comm_bottle.state_of("lb")))
             sendMotorSignal(4, vert_motor_byte)
@@ -164,6 +170,29 @@ def compute_and_transmit_motor_states():
 def kill():
     z()
     quit()
+    
+def initiate_communications():
+    # Start the Bottle server to receive communications from surface
+    max_attempts = 5
+    attempts = 5
+    while (attempts >= 0):
+        try:
+            #start_new_thread(lambda : bottle.run(host='192.168.8.102', port=8085), ())
+            bottle.run(host='192.168.8.102', port=8085)
+            print "[Connected successfully.]"
+            break
+        except socket.error as serr:
+            print serr
+            print "[Error encountered. Attempt to kill processes and reconnect... ({}/{})]".format(attempts, max_attempts)
+            PROCNAME = "python"
+            myPID = psutil.Process(os.getpid()).pid
+            print myPID
+            for proc in psutil.process_iter():
+                if PROCNAME in proc.name():
+                    if myPID != proc.pid:
+                        print "Attempting kill on {}, {}".format(proc.name(), proc.pid)
+                        proc.kill()
+        attempts = attempts - 1
     
 # Init communications
 if (arduinoSetup("/dev/ttyACM0") == 0):
@@ -177,8 +206,7 @@ if (arduinoSetup("/dev/ttyACM0") == 0):
     print("Type kill() at any time to exit ROV operation safely.")
     # This expression will start periodically computating and transmitting motor states
     start_new_thread(compute_and_transmit_motor_states, ())
-    # Start the Bottle server to receive communications from surface
-    start_new_thread(lambda : bottle.run(host='192.168.8.102', port=8085), ())
+    start_new_thread(initiate_communications, ())
 
 # def tester():
 #     while 1:
