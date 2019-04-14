@@ -144,26 +144,39 @@ def compute_and_transmit_motor_states():
         elif joystick_updated_p():  # only compute and transmit if state has changed
             MOTORS_ZEROED = 0;
             reset_joystick_updated()
-            #Calculate motor speed
-            strafe_x_in = surface_comm_bottle.state_of("dright") - surface_comm_bottle.state_of("dleft") # Calculate strafe_x and strafe_y
-            strafe_y_in = surface_comm_bottle.state_of("dup") - surface_comm_bottle.state_of("ddown")
-            # Reads joystick if D-Pad has no input (or negates itself)
-            if strafe_x_in == 0 and strafe_y_in == 0:
-                strafe_x_in = surface_comm_bottle.state_of("lstick-x")
-                strafe_y_in = surface_comm_bottle.state_of("lstick-y")
-            lateral_motor_speeds = compute_lateral_motor_composite_state(
-                    surface_comm_bottle.state_of("rstick-x"),
-                    surface_comm_bottle.state_of("rstick-y"),
-                    strafe_x_in, 
-                    strafe_y_in)
-            # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
-            for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
-                sendMotorSignal(motor_number, motor_speed)
             # Vertical motors --- right gamepad bumper pushes robot down; left one pushes robot up.
-            vert_motor_byte = int(128 + get_speed_mode() * (surface_comm_bottle.state_of("rb")
-                                              - surface_comm_bottle.state_of("lb")))
-            sendMotorSignal(4, vert_motor_byte)
-            sendMotorSignal(5, vert_motor_byte)
+            # NOTE: Due to power draw, vertical control takes precedence over horizontal control.
+            # There should be NO SITUATION where both are active at once.
+            if surface_comm_bottle.state_of("rb") != 0 or surface_comm_bottle.state_of("lb") != 0:
+                vert_motor_byte = int(128 + get_speed_mode() * (surface_comm_bottle.state_of("rb")
+                                                  - surface_comm_bottle.state_of("lb")))
+                #Zero all horizontal motors
+                for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
+                    sendMotorSignal(motor_number, 128)
+                #Set speed for vertical motors
+                sendMotorSignal(4, vert_motor_byte)
+                sendMotorSignal(5, vert_motor_byte)
+            else:
+                #Calculate motor speed
+                strafe_x_in = surface_comm_bottle.state_of("dright") - surface_comm_bottle.state_of("dleft") # Calculate strafe_x and strafe_y
+                strafe_y_in = surface_comm_bottle.state_of("dup") - surface_comm_bottle.state_of("ddown")
+                # Reads joystick if D-Pad has no input (or negates itself)
+                if strafe_x_in == 0 and strafe_y_in == 0:
+                    strafe_x_in = surface_comm_bottle.state_of("lstick-x")
+                    strafe_y_in = surface_comm_bottle.state_of("lstick-y")
+                lateral_motor_speeds = compute_lateral_motor_composite_state(
+                        surface_comm_bottle.state_of("rstick-x"),
+                        surface_comm_bottle.state_of("rstick-y"),
+                        strafe_x_in, 
+                        strafe_y_in)
+                # Zero all vertical motors
+                sendMotorSignal(4, 128)
+                sendMotorSignal(5, 128)
+                # Set speed for horizontal motors
+                # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
+                for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
+                    sendMotorSignal(motor_number, motor_speed)
+            
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
 
 # Shell command, zeroes the motors and exits the program.

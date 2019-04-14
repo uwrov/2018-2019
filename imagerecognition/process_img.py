@@ -2,6 +2,7 @@ import cv2
 import numpy
 import math
 from enum import Enum
+from statistics import mean
 
 def count_shapes(image):
     border = 50
@@ -26,18 +27,37 @@ def count_shapes(image):
         5 : 0
     };
     
+    box = [numpy.array([[2*border,border],[width - border * 2, border],[width - border * 2,height - border],[2*border,height - border]])]
+    for b in box:
+        cv2.drawContours(img, [b],0,(255,0,255),2)[0]
+    
+    prev = []
+    
     for cnt in contours:
         x,y,w,h = cv2.boundingRect(cnt)
         midx = x + w / 2
         midy = y + h / 2
         if(x < border * 2 or x > (width - border * 2)):
             pass
-        elif(y < border or y > (width - border)):
+        elif(y < border or y > (height - border)):
             pass
-        elif(round(width/10/w, 1)  and round(width/10/h, 1) != 1):
-            pass
+        elif(round(w/h,1)-1 <= 0.4 and len(prev)!=0):
+            avg = mean(prev)
+            
+            if(w/avg < 2 or h/avg < 2):
+                approx = cv2.approxPolyDP(cnt, 0.03*cv2.arcLength(cnt, True), True)
+                cv2.drawContours(img, [approx],0,(255,0,255),2)
+                if len(approx) > 4:
+                    shapes[5] += 1
+                else:
+                    shapes[len(approx)] += 1
+            else:
+                pass
         else:
             print(x,y,w,h)
+            print(round(w/h,1))
+            prev.append(w)
+            prev.append(h)
             approx = cv2.approxPolyDP(cnt, 0.03*cv2.arcLength(cnt, True), True)
             cv2.drawContours(img, [approx],0,(255,0,255),2)
             if len(approx) > 4:
