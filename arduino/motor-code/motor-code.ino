@@ -66,6 +66,8 @@ const int MOTOR_MAX_SPEED = MOTOR_ZERO + MOTOR_HALF_RANGE;
 const int NUM_MOTORS = 6;
 // Corresponds to a motor's pin number that its ESC is wired to on the Arduino.
 const int MOTOR_PINS[NUM_MOTORS] = {2, 3, 4, 5, 6, 7};
+// As of 4/18/19, the pins correspond to the following motors:
+// {2 = Top Right, 3 = Top Left, 4 = Bottom Left, 5 = Bottom Right, 6 and 7 interchangeable for verticals}
 
 // Where motor structs are stored as values
 Motor Motors[NUM_MOTORS];
