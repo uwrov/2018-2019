@@ -120,7 +120,7 @@ def get_speed_mode():
 def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x, strafe_y):  # This ain't terribly functional.
     # Give weight to Rotating_State and Forward_State; add two together.
     # Joystick y must be negated because the controller reports full forward
-    # as -1 .
+    # as -1.
     net_state = add_lists(scale_list(Rotating_State, m_joystick_x),
                           scale_list(Forward_State, -m_joystick_y))
     # Scale net_state to intended strength intended by joystick.
@@ -128,9 +128,10 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
     net_state = normalize_list(net_state)
     net_state = scale_list(net_state, sqrt(m_joystick_x**2 + m_joystick_y**2))
     # Add effect of strafing, then normalize and shift to byte-values
+    # Again, negate value of strafe_y due to joystick forward being -1.
     net_state = add_lists(net_state,
                           scale_list(Strafe_Right_State, strafe_x * Strafe_Magnitude),
-                          scale_list(Strafe_Forward_State, strafe_y * Strafe_Magnitude))
+                          scale_list(Strafe_Forward_State, -strafe_y * Strafe_Magnitude))
     return map(lambda x : constrain_value(x, 0, 255),
                convert_list_to_motor_bytes(net_state))
 
@@ -175,8 +176,7 @@ def compute_and_transmit_motor_states():
                 # Set speed for horizontal motors
                 # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
                 for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
-                    sendMotorSignal(motor_number, motor_speed)
-            
+                    sendMotorSignal(motor_number, motor_speed)            
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
 
 # Shell command, zeroes the motors and exits the program.
