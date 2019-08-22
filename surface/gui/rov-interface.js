@@ -3,6 +3,7 @@
 	"use strict";
 
 	//Indices of the Xbox gamepad buttons
+	//Updated 8/14/19 for Linux
 	var BUTTON = {
 		a: 0,			//A
 		b: 1,			//B
@@ -10,46 +11,52 @@
 		y: 3,			//Y
 		lb: 4,			//Left Bumper
 		rb: 5,			//Right Bumper
-		lt: 6,			//Left Trigger
-		rt: 7,			//Right Trigger
-		back: 8,		//Back
-		start: 9,		//Start
-		lstick: 10,		//Left Stick Click
-		rstick: 11,		//Right Stick Click
-		dup: 12,		//D-pad up
-		ddown: 13,		//D-pad down
-		dleft: 14,		//D-pad left
-		dright: 15,		//D-pad right
-		xb: 16			//Xbox button
+		//lt: 6,		//Left Trigger
+		//rt: 7,		//Right Trigger
+		back: 6,		//Back
+		start: 7,		//Start
+		xb: 8,			//Xbox button
+		lstick: 9,		//Left Stick Click
+		rstick: 10,		//Right Stick Click
+		//dup: 12,		//D-pad up
+		//ddown: 13,	//D-pad down
+		//dleft: 14,	//D-pad left
+		//dright: 15	//D-pad right
 	}
 
 	//maps each integer id to a string
+	//Updated 8/14/19 for Linux
 	var BUTTON_NAME = {
 		0: "a",			//A
 		1: "b",			//B
 		2: "x",			//X
 		3: "y",			//Y
-		4: "lb",			//Left Bumper
-		5: "rb",			//Right Bumper
-		6: "lt",			//Left Trigger
-		7: "rt",			//Right Trigger
-		8: "back",		//Back
-		9: "start",		//Start
-		10: "lstick",		//Left Stick Click
-		11: "rstick",		//Right Stick Click
-		12: "dup",		//D-pad up
-		13: "ddown",		//D-pad down
-		14: "dleft",		//D-pad left
-		15: "dright",		//D-pad right
-		16: "xb"			//Xbox button
+		4: "lb",		//Left Bumper
+		5: "rb",		//Right Bumper
+		//6: "lt",		//Left Trigger
+		//7: "rt",		//Right Trigger
+		6: "back",		//Back
+		7: "start",		//Start
+		8: "xb",		//Xbox Button
+		9: "lstick",	//Left Stick Click
+		10: "rstick",	//Right Stick Click
+		//12: "dup",		//D-pad up
+		//13: "ddown",		//D-pad down
+		//14: "dleft",		//D-pad left
+		//15: "dright",		//D-pad right
+		//16: "xb"			//Xbox button
 	}
 
     // Indices of Xbox axes.
     var AXIS = {
-        lstick_x: 0,  // Left stick, x axis
-        lstick_y: 1,  // Go figure.
-        rstick_x: 2,  // Strangely, the pattern repeats.
-        rstick_y: 3
+        lstick_x: 0,  	// Left stick, x axis
+		lstick_y: 1,  	// Go figure.
+		ltrigger: 2,	// Left trigger
+        rstick_x: 3,  	// Strangely, the pattern repeats.
+		rstick_y: 4,	
+		rtrigger: 5,	// Right trigger
+		dpad_x: 6,		// D-pad X-axis, left is 0
+		dpad_y: 7		// D-pad Y-axis, up is 0
     }
 
     // Previous values forr axes; used to compare and determine if
@@ -61,11 +68,14 @@
 		12 : 0, 13:0, 14:0, 15:0, 16:0};
     // Minimum value a stick on the controller must be displaced by
     // in order for the value to be transmitted.
-    var MIN_STICK_DISP = 0.005;
+	var MIN_STICK_DISP = 0.005;
 
-	//Delay between sensor update (milliseconds)
+	// Threshold for trigger input to be used.
+	var TRIGGER_THRESHOLD = 0.5;
+
+	// Delay between sensor update (milliseconds)
 	var SENSOR_UPDATE_DELAY = 10;
-	//Main camera port (for config)
+	// Main camera port (for config)
 	var CAMERA_PORT = "8080";
 
 	var MAX_BRIGHTNESS = 255;
@@ -457,13 +467,16 @@
 		  //Map buttons to functions
 
 		buttonMappings[BUTTON.back].func = switchCams;
-			// EXPERIMENTAL function binding for buttons.
+
+			//No longer active because triggers are considered axes.
+		/*
 		buttonMappings[BUTTON.rt].func = function () {
 				httpGetWithResponse("http://192.168.8.102:8085/movement/right-trigger/1.0");
 			}
 		buttonMappings[BUTTON.lt].func = function () {
 				httpGetWithResponse("http://192.168.8.102:8085/movement/left-trigger/1.0");
 			}
+		*/
 
 
 	  	requestAnimationFrame(updateStatus);
@@ -522,22 +535,59 @@
             var url = "http://192.168.8.102:8085/movement/";
             switch(index){
             case AXIS.rstick_x:
-                url += "right-joystick-x";
+                url += "right-joystick-x" + "/" + String(value);
                 break;
             case AXIS.rstick_y:
-                url += "right-joystick-y";
+                url += "right-joystick-y" + "/" + String(value);
                 break;
             case AXIS.lstick_x:
-                url += "left-joystick-x";
+                url += "left-joystick-x" + "/" + String(value);
                 break;
             case AXIS.lstick_y:
-                url += "left-joystick-y";
-                break;
+                url += "left-joystick-y" + "/" + String(value);
+				break;
+			case AXIS.dpad_x:
+				if (value <= -0.5) {
+					httpGetWithResponse(url + "dright/0", function () {});
+					url += "dleft/1";
+				} else if (value >= 0.5) {
+					httpGetWithResponse(url + "dleft/0", function () {});
+					url += "dright/1";
+				} else {
+					httpGetWithResponse(url + "dright/0", function () {});
+					url += "dleft/0";
+				}
+				break;
+			case AXIS.dpad_y:
+				if (value <= -0.5) {
+					httpGetWithResponse(url + "ddown/0", function () {});
+					url += "dup/1";
+				} else if (value >= 0.5) {
+					httpGetWithResponse(url + "dup/0", function () {});
+					url += "ddown/1";
+				} else {
+					httpGetWithResponse(url + "dup/0", function () {});
+					url += "ddown/0";
+				}
+				break;
+			case AXIS.ltrigger:
+				if(value >= TRIGGER_THRESHOLD) {
+					url += "lt/1"
+				} else {
+					url += "lt/0"
+				}
+				break;
+			case AXIS.rtrigger:
+				if(value >= TRIGGER_THRESHOLD) {
+					url += "rt/1"
+				} else {
+					url += "rt/0"
+				}
+				break;
             default:
                 url = null;
             }
             if (url != null) {
-                url += "/" + String(value);
                 httpGetWithResponse(url, function () {});
             }
         }

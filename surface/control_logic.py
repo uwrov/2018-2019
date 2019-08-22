@@ -22,6 +22,9 @@ Strafe_Right_State = [1, -1, -1, 1]
 Strafe_Forward_State = [1, 1, 1, 1]
 Strafe_Magnitude = 0.5  # default weight given to strafing
 
+#Motor Directions to compensate for opposite propellers/wiring
+Motor_Directions = [-1, 1, 1, 1]
+
 COARSE_SPEED = 127
 MEDIUM_SPEED = 60
 FINE_SPEED = 20
@@ -128,10 +131,10 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
     net_state = normalize_list(net_state)
     net_state = scale_list(net_state, sqrt(m_joystick_x**2 + m_joystick_y**2))
     # Add effect of strafing, then normalize and shift to byte-values
-    # Again, negate value of strafe_y due to joystick forward being -1.
+    # Again, negate value of strafe_y due to joystick forward being -1. UNDONE
     net_state = add_lists(net_state,
                           scale_list(Strafe_Right_State, strafe_x * Strafe_Magnitude),
-                          scale_list(Strafe_Forward_State, -strafe_y * Strafe_Magnitude))
+                          scale_list(Strafe_Forward_State, strafe_y * Strafe_Magnitude))
     return map(lambda x : constrain_value(x, 0, 255),
                convert_list_to_motor_bytes(net_state))
 
@@ -164,7 +167,7 @@ def compute_and_transmit_motor_states():
                 # Reads joystick if D-Pad has no input (or negates itself)
                 if strafe_x_in == 0 and strafe_y_in == 0:
                     strafe_x_in = surface_comm_bottle.state_of("lstick-x")
-                    strafe_y_in = surface_comm_bottle.state_of("lstick-y")
+                    strafe_y_in = -surface_comm_bottle.state_of("lstick-y")
                 lateral_motor_speeds = compute_lateral_motor_composite_state(
                         surface_comm_bottle.state_of("rstick-x"),
                         surface_comm_bottle.state_of("rstick-y"),
@@ -176,7 +179,10 @@ def compute_and_transmit_motor_states():
                 # Set speed for horizontal motors
                 # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
                 for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
-                    sendMotorSignal(motor_number, motor_speed)            
+                    if Motor_Directions[motor_number] == -1:
+                        sendMotorSignal(motor_number, 255 - motor_speed)
+                    else:
+                        sendMotorSignal(motor_number, motor_speed)            
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
 
 # Shell command, zeroes the motors and exits the program.
