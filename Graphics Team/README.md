@@ -9,8 +9,13 @@
 - Be a pop up.
 
 ### Main Camera 
-
-
+### Thumbnail Cameras
+### 
 ### Team Notes
 
-- List things todo
+Things To Do!
+- Create our first html page
+- Add the position of all the elements to the page
+- List out individual methods required for the elements to add functionality to it.
+- add funcionality to each of (Document everything in the process!
+- 
