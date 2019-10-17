@@ -25,7 +25,7 @@ Step 1: Find the ip address of pi
 
 4. Get the ip address (192.168.8.10X) assigned to the pi
 
-Note: Usually the pi gets assigned to the same ip address (192.168.8.100), 
+Note: Usually the pi gets assigned to the samefF ip address (192.168.8.100), 
 	  but there is no guarantee. 
 ===============================================================================
 Step 2: Log into pi
@@ -53,7 +53,7 @@ Step 3: Get live streaming
    
 3. Increment the port number by 1 each time to access other cameras if applied
    For example, type "http://192.168.8.10X:8082/?action=stream" to access the 
-   second camer.
+   second camera.
 ===============================================================================
 Additional Notes:
 1. "sudo" command is required to edit "stop.sh" and "streamer.sh". 

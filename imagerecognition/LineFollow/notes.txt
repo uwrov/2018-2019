@@ -1,0 +1,55 @@
+Assumptions
+Video feed is a square maybe
+
+Step 1: Find starting point
+- Put in center
+
+Step 2: Find path
+- Should be the only thing coming out
+- Define a direction vector
+
+Step 3: Follow Path
+- Go in direction of the vector as long as there is path in the direction it's going in
+- Stop when there's a turn (corner)
+
+Step 4: Center about corner
+- Direction vector becomes the other direction (keep track of the one going in)
+
+Step 5: Find crack
+- Look for that color bb.
+- Either continously measure the length of it as it is on screen and take max
+- or wait until it is centered in the frame and find length then
+
+Step 6: Find stopping point
+- ??
+- When there's no more path (don't need to do any shape recognition)
+
+Vector conditions:
+0 - up
+1 - down
+2 - left
+3 - right
+
+
+Pseudo code:
+// Assumes that the starting condition has been manuvered to the center of the frame
+find_start()
+	check presence of red line in adjacent cells
+		vector = cell which has color in it
+
+// Assumes that the direction vector has been established
+// This should be run every frame observed
+follow_line()
+	if (line exists in cell vector is pointing at)
+		change nothing
+	else if (if there's nothing there)
+		check adjacent cells not opposite to the vector (as that's where we came from)
+		vector = the adjacent cell with color
+		corner_callibrate()
+
+corner_callibrate()
+	Align center of box with corner to the center of the frame
+	sleep(2000)
+
+
+	
