@@ -3,10 +3,10 @@
 */
 
 (function() {
-	"use strict"; 
+	"use strict";
 
 	//
-	//	Init will run when the web page loads. 
+	//	Init will run when the web page loads.
 	//
 
 	window.addEventListener("load", init);
@@ -16,8 +16,8 @@
     * 	screen
     */
   	function init() {
-    	document.getElementById('demo-button').addEventListener('click', demoButtonClick);
+
   	}
 
-  
+
 })();
