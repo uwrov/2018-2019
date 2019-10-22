@@ -1,7 +1,7 @@
 /*
-*	This is the cascading style sheet file for the Graphics playground page. 
+*	This is the cascading style sheet file for the Graphics playground page.
 *	Unlike javascript files, the style sheet should be the only style sheet
-*	for the index page. 
+*	for the index page.
 */
 
 
@@ -31,12 +31,26 @@ body {
 }
 
 header {
+  height: 20vh;
 	width: 90%;
 	margin: 20px auto;
 	border-radius: 5px;
 	background: #e2edff;
 	padding: 10px;
 	text-align: center;
+}
+
+#window {
+  height: 18vh;
+  width: 40%;
+  background: #e2bdcc;
+
+
+
+}
+
+.vase {
+
 }
 
 #demo-button {
