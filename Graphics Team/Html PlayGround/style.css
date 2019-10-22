@@ -1,0 +1,59 @@
+/*
+*	This is the cascading style sheet file for the Graphics playground page. 
+*	Unlike javascript files, the style sheet should be the only style sheet
+*	for the index page. 
+*/
+
+
+/* imported font from google fonts */
+
+@import url('https://fonts.googleapis.com/css?family=Josefin+Sans');
+
+/*
+  font-family: 'Josefin Sans', sans-serif;
+*/
+
+.hidden {
+    display: none !important;
+}
+
+html, body {
+  width: 100%;
+  height: 100vh;
+}
+
+body {
+  min-width: 700px;
+  min-height: 500px;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 1.2em;
+  margin: auto 10px;
+}
+
+header {
+	width: 90%;
+	margin: 20px auto;
+	border-radius: 5px;
+	background: #e2edff;
+	padding: 10px;
+	text-align: center;
+}
+
+#demo-button {
+	font-family: 'Josefin Sans', sans-serif;
+	font-size: 0.8em;
+	width: 100px;
+	height: 50px;
+	border-radius: 5px;
+	background: #aaaaaa;
+	padding: 10px;
+	text-align: center;
+	margin: 10px auto;
+}
+
+#demo-button:hover {
+	cursor: pointer;
+	font-weight: bold;
+  	height: 52px;
+  	width: 102px;
+}
