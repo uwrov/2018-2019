@@ -17,57 +17,71 @@
     display: none !important;
 }
 
-html, body {
-  width: 100%;
-  height: 100vh;
-}
-
 body {
+  height: 100vh;
+  width: 100%;
   min-width: 700px;
-  min-height: 500px;
+  min-height: 400px;
   font-family: 'Josefin Sans', sans-serif;
   font-size: 1.2em;
-  margin: auto 10px;
+  margin: 0px;
 }
 
 header {
   height: 20vh;
 	width: 90%;
-	margin: 20px auto;
 	border-radius: 5px;
 	background: #e2edff;
-	padding: 10px;
-	text-align: center;
+	padding: 2% 5%;
+
+
 }
 
 #window {
   height: 18vh;
   width: 40%;
   background: #e2bdcc;
+  display: inline-block;
+  margin-left: 20%;
 
+}
 
+#scoreboard {
+  height: 14vh;
+  width: 21%;
+  padding: 2vh;
+  background: #e2bdcc;
+  display: inline-block;
+  margin-left: 5%;
+  position: absolute;
 
+}
+
+#vases {
+  height: 20vh;
+  width: 100%;
+  background: #e12638;
+  margin: 20vh auto 0vh auto ;
 }
 
 .vase {
+  height: 13vh;
+  width: 8%;
+  margin: 1%;
+  background: #b36271;
+  border: 0px;
+}
+
+.vase:hover {
+    background: #b30271;
+    cursor: pointer;
 
 }
 
-#demo-button {
-	font-family: 'Josefin Sans', sans-serif;
-	font-size: 0.8em;
-	width: 100px;
-	height: 50px;
-	border-radius: 5px;
-	background: #aaaaaa;
-	padding: 10px;
-	text-align: center;
-	margin: 10px auto;
-}
-
-#demo-button:hover {
-	cursor: pointer;
-	font-weight: bold;
-  	height: 52px;
-  	width: 102px;
+footer {
+  height: 20vh;
+  width: 100%;
+  background: #c12342;
+  bottom: 0vh;
+  position: absolute;
 }
