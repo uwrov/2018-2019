@@ -4,6 +4,7 @@ from math import sqrt
 from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing, zero_all_motors, z
 from thread import start_new_thread
 from time import clock, sleep
+from surface_comm_bottle import position, acceleration, velocity, auto_mode, Vector3
 import bottle, surface_comm_bottle, sys, socket, psutil, os
 
 # The following are states for the four lateral motors.
@@ -29,21 +30,21 @@ FINE_SPEED = 20
 ENABLE_INPUT = 1;
 MOTORS_ZEROED = 0;
 
-# When the robot operator tells the robot to move, 
+# When the robot operator tells the robot to move,
 # this program will take linear combinations of the above states
-# to compute what speeds to run the motors at 
+# to compute what speeds to run the motors at
 # in order to move the robot in the instructed fashion.
-# For example, if the operator were pushing the right gamepad stick forward and slightly to the left, 
+# For example, if the operator were pushing the right gamepad stick forward and slightly to the left,
 # he or she would be telling the robot to move forward while turning left (ccw).
 # This program would see that the joystick is displaced, say, X units on the x-axis and Y units on the y-axis.
-# This programs knows that the gamepad stick's x-axis corresopnds to rotation, 
+# This programs knows that the gamepad stick's x-axis corresopnds to rotation,
 # while the y-axis coresponds to forward/backward movement.
 # The program would therefore calculate the following (pseudo-code) using the states defined above:
 #
 #   X*Rotating_State + Y*Forward_State
 #
 # The program then scales the resulting vector such that its largest element has a magnitude of 1.
-# Then the program multiplies the vector by sqrt(X^2+Y^2) 
+# Then the program multiplies the vector by sqrt(X^2+Y^2)
 # so that the gamepad stick's displacement from center controls the overall speed of the actual movement
 # (the more you displace the gamepad stick, the faster the robot goes).
 # It then scales and shifts the vector so that its values lie in between 0 to 255, the acceptable range of a motor byte
@@ -106,7 +107,7 @@ def shift_and_scale_to_motor_byte(flt):
 # Scales list by factor of 128 and adds 128 to it to create a list of motor power bytes
 def convert_list_to_motor_bytes (lst):
     return [int(speed + 128) for speed in scale_list(lst, get_speed_mode())]
-    
+
 # Returns the current speed coefficient (RT is fine, LT is coarse, neither is medium).
 # Coefficients can be modified at the top of the program.
 def get_speed_mode():
@@ -134,43 +135,87 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
     return map(lambda x : constrain_value(x, 0, 255),
                convert_list_to_motor_bytes(net_state))
 
+#Smooths between a and b by some x (0-1).
+def smoothstep(float a, float b, float x):
+    x = clamp(x, a, b)
+    return x * x * (3 - 2 * x)
+
+#
+def clamp(float x, float min, float max):
+    if x > max:
+        return min
+    elif x < max:
+        return max
+    else:
+        return x
+
+#
+def moveToTarget():
+    #determine displacement
+    xDelta = 0.0
+    yDelta = 0.0
+    zDelta = 0.0
+    if lockX:
+        xDelta = target.x - position.x
+    if lockY:
+        yDelta = target.y - position.y
+    if lockZ:
+        yDelta = target.x - position.z
+
+    displacement = math.sqrt(xDelta*xDelta + yDelta*yDelta + zDelta*zDelta)
+    minimum_speed = 0.0
+    maximum_speed = MEDIUM_SPEED
+    max_speed_distance = 16.0
+    speed = smoothstep((displacement / max_speed_distance), minimum_speed, maximum_speed)
+
+    #normalize
+    direction = new Vector3(xDelta, yDelta, zDelta).normalize()
+
+    #set motor speed and direction
+
+    return null;
+
 # Computes and transmits motor states to Arduino.
 def compute_and_transmit_motor_states():
     while True:
-        if surface_comm_bottle.state_of("leftstick") != 0:
-            if MOTORS_ZEROED == 0:
-                MOTORS_ZEROED = 1;
-                zero_all_motors();
-        elif joystick_updated_p():  # only compute and transmit if state has changed
-            MOTORS_ZEROED = 0;
-            reset_joystick_updated()
-            #Calculate motor speed
-            strafe_x_in = surface_comm_bottle.state_of("dright") - surface_comm_bottle.state_of("dleft") # Calculate strafe_x and strafe_y
-            strafe_y_in = surface_comm_bottle.state_of("dup") - surface_comm_bottle.state_of("ddown")
-            # Reads joystick if D-Pad has no input (or negates itself)
-            if strafe_x_in == 0 and strafe_y_in == 0:
-                strafe_x_in = surface_comm_bottle.state_of("lstick-x")
-                strafe_y_in = surface_comm_bottle.state_of("lstick-y")
-            lateral_motor_speeds = compute_lateral_motor_composite_state(
-                    surface_comm_bottle.state_of("rstick-x"),
-                    surface_comm_bottle.state_of("rstick-y"),
-                    strafe_x_in, 
-                    strafe_y_in)
-            # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
-            for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
-                sendMotorSignal(motor_number, motor_speed)
-            # Vertical motors --- right gamepad bumper pushes robot down; left one pushes robot up.
-            vert_motor_byte = int(128 + get_speed_mode() * (surface_comm_bottle.state_of("rb")
-                                              - surface_comm_bottle.state_of("lb")))
-            sendMotorSignal(4, vert_motor_byte)
-            sendMotorSignal(5, vert_motor_byte)
+        if surface_comm_bottle.state_of("auto_mode" == 0):
+            #initiate auto
+
+        else:
+            if surface_comm_bottle.state_of("leftstick") != 0:
+                if MOTORS_ZEROED == 0:
+                    MOTORS_ZEROED = 1;
+                    zero_all_motors();
+            elif joystick_updated_p():  # only compute and transmit if state has changed
+                MOTORS_ZEROED = 0;
+                reset_joystick_updated()
+                #Calculate motor speed
+                strafe_x_in = surface_comm_bottle.state_of("dright") - surface_comm_bottle.state_of("dleft") # Calculate strafe_x and strafe_y
+                strafe_y_in = surface_comm_bottle.state_of("dup") - surface_comm_bottle.state_of("ddown")
+                # Reads joystick if D-Pad has no input (or negates itself)
+                if strafe_x_in == 0 and strafe_y_in == 0:
+                    strafe_x_in = surface_comm_bottle.state_of("lstick-x")
+                    strafe_y_in = surface_comm_bottle.state_of("lstick-y")
+                lateral_motor_speeds = compute_lateral_motor_composite_state(
+                        surface_comm_bottle.state_of("rstick-x"),
+                        surface_comm_bottle.state_of("rstick-y"),
+                        strafe_x_in,
+                        strafe_y_in)
+                # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
+                for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
+                    sendMotorSignal(motor_number, motor_speed)
+                # Vertical motors --- right gamepad bumper pushes robot down; left one pushes robot up.
+                vert_motor_byte = int(128 + get_speed_mode() * (surface_comm_bottle.state_of("rb")
+                                                  - surface_comm_bottle.state_of("lb")))
+                sendMotorSignal(4, vert_motor_byte)
+                sendMotorSignal(5, vert_motor_byte)
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
 
 # Shell command, zeroes the motors and exits the program.
 def kill():
     z()
     quit()
-    
+
 def initiate_communications():
     # Start the Bottle server to receive communications from surface
     max_attempts = 5
@@ -193,7 +238,7 @@ def initiate_communications():
                         print "Attempting kill on {}, {}".format(proc.name(), proc.pid)
                         proc.kill()
         attempts = attempts - 1
-    
+
 # Init communications
 if (arduinoSetup("/dev/ttyACM0") == 0):
     if (len(sys.argv) > 1):

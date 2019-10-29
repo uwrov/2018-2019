@@ -6,6 +6,24 @@ from bottle import get, put, route, run, template
 import bottle  ## looks peculiar
 from math import trunc
 
+class Vector3:
+	x, y, z
+	def __init__(self, X, Y, Z):
+		x = X
+		y = Y
+		z = Z
+
+
+auto_mode = 0;
+position = new Vector3(0, 0, 0)
+velocity = new Vector3(0, 0, 0)
+acceleration = new Vector3(0, 0, 0)
+
+Vector3 target = new Vector3(0, 0, 0)
+lockX = false;
+lockY = false;
+lockZ = false;
+
 # Joystick state variables
 
 controller_state = {"rb": 0, "lb": 0, "dup": 0, "ddown": 0, "dleft":0, "dright":0, "leftstick": 0, "rightstick": 0,
@@ -39,7 +57,7 @@ def getsensor():
 def strafe_left(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("dleft", gamepadValue)
-	
+
 @get("/movement/dright/<gamepadValue>")
 def strafe_right(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
@@ -50,7 +68,7 @@ def strafe_right(gamepadValue):
 def strafe_forward(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("dup", gamepadValue)
-	
+
 @get("/movement/ddown/<gamepadValue>")
 def strafe_backwards(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
@@ -64,19 +82,19 @@ def rotate_robot(gamepadValue):
 
 # Accelerating forward, somewhat in direction of of rotation
 @get("/movement/right-joystick-y/<gamepadValue>")
-def accelerate_forward_backward(gamepadValue):
+def rotate_robot_forward(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("rstick-y", gamepadValue)
-	
+
 #Strafing
 @get("/movement/left-joystick-x/<gamepadValue>")
-def rotate_robot(gamepadValue):
+def strafe_robot_side(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("lstick-x", gamepadValue)
 
 # Accelerating forward, somewhat in direction of of rotation
 @get("/movement/left-joystick-y/<gamepadValue>")
-def accelerate_forward_backward(gamepadValue):
+def strafe_robot_forward(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("lstick-y", gamepadValue)
 
@@ -90,7 +108,7 @@ def speed_fine(gamepadValue):
 def speed_coarse(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("ltrigger", gamepadValue)
-	
+
 	# Moving up and down
 @get("/movement/rb/<gamepadValue>")
 def vertical_movement_down(gamepadValue):
@@ -101,7 +119,7 @@ def vertical_movement_down(gamepadValue):
 def vertical_movement_up(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("lb", gamepadValue)
-    
+
 @get("/movement/lstick/<gamepadValue>")
 def resetMotorsLeft(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
@@ -111,7 +129,7 @@ def resetMotorsLeft(gamepadValue):
 def resetMotorsRight(gamepadValue):
     bottle.response.set_header("Access-Control-Allow-Origin", "*")
     store_state("rightstick", gamepadValue)
-    
+
 
 
 
