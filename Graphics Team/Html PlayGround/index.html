@@ -9,26 +9,37 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Graphics Playground!</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="main.js"></script>
+   <head>
+      <meta charset="UTF-8" />
+      <title>Graphics Playground!</title>
+      <link rel="stylesheet" href="style.css" />
+      <script src="main.js"></script>
 
-    <!--
-    This is where you should add your javascript files in the form of <script src="filename"></script>
-    Make sure that all your javascript is isolated to your individual file and the scope is set.
-    -->
-  </head>
-  <body>
-    <header>
-      <h1>This is the Graphics Team's Playground</h1>
-      <p>Here is a page to learn and play around with code for everyone. Feel free to add onto the page with random code snippets but respect any code that anyone else is developing. In order to practice a "modular" program structure, make sure that everything written is independent of each other. For testing in the console, go into the developer tools. </p>
+      <!--
+      This is where you should add your javascript files in the form of <script src="filename"></script>
+      Make sure that all your javascript is isolated to your individual file and the scope is set.
+      -->
+      <script src="chris.js"></script>
+   </head>
+   <body>
+      <header>
+         <h1>This is the Graphics Team's Playground</h1>
+         <p>Here is a page to learn and play around with code for everyone. Feel free to add onto the page with random code snippets but respect any code that anyone else is developing. In order to practice a "modular" program structure, make sure that everything written is independent of each other. For testing in the console, go into the developer tools. </p>
 
-      <button id="demo-button">Demo Button</button>
-    </header>
-    <!--
-    This is where any of your "widgets" will go make sure to comment everything such as who wrote it and which javascript files will handle it. Also try to keep everything documented in the read me file. 
-    -->
-  </body>
+         <button id="demo-button">Demo Button</button>
+      </header>
+      <!--
+      This is where any of your "widgets" will go make sure to comment everything such as who wrote it and which javascript files will handle it. Also try to keep everything documented in the read me file.
+      -->
+      <section id="calculator">
+         <h1>Calculator</h1>
+         <input id="num_a" type="number"></input>
+         <input id="num_b" type="number"></input>
+         <input id="add" type="button" value="Add"></input>
+         <input id="subtract" type="button" value="Subtract"></input>
+         <p>
+            Answer: <span id="ans"> </span>
+         </p>
+      </section>
+   </body>
 </html>

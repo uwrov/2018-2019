@@ -57,3 +57,12 @@ header {
   	height: 52px;
   	width: 102px;
 }
+
+#calculator {
+   width: 90%;
+   margin: 20px auto;
+   border-radius: 5px;
+   background: #e2edff;
+   padding: 10px;
+   text-align: center;
+}
