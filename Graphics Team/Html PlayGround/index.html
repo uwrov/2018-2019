@@ -43,10 +43,21 @@
       </section>
 
       <section id="gamble-bot">
-         <h1>Simple Bot!</h1>
-         <p id="bot-answer">Hello human!</p>
-         <input id="bot-input" type="text"></input>
-         <input id="bot-enter" type="button" value="enter"></input>
+         <h1>Gamble Bot!</h1>
+         <div id="gambling-stats" class="gamble-section">
+            <p>Current Balance: <span id="balance">100</span></p>
+            <span>Betting Amount: </span>
+            <input id="bet-input" type="number"></input>
+         </div>
+
+         <div id="gambling-options" class="gamble-section">
+            <h2>Flip a coin!</h2>
+            <p>Bet heads or tails for double or nothing.</p>
+            <input id="heads" type="button" value="heads"></input>
+            <input id="tails" type="button" value="tails"></input>
+            <p id="coin-results"></p>
+         </div>
+
       </section>
    </body>
 </html>

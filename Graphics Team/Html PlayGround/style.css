@@ -30,7 +30,7 @@ body {
   margin: auto 10px;
 }
 
-header, #simple-bot {
+header, #gamble-bot {
 	width: 90%;
 	margin: 20px auto;
 	border-radius: 5px;
@@ -65,4 +65,20 @@ header, #simple-bot {
    background: #e2edff;
    padding: 10px;
    text-align: center;
+}
+
+.gamble-section {
+   display: inline-block;
+   vertical-align: top;
+}
+
+#gambling-stats {
+   text-align: left;
+   vertical-align: middle;
+   height: 70%;
+}
+
+#gambling-options {
+   padding: 0px 10%;
+   padding-bottom: 3vh;
 }
