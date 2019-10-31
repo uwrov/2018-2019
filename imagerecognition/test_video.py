@@ -1,9 +1,9 @@
-import numpy as np 
+import numpy as np
 import cv2
 import imutils
 from shapedetector import ShapeDetector
 
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0)
 
 while (True):
     # Capture frame-by-frame
