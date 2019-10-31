@@ -30,7 +30,7 @@ body {
   margin: auto 10px;
 }
 
-header {
+header, #simple-bot {
 	width: 90%;
 	margin: 20px auto;
 	border-radius: 5px;
