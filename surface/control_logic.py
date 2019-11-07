@@ -18,8 +18,7 @@ import bottle, surface_comm_bottle, sys, socket, psutil, os
 # Robot rotates clockwise
 Rotating_State = [1, -1, 1, -1]
 # Robot moves straight forward
-Forward_State = [1, 1, 1, 1]
-Strafe_Right_State = [1, -1, -1, 1]
+Strafe_Left_State = [-1, 1, 1, -1]
 Strafe_Forward_State = [1, 1, 1, 1]
 Strafe_Magnitude = 0.5  # default weight given to strafing
 
@@ -27,8 +26,10 @@ COARSE_SPEED = 127
 MEDIUM_SPEED = 60
 FINE_SPEED = 20
 
-ENABLE_INPUT = 1;
-MOTORS_ZEROED = 0;
+ENABLE_INPUT = 1
+MOTORS_ZEROED = 0
+
+AXIS_CUTOFF = 0.05
 
 # When the robot operator tells the robot to move,
 # this program will take linear combinations of the above states
@@ -78,7 +79,7 @@ def constrain_value(value, lower_bound, upper_bound):
     if lower_bound < value < upper_bound:
         # within bounds --- return value
         return value
-    elif value < lower_bound and value < upper_bound:
+    elif value < lower_bound: #and value < upper_bound:
         # too low --- return lower bound
         return lower_bound
     else:
@@ -120,18 +121,22 @@ def get_speed_mode():
 # Computes speeds of motors by composing and scaling states for joystick and dpad.
 def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x, strafe_y):  # This ain't terribly functional.
     # Give weight to Rotating_State and Forward_State; add two together.
-    # Joystick y must be negated because the controller reports full forward
+    # Joystick y must be negated beforehand because the controller reports full forward
     # as -1 .
     net_state = add_lists(scale_list(Rotating_State, m_joystick_x),
-                          scale_list(Forward_State, -m_joystick_y))
+                          scale_list(Strafe_Forward_State, m_joystick_y))
     # Scale net_state to intended strength intended by joystick.
     # Strength is how far the stick is displaced from the center.
     net_state = normalize_list(net_state)
     net_state = scale_list(net_state, sqrt(m_joystick_x**2 + m_joystick_y**2))
+
+    strafe_state = add_lists(scale_list(Strafe_Left_State, strafe_x), scale_list(Strafe_Forward_State, strafe_y))
+    strafe_state = normalize_list(strafe_state)
+    strafe_state = scale_list(strafe_state, sqrt(strafe_x**2 + strafe_y**2))
+
     # Add effect of strafing, then normalize and shift to byte-values
-    net_state = add_lists(net_state,
-                          scale_list(Strafe_Right_State, strafe_x * Strafe_Magnitude),
-                          scale_list(Strafe_Forward_State, strafe_y * Strafe_Magnitude))
+    net_state = add_lists(net_state, strafe_state)
+
     return map(lambda x : constrain_value(x, 0, 255),
                convert_list_to_motor_bytes(net_state))
 
@@ -149,22 +154,22 @@ def clamp(x, min, max):
     else:
         return x
 
-#
-def moveToTarget():
+
+def moveToTarget() -> Vector3:
     #determine displacement
     xDelta = 0.0
     yDelta = 0.0
     zDelta = 0.0
-    if lockX:
-        xDelta = target.x - position.x
+    if lockX: #this is inverted, because +x should move in the left direction
+        xDelta = position.x - target.x
     if lockY:
         yDelta = target.y - position.y
     if lockZ:
-        yDelta = target.x - position.z
+        yDelta = target.z - position.z
 
     displacement = math.sqrt(xDelta*xDelta + yDelta*yDelta + zDelta*zDelta)
     minimum_speed = 0.0
-    maximum_speed = MEDIUM_SPEED
+    maximum_speed = 1.0 #spoof controller input
     max_speed_distance = 16.0
     speed = smoothstep((displacement / max_speed_distance), minimum_speed, maximum_speed)
 
@@ -173,8 +178,7 @@ def moveToTarget():
 
     #set motor speed and direction
 
-
-    return null;
+    return direction * speed;
 
 # Computes and transmits motor states to Arduino.
 def compute_and_transmit_motor_states():
@@ -191,23 +195,33 @@ def compute_and_transmit_motor_states():
                 MOTORS_ZEROED = 0;
                 reset_joystick_updated()
                 #Calculate motor speed
-                strafe_x_in = surface_comm_bottle.state_of("dright") - surface_comm_bottle.state_of("dleft") # Calculate strafe_x and strafe_y
+                strafe_x_in = surface_comm_bottle.state_of("dleft") - surface_comm_bottle.state_of("dright") # Calculate strafe_x and strafe_y
                 strafe_y_in = surface_comm_bottle.state_of("dup") - surface_comm_bottle.state_of("ddown")
                 # Reads joystick if D-Pad has no input (or negates itself)
                 if strafe_x_in == 0 and strafe_y_in == 0:
-                    strafe_x_in = surface_comm_bottle.state_of("lstick-x")
-                    strafe_y_in = surface_comm_bottle.state_of("lstick-y")
+                    strafe_x_in = -surface_comm_bottle.state_of("lstick-x")
+                    strafe_y_in = -surface_comm_bottle.state_of("lstick-y")
+
+                strafe_z_in = surface_comm_bottle.state_of("rtrigger") - surface_comm_bottle.state_of("ltrigger")
+
+                auto_input = moveToTarget()
+                if abs(strafe_x_in) < AXIS_CUTOFF:
+                    strafe_x_in = auto_input.x
+                if abs(strafe_y_in) < AXIS_CUTOFF:
+                    strafe_y_in = auto_input.y
+                if abs(strafe_z_in) < AXIS_CUTOFF:
+                    strafe_z_in = auto_input.z
+
                 lateral_motor_speeds = compute_lateral_motor_composite_state(
                         surface_comm_bottle.state_of("rstick-x"),
-                        surface_comm_bottle.state_of("rstick-y"),
+                        -surface_comm_bottle.state_of("rstick-y"),
                         strafe_x_in,
                         strafe_y_in)
+                vert_motor_byte = int(128 + get_speed_mode() * strafe_z_in)
                 # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
                 for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
                     sendMotorSignal(motor_number, motor_speed)
                 # Vertical motors --- right gamepad bumper pushes robot down; left one pushes robot up.
-                vert_motor_byte = int(128 + get_speed_mode() * (surface_comm_bottle.state_of("rb")
-                                                  - surface_comm_bottle.state_of("lb")))
                 sendMotorSignal(4, vert_motor_byte)
                 sendMotorSignal(5, vert_motor_byte)
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
