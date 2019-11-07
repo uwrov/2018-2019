@@ -136,12 +136,12 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
                convert_list_to_motor_bytes(net_state))
 
 #Smooths between a and b by some x (0-1).
-def smoothstep(float a, float b, float x):
+def smoothstep(a, b, x):
     x = clamp(x, a, b)
     return x * x * (3 - 2 * x)
 
 #
-def clamp(float x, float min, float max):
+def clamp(x, min, max):
     if x > max:
         return min
     elif x < max:
@@ -173,14 +173,15 @@ def moveToTarget():
 
     #set motor speed and direction
 
+
     return null;
 
 # Computes and transmits motor states to Arduino.
 def compute_and_transmit_motor_states():
     while True:
-        if surface_comm_bottle.state_of("auto_mode" == 0):
+        if surface_comm_bottle.state_of("auto_mode" == 1):
             #initiate auto
-
+            var = 0 #so that if branch works correctly
         else:
             if surface_comm_bottle.state_of("leftstick") != 0:
                 if MOTORS_ZEROED == 0:

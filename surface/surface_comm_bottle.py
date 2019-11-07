@@ -7,19 +7,47 @@ import bottle  ## looks peculiar
 from math import trunc
 
 class Vector3:
-	x, y, z
-	def __init__(self, X, Y, Z):
-		x = X
-		y = Y
-		z = Z
+	def __init__(self, x: float = 0.0,
+					   y: float = 0.0,
+					   z: float = 0.0):
+		self.x = x
+		self.y = y
+		self.z = z
 
+	def __init__(self):
+		self.x = 0.0
+		self.y = 0.0
+		self.z = 0.0
+
+	def __add__(self, other: 'Vector3') -> 'Vector3':
+		if type(other) == Vector3:
+			return Vector3(self.x + other.x, self.y + other.y, self.z + other.z)
+
+	def __sub__(self, other: 'Vector3') -> 'Vector3':
+		if type(other) == Vector3:
+			return  Vector3(self.x - other.x, self.y - other.y, self.z - other.z)
+
+	def __mul__(self, other) -> 'Vector3':
+		if type(other) == float or type(other) == int:
+			return Vector3(self.x * other, self.y * other, self.z * other)
+
+	def __div__(self, other) -> 'Vector3':
+		if type(other) == float or type(other) == int:
+			return Vector3(self.x / other, self.y / other, self.z / other)
+
+	def normalize() -> 'Vector3':
+		magnitude = Math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+		return self / magnitude;
+
+	def zero() -> 'Vector3':
+		return Vector3(0.0, 0.0, 0.0)
 
 auto_mode = 0;
-position = new Vector3(0, 0, 0)
-velocity = new Vector3(0, 0, 0)
-acceleration = new Vector3(0, 0, 0)
+position = Vector3.zero()
+velocity = Vector3.zero()
+acceleration = Vector3.zero()
 
-Vector3 target = new Vector3(0, 0, 0)
+target = Vector3.zero()
 lockX = false;
 lockY = false;
 lockZ = false;
