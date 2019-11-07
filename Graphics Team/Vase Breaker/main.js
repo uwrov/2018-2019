@@ -28,7 +28,7 @@
 	    * 	screen
 	    */
   		function init() {
-
+			setInterval(spawnVase, 2000);
   		}
 
 
@@ -47,14 +47,25 @@
 			let vase = document.createElement("button");
 			vase.classList.add("vase");
 			vase.addEventListener("click", vaseOnClick);
+			vase.title = -200;
+			vase.style.left = vase.title + "px";
 			document.getElementById("vases").appendChild(vase);
+			let i = setInterval(function() { moveVase(vase); }, 50);
+			clearInterval(i);
 
 		}
 
-
-		function vaseMovement() {
-			 //position time  -> a displacement funtion with respect to time?
-
+		function moveVase(vase) {
+			//position time  -> a displacement funtion with respect to time?
+			//check if off the Page completely
+			//	despawn
+			if(vase.title > document.width) {
+				vase.parentElement.removeChild(vase);
+			}
+			//move
+			//
+			vase.title = parseInt(vase.title) + 5;
+			vase.style.left = vase.title + "px";
 		}
 
 		function scoreBoard() {
