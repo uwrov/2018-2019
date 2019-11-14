@@ -4,7 +4,7 @@
 import json
 from bottle import get, put, route, run, template
 import bottle  ## looks peculiar
-from math import trunc
+from math import trunc, sqrt
 
 class Vector3:
 	def __init__(self, x: float = 0.0,
@@ -13,11 +13,6 @@ class Vector3:
 		self.x = x
 		self.y = y
 		self.z = z
-
-	def __init__(self):
-		self.x = 0.0
-		self.y = 0.0
-		self.z = 0.0
 
 	def __add__(self, other: 'Vector3') -> 'Vector3':
 		if type(other) == Vector3:
@@ -31,12 +26,14 @@ class Vector3:
 		if type(other) == float or type(other) == int:
 			return Vector3(self.x * other, self.y * other, self.z * other)
 
-	def __div__(self, other) -> 'Vector3':
+	def __truediv__(self, other: 'Vector3' or 'int' or 'float') -> 'Vector3':
 		if type(other) == float or type(other) == int:
 			return Vector3(self.x / other, self.y / other, self.z / other)
 
-	def normalize() -> 'Vector3':
-		magnitude = Math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+	def normalize(self) -> 'Vector3':
+		magnitude = sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+		if magnitude == 0:
+			return Vector3.zero()
 		return self / magnitude;
 
 	def zero() -> 'Vector3':
@@ -48,14 +45,15 @@ velocity = Vector3.zero()
 acceleration = Vector3.zero()
 
 target = Vector3.zero()
-lockX = false;
-lockY = false;
-lockZ = false;
+lockX = False;
+lockY = False;
+lockZ = False;
 
 # Joystick state variables
 
 controller_state = {"rb": 0, "lb": 0, "dup": 0, "ddown": 0, "dleft":0, "dright":0, "leftstick": 0, "rightstick": 0,
-	"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "ltrigger" : 0, "rtrigger" : 0, "update-required": False}
+	"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "ltrigger" : 0, "rtrigger" : 0, "update-required": False,
+	"lateral_motor_speeds": [128, 128, 128, 128], "vert_motor_byte": 128}
 
 def state_of(component):
     return controller_state[component]
@@ -64,7 +62,7 @@ def store_state(component, state):
     # component is the key (a string) for the dictionary controller_state.
     # state is a string that represents a float (the joystick value
     # transmitted from the web interface)
-    controller_state[component] = float(state)
+    controller_state[component] = (state)
     controller_state["update-required"] = True
 
 def test_transform(value):
