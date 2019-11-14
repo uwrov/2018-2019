@@ -55,12 +55,12 @@ void setup() {
 //  IMU.setAccelCalX(0.3, 1);
 //  IMU.setAccelCalY(0.15, 1);
 //  IMU.setAccelCalZ(-0.4, 1);
-  Serial.println("Calibrating!");
+//  Serial.println("Calibrating!");
   calibrate();
-  Serial.println("Ready!");
-  Serial.print(IMU.getAccelBiasX_mss());
-  Serial.print("           ");
-  Serial.println(IMU.getAccelBiasY_mss());
+//  Serial.println("Ready!");
+//  Serial.print(IMU.getAccelBiasX_mss());
+//  Serial.print("           ");
+//  Serial.println(IMU.getAccelBiasY_mss());
 }
 
 void calibrate() {
@@ -89,27 +89,39 @@ void calibrate() {
 void loop() {
   // read the sensor
   IMU.readSensor();
-
-  // display the data
-  Serial.print(IMU.getAccelX_mss(),6);
-  Serial.print("x mss \t");
-  Serial.print(IMU.getAccelY_mss(),6);
-  Serial.print("y mss \t");
-  Serial.print(IMU.getAccelZ_mss(),6);
-  Serial.print("z mss \t");
-  Serial.print(IMU.getGyroX_rads(),6);
-  Serial.print("x rads \t");
-  Serial.print(IMU.getGyroY_rads(),6);
-  Serial.print("y rads \t");
-  Serial.print(IMU.getGyroZ_rads(),6);
-  Serial.print("z rads \t");
-//  Serial.print(IMU.getMagX_uT(),6);
-//  Serial.print("\t");
-//  Serial.print(IMU.getMagY_uT(),6);
-//  Serial.print("\t");
-//  Serial.print(IMU.getMagZ_uT(),6);
-//  Serial.print("\t");
-//  Serial.println(IMU.getTemperature_C(),6);
-  Serial.print("\n");
-  delay(200);
+  float x = IMU.getAccelX_mss();
+  float* xp = &x;
+  byte* bdx = (byte*) xp;
+  float y = IMU.getAccelY_mss();
+  float* yp = &y;
+  byte* bdy = (byte*) yp;
+  float z = IMU.getAccelZ_mss();
+  float* zp = &z;
+  byte* bdz = (byte*) zp;
+  byte bytes[16] = {bdx[0], bdx[1], bdx[2], bdx[3],
+                    bdy[0], bdy[1], bdy[2], bdy[3],
+                    bdz[0], bdz[1], bdz[2], bdz[3]};
+  Serial.write(bytes, 12);
+//  // display the data
+//  Serial.print(IMU.getAccelX_mss(),6);
+//  Serial.print("x mss \t");
+//  Serial.print(IMU.getAccelY_mss(),6);
+//  Serial.print("y mss \t");
+//  Serial.print(IMU.getAccelZ_mss(),6);
+//  Serial.print("z mss \t");
+//  Serial.print(IMU.getGyroX_rads(),6);
+//  Serial.print("x rads \t");
+//  Serial.print(IMU.getGyroY_rads(),6);
+//  Serial.print("y rads \t");
+//  Serial.print(IMU.getGyroZ_rads(),6);
+//  Serial.print("z rads \t");
+////  Serial.print(IMU.getMagX_uT(),6);
+////  Serial.print("\t");
+////  Serial.print(IMU.getMagY_uT(),6);
+////  Serial.print("\t");
+////  Serial.print(IMU.getMagZ_uT(),6);
+////  Serial.print("\t");
+////  Serial.println(IMU.getTemperature_C(),6);
+//  Serial.print("\n");
+//  delay(200);
 }
