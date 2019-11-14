@@ -1,0 +1,14 @@
+// This will be the text file that has all of the information on style guidelines.
+// main.js will read through the file and populate the html based on what is inside.
+// The file starts off with a set of rules which will correlate to functions in
+// main.js. Any changes to the Style Guidelines should be written in here. If there
+// are any specific formatting that is not currently supported then main.js may need
+// to be updated to support new formatting.
+//
+// - Created on: November 28th, 2019
+// - initially created by: Andrew Jang
+
+//rules will be defined as ( 'identifier' : 'function name' )
+~rules~
+   >toc : TableOfContents 
+~end~
