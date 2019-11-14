@@ -58,11 +58,20 @@ header, #gamble-bot {
   	width: 102px;
 }
 
+#chris-bio-page {
+   width: 70%;
+   margin: 20px auto;
+   border-radius: 5px;
+   background: #e2edff;
+   padding: 10px;
+   text-align: center;
+}
+
 #calculator {
    width: 90%;
    margin: 20px auto;
    border-radius: 5px;
-   background: #e2edff;
+   background: #e2edcc;
    padding: 10px;
    text-align: center;
 }
