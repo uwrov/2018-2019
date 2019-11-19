@@ -89,39 +89,22 @@ void calibrate() {
 void loop() {
   // read the sensor
   IMU.readSensor();
-  float x = IMU.getAccelX_mss();
-  float* xp = &x;
-  byte* bdx = (byte*) xp;
-  float y = IMU.getAccelY_mss();
-  float* yp = &y;
-  byte* bdy = (byte*) yp;
-  float z = IMU.getAccelZ_mss();
-  float* zp = &z;
-  byte* bdz = (byte*) zp;
-  byte bytes[16] = {bdx[0], bdx[1], bdx[2], bdx[3],
-                    bdy[0], bdy[1], bdy[2], bdy[3],
-                    bdz[0], bdz[1], bdz[2], bdz[3]};
-  Serial.write(bytes, 12);
+//  float x = IMU.getAccelX_mss();
+//  float* xp = &x;
+//  byte* bdx = (byte*) xp;
+//  float y = IMU.getAccelY_mss();
+//  float* yp = &y;
+//  byte* bdy = (byte*) yp;
+//  float z = IMU.getAccelZ_mss();
+//  float* zp = &z;
+//  byte* bdz = (byte*) zp;
+//  byte bytes[16] = {0xFF, 0xFF, 0xFF, 0xFF,
+//                    bdx[0], bdx[1], bdx[2], bdx[3],
+//                    bdy[0], bdy[1], bdy[2], bdy[3],
+//                    bdz[0], bdz[1], bdz[2], bdz[3]};
+//  Serial.write(bytes, 12);
 //  // display the data
-//  Serial.print(IMU.getAccelX_mss(),6);
-//  Serial.print("x mss \t");
-//  Serial.print(IMU.getAccelY_mss(),6);
-//  Serial.print("y mss \t");
-//  Serial.print(IMU.getAccelZ_mss(),6);
-//  Serial.print("z mss \t");
-//  Serial.print(IMU.getGyroX_rads(),6);
-//  Serial.print("x rads \t");
-//  Serial.print(IMU.getGyroY_rads(),6);
-//  Serial.print("y rads \t");
-//  Serial.print(IMU.getGyroZ_rads(),6);
-//  Serial.print("z rads \t");
-////  Serial.print(IMU.getMagX_uT(),6);
-////  Serial.print("\t");
-////  Serial.print(IMU.getMagY_uT(),6);
-////  Serial.print("\t");
-////  Serial.print(IMU.getMagZ_uT(),6);
-////  Serial.print("\t");
-////  Serial.println(IMU.getTemperature_C(),6);
-//  Serial.print("\n");
-//  delay(200);
+  String send = String(IMU.getAccelX_mss()) + " " + String(IMU.getAccelY_mss()) + " " + String(IMU.getAccelZ_mss()) + "\n";
+  Serial.print(send);
+  delay(200);
 }
