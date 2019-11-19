@@ -1,6 +1,7 @@
 import control_logic
-import surface_comm_bottle
+import surface_comm_bottle, control_debug_input
 import keyboard
+from control_debug_input import XboxController
 from tkinter import *
 
 def draw_motor_speed(c, x, y, d_x, d_y, m):
@@ -36,6 +37,7 @@ def main():
 
     control_logic.AUTO_RUN = 0
     control_logic.DEBUG_MODE = 1
+    controller = XboxController()
 
     while True:
         pass
@@ -45,11 +47,11 @@ def main():
         c.place(x= 0, y = 0)
         c.create_rectangle(50, 50, 150, 200)
 
-        surface_comm_bottle.store_state("lstick-x", left_x.get())
-        surface_comm_bottle.store_state("lstick-y", left_y.get())
+        #surface_comm_bottle.store_state("lstick-x", left_x.get())
+        #surface_comm_bottle.store_state("lstick-y", left_y.get())
 
-        surface_comm_bottle.store_state("rstick-x", right_x.get())
-        surface_comm_bottle.store_state("rstick-y", right_y.get())
+        #surface_comm_bottle.store_state("rstick-x", right_x.get())
+        #surface_comm_bottle.store_state("rstick-y", right_y.get())
 
         control_logic.compute_and_transmit_motor_states()
         lateral_motor_speeds = surface_comm_bottle.state_of("lateral_motor_speeds")
