@@ -30,7 +30,7 @@ DEBUG_MODE = 0
 AUTO_RUN = 1
 MOTORS_ZEROED = 0
 
-AXIS_CUTOFF = 0.05
+AXIS_CUTOFF = 0.10
 
 # When the robot operator tells the robot to move,
 # this program will take linear combinations of the above states
@@ -113,9 +113,9 @@ def convert_list_to_motor_bytes (lst):
 # Returns the current speed coefficient (RT is fine, LT is coarse, neither is medium).
 # Coefficients can be modified at the top of the program.
 def get_speed_mode():
-    if surface_comm_bottle.state_of("rtrigger") == 1:
+    if surface_comm_bottle.state_of("rb") == 1:
         return FINE_SPEED;
-    elif surface_comm_bottle.state_of("ltrigger") == 1:
+    elif surface_comm_bottle.state_of("lb") == 1:
         return COARSE_SPEED;
     return MEDIUM_SPEED;
 
@@ -189,9 +189,9 @@ def compute_and_transmit_motor_states():
     else:
         if surface_comm_bottle.state_of("leftstick") != 0:
             if MOTORS_ZEROED == 0:
-                MOTORS_ZEROED = 1;
+                MOTORS_ZEROED = 1
                 if DEBUG_MODE == 0:
-                    zero_all_motors();
+                    zero_all_motors()
         elif joystick_updated_p():  # only compute and transmit if state has changed
             MOTORS_ZEROED = 0;
             reset_joystick_updated()
