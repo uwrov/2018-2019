@@ -1,14 +1,10 @@
 import serial
 import time
 import struct
-
-if __name__ == '__main__':
+# Read acceleromoter output from arduino, 
+# expects output to be in space separated string.
+def read_string():
     ser = serial.Serial('COM3', 115200, timeout=6)
-    # for i in range(25):
-    #     bs = b''
-    #     for j in range(4):
-    #         bs += ser.read()
-    #     print(struct.unpack('f', bs))
     while True:
         time.sleep(.25)
         ser.flushInput()
@@ -19,3 +15,14 @@ if __name__ == '__main__':
                   ", z: " + reading[2].decode('ascii'))
         else:
             print("poop data")
+
+if __name__ == '__main__':
+    # ser = serial.Serial('COM3', 115200, timeout=6)
+    # while True:
+    #     time.sleep(0.25)
+    #     ser.flushInput()
+    #     out = ser.readline()
+    #     if len(out) > 0:
+    #         # print(out[0:-1])
+    #         print(struct.unpack('f', out[0:-1]))
+    read_string()
