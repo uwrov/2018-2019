@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 */
 
 #include "MPU9250.h"
+#define decs 6
 
 // an MPU9250 object with the MPU-9250 sensor on I2C bus 0 with address 0x68
 MPU9250 IMU(Wire,0x68);
@@ -92,6 +93,8 @@ void loop() {
 //  float x = IMU.getAccelX_mss();
 //  float* xp = &x;
 //  byte* bdx = (byte*) xp;
+//  Serial.write(bdx, 4);
+//  Serial.println();
 //  float y = IMU.getAccelY_mss();
 //  float* yp = &y;
 //  byte* bdy = (byte*) yp;
@@ -104,7 +107,13 @@ void loop() {
 //                    bdz[0], bdz[1], bdz[2], bdz[3]};
 //  Serial.write(bytes, 12);
 //  // display the data
-  String send = String(IMU.getAccelX_mss()) + " " + String(IMU.getAccelY_mss()) + " " + String(IMU.getAccelZ_mss()) + "\n";
-  Serial.print(send);
+//  String send = String(IMU.getAccelX_mss()) + " " + String(IMU.getAccelY_mss()) + " " + String(IMU.getAccelZ_mss()) + "\n";
+//  Serial.print(send);
+  Serial.print(IMU.getAccelX_mss(), decs);
+  Serial.print(" ");
+  Serial.print(IMU.getAccelY_mss(), decs);
+  Serial.print(" ");
+  Serial.print(IMU.getAccelZ_mss(), decs);
+  Serial.println();
   delay(200);
 }
