@@ -45,14 +45,14 @@ velocity = Vector3.zero()
 acceleration = Vector3.zero()
 
 target = Vector3.zero()
-lockX = False;
-lockY = False;
-lockZ = False;
 
 # Joystick state variables
 
-controller_state = {"rb": 0, "lb": 0, "dup": 0, "ddown": 0, "dleft":0, "dright":0, "leftstick": 0, "rightstick": 0,
-	"lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0, "ltrigger" : 0, "rtrigger" : 0, "update-required": False,
+controller_state = {"rb": 0, "lb": 0, "dup": 0, "ddown": 0, "dleft":0, "dright":0,
+	"leftstick": 0, "rightstick": 0, "lstick-x" : 0, "lstick-y" : 0, "rstick-x" : 0, "rstick-y" : 0,
+	"ltrigger" : 0, "rtrigger" : 0, "update-required": False,
+	"lock_x" : 0, "lock_y" : 0, "lock_z" : 0,
+	"target" : Vector3.zero(), "position" : Vector3.zero(),
 	"lateral_motor_speeds": [128, 128, 128, 128], "vert_motor_byte": 128}
 
 def state_of(component):

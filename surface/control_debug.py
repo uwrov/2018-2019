@@ -18,6 +18,16 @@ def motor_speed(id):
     lateral_motor_speeds = surface_comm_bottle.state_of("lateral_motor_speeds")
     return (lateral_motor_speeds[id] - 128.0) / 128.0
 
+def update_locks(x : IntVar, y : IntVar, z : IntVar):
+    surface_comm_bottle.store_state("lock_x", x.get())
+    surface_comm_bottle.store_state("lock_y", y.get())
+    surface_comm_bottle.store_state("lock_z", z.get())
+
+def draw_cross(c, x, y, color):
+    width = 5
+    c.create_line(x - width, y - width, x + width + 1, y + width + 1, fill=color)
+    c.create_line(x - width, y + width, x + width + 1, y - width - 1, fill=color)
+
 def main():
     top = Tk()
     top.minsize(800, 600)
@@ -39,6 +49,19 @@ def main():
     right_y = Scale(top, from_ = -1.0, to = 1.0, resolution = 0.01)
     right_y.place(x = centerX + 17, y = centerY + 60)
 
+    # Checkboxes for ROV Auto Locks
+    centerX += 120
+    local_lock_x = IntVar()
+    local_lock_y = IntVar()
+    local_lock_z = IntVar()
+
+    xLock = Checkbutton(top, text="Auto X Axis", variable=local_lock_x)
+    xLock.place( x = centerX, y = centerY)
+    yLock = Checkbutton(top, text="Auto Y Axis", variable=local_lock_y)
+    yLock.place( x = centerX, y = centerY + 40)
+    zLock = Checkbutton(top, text="Auto Z Axis", variable=local_lock_z)
+    zLock.place( x = centerX, y = centerY + 80)
+
     control_logic.AUTO_RUN = 0
     control_logic.DEBUG_MODE = 1
     control_logic.MOTORS_ZEROED = 0
@@ -48,9 +71,12 @@ def main():
         pass
         if keyboard.is_pressed('q'):
             break
+
         c = Canvas(top, width = 300, height = 300)
         c.place(x= 0, y = 0)
-        c.create_rectangle(50, 50, 150, 200)
+
+        # Update and Get ROV Movement
+        update_locks(local_lock_x, local_lock_y, local_lock_z)
 
         left_x.set(surface_comm_bottle.state_of("lstick-x"))
         left_y.set(surface_comm_bottle.state_of("lstick-y"))
@@ -65,16 +91,40 @@ def main():
         control_logic.compute_and_transmit_motor_states()
         lateral_motor_speeds = surface_comm_bottle.state_of("lateral_motor_speeds")
 
-        draw_motor_speed(c, 50, 50, 1, -1, (lateral_motor_speeds[0] - 128.0) / 128.0)
-        draw_motor_speed(c, 150, 50, -1, -1, (lateral_motor_speeds[1] - 128.0) / 128.0)
+        # Draw Motor Speeds and ROV Frame
+        rov_x = 100
+        rov_y = 125
+        rov_width = 50 # half of true width
+        rov_height = 75 # half of true height
 
-        draw_motor_speed(c, 50, 200, -1, -1, (lateral_motor_speeds[2] - 128.0) / 128.0)
-        draw_motor_speed(c, 150, 200, 1, -1, (lateral_motor_speeds[3] - 128.0) / 128.0)
+        c.create_rectangle(rov_x - rov_width, rov_y - rov_height, rov_x + rov_width, rov_y + rov_height)
 
-        #net_x =
-        #net_y =
-        #net_rotate =
+        draw_motor_speed(c, rov_x - rov_width, rov_y - rov_height, 1, -1, (lateral_motor_speeds[0] - 128.0) / 128.0)
+        draw_motor_speed(c, rov_x + rov_width, rov_y - rov_height, -1, -1, (lateral_motor_speeds[1] - 128.0) / 128.0)
 
+        draw_motor_speed(c, rov_x - rov_width, rov_y + rov_height, -1, -1, (lateral_motor_speeds[2] - 128.0) / 128.0)
+        draw_motor_speed(c, rov_x + rov_width, rov_y + rov_height, 1, -1, (lateral_motor_speeds[3] - 128.0) / 128.0)
+
+        # Draw Net Movement and Rotation Arrows
+        net_x = motor_speed(0) - motor_speed(1) - motor_speed(2) + motor_speed(3)
+        net_y = -(motor_speed(0) + motor_speed(1) + motor_speed(2) + motor_speed(3))
+        net_rotate = motor_speed(0) + motor_speed(2) - (motor_speed(1) + motor_speed(3))
+        max_distance = 50
+
+        c.create_line(rov_x, rov_y, rov_x + net_x * max_distance, rov_y + net_y * max_distance, fill="red", arrow=LAST)
+        c.create_text(rov_x + net_x * max_distance, rov_y + net_y * max_distance, fill = "red", text = "Net Movement")
+
+        rotate_height = rov_y - rov_height - 25
+        c.create_line (rov_x, rotate_height, rov_x + net_rotate * max_distance, rotate_height, fill="blue", arrow=LAST)
+        c.create_text(rov_x + net_rotate * max_distance, rotate_height, fill = "blue", text = "Net Rotation")
+
+        mouse_x = top.winfo_pointerx() - top.winfo_rootx()
+        mouse_y = top.winfo_pointery() - top.winfo_rooty()
+        draw_cross(c, mouse_x, mouse_y, "magenta")
+
+        pixels_per_unit = 5
+        target_pos = surface_comm_bottle.state_of("target")
+        draw_cross(c, target_pos.x + rov_x, target_pos.y + rov_y, "red")
 
         top.update()
 

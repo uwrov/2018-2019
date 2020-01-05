@@ -124,12 +124,18 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
     # Give weight to Rotating_State and Forward_State; add two together.
     # Joystick y must be negated beforehand because the controller reports full forward
     # as -1 .
-    net_state = add_lists(scale_list(Rotating_State, m_joystick_x),
-                          scale_list(Strafe_Forward_State, m_joystick_y))
+    net_state = scale_list(Rotating_State, m_joystick_x)
     # Scale net_state to intended strength intended by joystick.
     # Strength is how far the stick is displaced from the center.
     net_state = normalize_list(net_state)
-    net_state = scale_list(net_state, sqrt(m_joystick_x**2 + m_joystick_y**2))
+    net_state = scale_list(net_state, sqrt(m_joystick_x**2))
+
+    # If sticks pointing in the same direction, chooses the most displaced value.
+    # Otherwise, if pointing in different directions, sums the two sticks.
+    if (abs(m_joystick_y + strafe_y) < abs(strafe_y)): # pointing in different directions
+        strafe_y = m_joystick_y + strafe_y
+    elif (abs(m_joystick_y) > abs(strafe_y)): # else, replace
+        strafe_y = m_joystick_y
 
     strafe_state = add_lists(scale_list(Strafe_Left_State, strafe_x), scale_list(Strafe_Forward_State, strafe_y))
     strafe_state = normalize_list(strafe_state)
@@ -158,16 +164,16 @@ def clamp(x, min, max):
 # Returns a Vector3 with the speed intensity for the X, Y, and Z movement to reach
 # target location.
 # [0-1] for each axis.
-def moveToTarget() -> Vector3:
+def moveToTarget(position : Vector3, target : Vector3) -> Vector3:
     #determine displacement
     xDelta = 0.0
     yDelta = 0.0
     zDelta = 0.0
-    if surface_comm_bottle.lockX: #this is inverted, because +x should move in the left direction
+    if surface_comm_bottle.state_of("lock_x") == 1: #this is inverted, because +x should move in the left direction
         xDelta = position.x - target.x
-    if surface_comm_bottle.lockY:
+    if surface_comm_bottle.state_of("lock_y") == 1:
         yDelta = target.y - position.y
-    if surface_comm_bottle.lockZ:
+    if surface_comm_bottle.state_of("lock_z") == 1:
         yDelta = target.z - position.z
 
     displacement = sqrt(xDelta*xDelta + yDelta*yDelta + zDelta*zDelta)
@@ -188,10 +194,8 @@ def compute_and_transmit_motor_states():
         var = 0 #so that if branch works correctly
     else:
         if surface_comm_bottle.state_of("leftstick") != 0:
-            if MOTORS_ZEROED == 0:
-                MOTORS_ZEROED = 1
-                if DEBUG_MODE == 0:
-                    zero_all_motors()
+            if DEBUG_MODE == 0:
+                zero_all_motors()
         elif joystick_updated_p():  # only compute and transmit if state has changed
             MOTORS_ZEROED = 0;
             reset_joystick_updated()
@@ -205,7 +209,7 @@ def compute_and_transmit_motor_states():
 
             strafe_z_in = surface_comm_bottle.state_of("rtrigger") - surface_comm_bottle.state_of("ltrigger")
 
-            auto_input = moveToTarget()
+            auto_input = moveToTarget(surface_comm_bottle.state_of("position"), surface_comm_bottle.state_of("target"))
             if abs(strafe_x_in) < AXIS_CUTOFF:
                 strafe_x_in = auto_input.x
             if abs(strafe_y_in) < AXIS_CUTOFF:
