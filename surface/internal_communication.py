@@ -3,7 +3,7 @@
 
 import serial
 from time import clock, sleep
-from thread import start_new_thread
+from _thread import start_new_thread
 
 ## Packet Headers
 # Output packet headers  (same values as "HEADER_KEY_IN_*" in motor-code.ino)
@@ -128,7 +128,7 @@ def zero_all_motors():
     writePacket(HEADER_KEY_ZERO_ALL_MOTORS, 0)  # Zero is a filler byte
 
 # Set up serial communication and start data reading thread
-# Returns -1 if an error occurred during serial connection 
+# Returns -1 if an error occurred during serial connection
 # Returns 0 otherwise
 # On Unix-like systems, serialPort is the name of the serial device file
 def arduinoSetup(serialPort):
@@ -137,7 +137,7 @@ def arduinoSetup(serialPort):
     try:
         ser = serial.Serial(serialPort)
     except (OSError, serial.SerialException):
-        print "arduinoSetup: Serial '" + str(serialPort) + "' did not connect"
+        print("arduinoSetup: Serial '" + str(serialPort) + "' did not connect")
         return -1
     # Zero motors
     zero_all_motors()
