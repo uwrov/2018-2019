@@ -4,22 +4,37 @@ import numpy as np
 def __main__():
     return
 
+def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
+    dim = None
+    (h, w) = image.shape[:2]
+
+    if width is None and height is None:
+        return image
+    if width is None:
+        r = height / float(h)
+        dim = (int(w * r), height)
+    else:
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    return cv2.resize(image, dim, interpolation=inter)
+
 def trim_to_size(img1, img2):
     height1, width1, channels1 = img1.shape
     height2, width2, channels2 = img2.shape
     w_min = min(width1, width2)
     h_min = min(height1, height1)
-    img1 = img1[0:h_min, 0:w_min]
-    img2 = img2[0:h_min, 0:w_min]
+    img1 = cv2.resize(img1, (h_min,w_min))
+    img2 = cv2.resize(img2, (h_min,w_min))
     return img1, img2
 
 # align the before and after picture to make sure
 # they are in the same orientation when comparing
 # color
-def alignImages(img1, img2):
-    img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY) # REFERENCE IMAGE
-    img2_gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY) # IMAGE TO ALIGN WITH REFERENCE
-    height, width, channels = img2.shape
+def alignImages(align, ref):
+    img1_gray = cv2.cvtColor(align, cv2.COLOR_BGR2GRAY) # REFERENCE IMAGE
+    img2_gray = cv2.cvtColor(ref, cv2.COLOR_BGR2GRAY) # IMAGE TO ALIGN WITH REFERENCE
+    height, width, channels = ref.shape
 
     # create ORB detecor (to find keypoints later)
     orb_detector = cv2.ORB_create(5000)
@@ -44,22 +59,26 @@ def alignImages(img1, img2):
       p2[i, :] = kp2[matches[i].trainIdx].pt
 
     homography, mask = cv2.findHomography(p1, p2, cv2.RANSAC)
-    transformed_img = cv2.warpPerspective(img1_gray, homography, (width, height))
+    transformed_img = cv2.warpPerspective(align, homography, (width, height))
     return transformed_img
 
 ### pre: Requires both img1 and img2 to be the same dimensions.
 def matrix_difference(img1, img2):
-    out = cv2.absdiff(img1, img2)
-    return out
+    diff = cv2.subtract(img1, img2)
+    diff_gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+    cv2.imshow("diff grey", resize(diff_gray, 480))
+    ret, thresh = cv2.threshold(diff_gray, 40, 255, cv2.THRESH_BINARY)
+    return thresh
 
 img1 = cv2.imread("images/coral1.PNG")
 img2 = cv2.imread("images/coral2.PNG")
 img1, img2 = trim_to_size(img1, img2)
-cv2.imshow("image1", img1)
-cv2.imshow("image2", img2)
-img3 = alignImages(img1, img2)
-cv2.imshow("aligned 2", img3)
-#img_diff = matrix_difference(img1, img2)
-#cv2.imshow("diff", img_diff)
+cv2.imshow("image1", resize(img1, 480))
+cv2.imshow("image2", resize(img2, 480))
+img3 = alignImages(img2, img1)
+cv2.imshow("aligned 2", resize(img3, 480))
+img_diff = matrix_difference(img1, img3)
+cv2.imshow("diff", resize(img_diff, 480))
+
 
 cv2.waitKey(0)
