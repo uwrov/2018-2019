@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import imutils
 
 def __main__():
     return
@@ -64,11 +65,26 @@ def alignImages(align, ref):
 
 ### pre: Requires both img1 and img2 to be the same dimensions.
 def matrix_difference(img1, img2):
-    diff = cv2.subtract(img1, img2)
+    img2_color = img2.copy()
+    img2_green = img2.copy()
+    img2_green[:, :, 0] = 0
+    img2_green[:, :, 2] = 0
+    img1_green = img1.copy()
+    img1_green[:, :, 0] = 0
+    img1_green[:, :, 2] = 0
+
+    diff = cv2.absdiff(cv2.GaussianBlur(img1_green, (5, 5), 0),
+                       cv2.GaussianBlur(img2_green, (5, 5), 0))
     diff_gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
     cv2.imshow("diff grey", resize(diff_gray, 480))
     ret, thresh = cv2.threshold(diff_gray, 40, 255, cv2.THRESH_BINARY)
-    return thresh
+    cnts = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:4]
+    i = 0;
+    for c in cnts:
+        cv2.drawContours(img2, [c], -1, (255, 0, 255), 3)
+    return img2
 
 img1 = cv2.imread("images/coral1.PNG")
 img2 = cv2.imread("images/coral2.PNG")
