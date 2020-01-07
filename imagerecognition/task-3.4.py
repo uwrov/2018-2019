@@ -1,5 +1,5 @@
 import cv2
-import numpy
+import numpy as np
 
 def __main__():
     return
@@ -19,7 +19,7 @@ def trim_to_size(img1, img2):
 def alignImages(img1, img2):
     img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY) # REFERENCE IMAGE
     img2_gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY) # IMAGE TO ALIGN WITH REFERENCE
-    height, width = img2.shape
+    height, width, channels = img2.shape
 
     # create ORB detecor (to find keypoints later)
     orb_detector = cv2.ORB_create(5000)
@@ -57,7 +57,9 @@ img2 = cv2.imread("images/coral2.PNG")
 img1, img2 = trim_to_size(img1, img2)
 cv2.imshow("image1", img1)
 cv2.imshow("image2", img2)
-img_diff = matrix_difference(img1, img2)
-cv2.imshow("diff", img_diff)
+img3 = alignImages(img1, img2)
+cv2.imshow("aligned 2", img3)
+#img_diff = matrix_difference(img1, img2)
+#cv2.imshow("diff", img_diff)
 
 cv2.waitKey(0)
