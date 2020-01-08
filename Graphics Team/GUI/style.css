@@ -1,0 +1,11 @@
+/*
+*	This is the cascading style sheet file for the UWROV GUI.
+*/
+
+.hidden {
+    display: none !important;
+}
+
+body {
+
+}
