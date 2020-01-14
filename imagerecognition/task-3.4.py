@@ -126,24 +126,24 @@ def classify_change_types(ref_w, ref_p, new_w, new_p):
     #height, width, channels = ref_w.shape
 
     # Masks of areas where there is coral
-    ref_wp = cv2.add(ref_w, ref_p)
-    new_wp = cv2.add(new_w, new_p)
+    ref_wp = cv2.bitwise_or(ref_w, ref_p)
+    new_wp = cv2.bitwise_or(new_w, new_p)
 
     # Get masks of background color (areas where there is no pink/white)
     ref_b = cv2.bitwise_not(ref_wp) # white = background color
     new_b = cv2.bitwise_not(new_wp)
 
     # Growth: New pink/white in ref background areas
-    growth = cv2.bitwise_and(new_wp, new_wp, ref_b)
+    growth = cv2.bitwise_and(new_wp, ref_b)
 
     # Damage: New background in ref pink/white
-    damage = cv2.bitwise_and(new_b, new_b, ref_wp)
+    damage = cv2.bitwise_and(new_b, ref_wp)
 
     # Bleaching: New white in ref pink
-    bleaching = cv2.bitwise_and(new_w, new_w, ref_p)
+    bleaching = cv2.bitwise_and(new_w, ref_p)
 
     # Recovery: New pink in ref white
-    recovery = cv2.bitwise_and(new_p, new_p, ref_w)
+    recovery = cv2.bitwise_and(new_p, ref_w)
 
     ret, thresh = cv2.threshold(growth, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
