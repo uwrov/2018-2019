@@ -101,8 +101,10 @@ def binarize_color(img, boundaries):
     lower = np.array(boundaries[0], dtype="uint8")
     upper = np.array(boundaries[1], dtype="uint8")
     mask = cv2.inRange(img, lower, upper)
-    output = cv2.bitwise_and(img, img, mask = mask)
-    return output
+    return mask
+    # uncomment below lines if you want to visualize the masking.
+    #output = cv2.bitwise_and(img, img, mask = mask)
+    #return output
 
 
 def binarization(img):
@@ -111,61 +113,57 @@ def binarization(img):
     boundariesPink = [[140, 50, 140], [255, 125, 255]]
     return binarize_color(img, boundariesWhite), binarize_color(img, boundariesPink)
 
-# Returns images
+#
+# THESE IMAGES MUST BE IN GRAYSCALE!!
+#
 def classify_change_types(ref_w, ref_p, new_w, new_p):
     scale = 2
-    height, width, channels = ref_w.shape
-    ref_w = cv2.resize(ref_w, (height // scale, width // scale))
-    ref_p = cv2.resize(ref_p, (height // scale, width // scale))
-    new_w = cv2.resize(new_w, (height // scale, width // scale))
-    new_p = cv2.resize(new_p, (height // scale, width // scale))
-    height, width, channels = ref_w.shape
+    #height, width, channels = ref_w.shape
+    #ref_w = cv2.resize(ref_w, (height // scale, width // scale))
+    #ref_p = cv2.resize(ref_p, (height // scale, width // scale))
+    #new_w = cv2.resize(new_w, (height // scale, width // scale))
+    #new_p = cv2.resize(new_p, (height // scale, width // scale))
+    #height, width, channels = ref_w.shape
 
-    growth = ref_w.copy()
-    cv2.resize(growth, (height, width))
-    growth[:,:] = (0, 0, 0)
-    damage = growth.copy()
-    bleaching = growth.copy()
-    recovery = growth.copy()
-    one = (255, 255, 255)
+    # Masks of areas where there is coral
+    ref_wp = cv2.add(ref_w, ref_p)
+    new_wp = cv2.add(new_w, new_p)
 
-    for i in range(0, height):
-        for j in range(0, width):
-            rWhite = from_binary_color(ref_w[i, j])
-            rPink = from_binary_color(ref_p[i, j])
-            rBack = not (rWhite or rPink)
-            nWhite = from_binary_color(new_w[i, j])
-            nPink = from_binary_color(new_p[i, j])
-            nBack = not (nWhite or nPink)
+    # Get masks of background color (areas where there is no pink/white)
+    ref_b = cv2.bitwise_not(ref_wp) # white = background color
+    new_b = cv2.bitwise_not(new_wp)
 
-            if rBack and not nBack: #growth
-                growth[i, j] = one
-            elif not rBack and nBack: #damage
-                damage[i, j] = one
-            elif rPink and nWhite:
-                bleaching[i, j] = one
-            elif rWhite and nPink:
-                recovery[i, j] = one
+    # Growth: New pink/white in ref background areas
+    growth = cv2.bitwise_and(new_wp, new_wp, ref_b)
 
-    ret, thresh = cv2.threshold(cv2.cvtColor(growth, cv2.COLOR_BGR2GRAY), 127, 255, 0)
+    # Damage: New background in ref pink/white
+    damage = cv2.bitwise_and(new_b, new_b, ref_wp)
+
+    # Bleaching: New white in ref pink
+    bleaching = cv2.bitwise_and(new_w, new_w, ref_p)
+
+    # Recovery: New pink in ref white
+    recovery = cv2.bitwise_and(new_p, new_p, ref_w)
+
+    ret, thresh = cv2.threshold(growth, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     cv2.drawContours(growth, cnts, -1, (0, 255, 0), 2)
     cv2.imshow("growth", growth)
 
-    ret, thresh = cv2.threshold(cv2.cvtColor(damage, cv2.COLOR_BGR2GRAY), 127, 255, 0)
+    ret, thresh = cv2.threshold(damage, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     cv2.drawContours(damage, cnts, -1, (255, 0, 0), 2)
     cv2.imshow("damage", damage)
 
-    ret, thresh = cv2.threshold(cv2.cvtColor(bleaching, cv2.COLOR_BGR2GRAY), 127, 255, 0)
+    ret, thresh = cv2.threshold(bleaching, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     cv2.drawContours(bleaching, cnts, -1, (255, 0, 255), 2)
     cv2.imshow("bleaching", bleaching)
 
-    ret, thresh = cv2.threshold(cv2.cvtColor(recovery, cv2.COLOR_BGR2GRAY), 127, 255, 0)
+    ret, thresh = cv2.threshold(recovery, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     cv2.drawContours(recovery, cnts, -1, (0, 255, 255), 2)
@@ -177,20 +175,21 @@ img2 = cv2.imread("images/coral2.PNG")
 img1, img2 = trim_to_size(img1, img2)
 cv2.imshow("image1", resize(img1, 480))
 cv2.imshow("image2", resize(img2, 480))
-img2 = alignImages(img2, img1)
-cv2.imshow("aligned 2", resize(img2, 480))
+img2_aligned = alignImages(img2, img1)
+cv2.imshow("aligned 2", resize(img2_aligned, 480))
 #img_diff = matrix_difference(img1, img3)
 #cv2.imshow("diff", resize(img_diff, 480))
 
 img1_w, img1_p = binarization(img1)
-cv2.imshow("image1_w", img1_w)
-cv2.imshow("image1_p", img1_p)
+img2_w, img2_p = binarization(img2_aligned)
 
-#img3 = cv2.imread("images/identifytest_ref_white.PNG")
-#img4 = cv2.imread("images/identifytest_ref_pink.PNG")
-#img5 = cv2.imread("images/identifytest_new_white.PNG")
-#img6 = cv2.imread("images/identifytest_new_pink.PNG")
+img3 = cv2.cvtColor(cv2.imread("images/identifytest_ref_white.PNG"), cv2.COLOR_BGR2GRAY)
+img4 = cv2.cvtColor(cv2.imread("images/identifytest_ref_pink.PNG"), cv2.COLOR_BGR2GRAY)
+img5 = cv2.cvtColor(cv2.imread("images/identifytest_new_white.PNG"), cv2.COLOR_BGR2GRAY)
+img6 = cv2.cvtColor(cv2.imread("images/identifytest_new_pink.PNG"), cv2.COLOR_BGR2GRAY)
 
-#classify_change_types(img3, img4, img5, img6)
+#classify_change_types(img1_w, img1_p, img2_w, img2_p) #Use this to test the new input
+classify_change_types(img3, img4, img5, img6) #Use this to test using sample input
+
 
 cv2.waitKey(0)
