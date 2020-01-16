@@ -1,2 +1,0 @@
-MPU9250.h
-https://github.com/bolderflight/MPU9250
