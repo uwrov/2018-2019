@@ -1,13 +1,6 @@
 import cv2
 import numpy as np
 import imutils
-from enum import Enum
-
-class ChangeType(Enum):
-    GROWTH = 0
-    DAMAGE = 1
-    BLEACHING = 2
-    RECOVERY = 3
 
 def __main__():
     return
@@ -148,6 +141,7 @@ def classify_change_types(ref_w, ref_p, new_w, new_p):
     ret, thresh = cv2.threshold(growth, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
+    growth = cv2.cvtColor(growth, cv2.COLOR_GRAY2BGR)
     cv2.drawContours(growth, cnts, -1, (0, 255, 0), 2)
     cv2.imshow("growth", growth)
 
