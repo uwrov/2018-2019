@@ -70,12 +70,12 @@ def transformImage(image, points):
         bottomleft = points[0][0]
 
     # get right side points
-    if(points[3][0][1] < points[4][0][1]):
-        topright = points[3][0]
-        bottomright = points[4][0]
-    else:
-        topright = points[4][0]
+    if(points[2][0][1] < points[3][0][1]):
+        topright = points[2][0]
         bottomright = points[3][0]
+    else:
+        topright = points[3][0]
+        bottomright = points[2][0]
     print(points)
 
 image = cv2.imread("images/identifytest_new_pink.PNG")
