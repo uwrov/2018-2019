@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
+import math
 
 def main():
-    cap = cv2.VideoCapture('http://10.19.218.29:8080/video/mjpeg')
+    cap = cv2.VideoCapture('http://10.19.182.26:8080/video/mjpeg')
     height, width, _ = cap.read()[1].shape
 
     while True:
@@ -33,12 +34,20 @@ def main():
         # ~~~~~~~~~~~~~~~~~~~~~~~` Lines approach ~~~~~~~~~~~~~~~~~~~~~~~`
         edges = cv2.Canny(mask, 75, 150)
         lines = cv2.HoughLinesP(edges, 1, np.pi/180, 50, maxLineGap=50)
+        llines = []
         # TODO: isolate longest line, hopefully it's a good representation of the blue line we care about. 
+        # 
         if lines is not None:
             for line in lines:
                 x1, y1, x2, y2 = line[0]
                 cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 5)
-       
+                lineDistance = np.sqrt((x2 - x1)^2 + (y2 - y1)^2)
+                # print(lineDistance) 
+                llines.append(lineDistance)
+            # find index of longest line and draws the longest line in array    
+            i_max = llines.index(max(llines))
+            x1, y1, x2, y2 = lines[i_max][0]
+            cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 255), 5)
         cv2.line(frame, (0, height//2), (width, height//2),(0,0,255),5)
 
         cv2.imshow('feed', frame)
