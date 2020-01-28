@@ -38,7 +38,7 @@ def main():
             for line in lines:
                 x1, y1, x2, y2 = line[0]
                 cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 5)
-        
+       
         cv2.line(frame, (0, height//2), (width, height//2),(0,0,255),5)
 
         cv2.imshow('feed', frame)
