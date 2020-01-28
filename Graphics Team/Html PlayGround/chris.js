@@ -89,7 +89,7 @@
 	// buttons to be changed
 	let buttonMappings = [];
 
-	var BUTTON_NAME = {
+	const BUTTON_NAME = {
 		0: "a",			//A
 		1: "b",			//B
 		2: "x",			//X
@@ -163,7 +163,7 @@
 	}
 
 	function updateGamepadState() {
-	  var gamepads = navigator.getGamepads ? navigator.getGamepads() :
+	  let gamepads = navigator.getGamepads ? navigator.getGamepads() :
 	  					(navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
 
 	  for (var i = 0; i < gamepads.length; i++) {
