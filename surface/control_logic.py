@@ -1,8 +1,8 @@
 # Interprets data received from surface GUI and fires motors appropriately.
 
 from math import sqrt
-from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing, zero_all_motors, z
-from thread import start_new_thread
+from internal_communication import sendMotorSignal, WAIT_TIME, arduinoSetup, queryMotorSpeed, toggleLED, sendPing, zero_all_motors
+from _thread import start_new_thread
 from time import clock, sleep
 from surface_comm_bottle import position, acceleration, velocity, auto_mode, Vector3
 import bottle, surface_comm_bottle, sys, socket, psutil, os
@@ -26,10 +26,11 @@ COARSE_SPEED = 127
 MEDIUM_SPEED = 60
 FINE_SPEED = 20
 
-ENABLE_INPUT = 1
+DEBUG_MODE = 0
+AUTO_RUN = 1
 MOTORS_ZEROED = 0
 
-AXIS_CUTOFF = 0.05
+AXIS_CUTOFF = 0.10
 
 # When the robot operator tells the robot to move,
 # this program will take linear combinations of the above states
@@ -54,7 +55,7 @@ AXIS_CUTOFF = 0.05
 # to the Arduino, which actuates the motors.
 
 def joystick_updated_p():
-    return ENABLE_INPUT and surface_comm_bottle.state_of("update-required")
+    return surface_comm_bottle.state_of("update-required")
 
 def reset_joystick_updated():
     surface_comm_bottle.store_state("update-required", False)
@@ -71,7 +72,7 @@ def add_lists(*lists):
 
 # Multiplies a list of numbers by a scalar factor.
 def scale_list(lst, factor):
-    return map(lambda lst_element: lst_element * factor, lst)
+    return list(map(lambda lst_element: lst_element * factor, lst))
 
 def constrain_value(value, lower_bound, upper_bound):
     # Function returns value if it is within supplied bounds
@@ -112,9 +113,9 @@ def convert_list_to_motor_bytes (lst):
 # Returns the current speed coefficient (RT is fine, LT is coarse, neither is medium).
 # Coefficients can be modified at the top of the program.
 def get_speed_mode():
-    if surface_comm_bottle.state_of("rtrigger") == 1:
+    if surface_comm_bottle.state_of("rb") == 1:
         return FINE_SPEED;
-    elif surface_comm_bottle.state_of("ltrigger") == 1:
+    elif surface_comm_bottle.state_of("lb") == 1:
         return COARSE_SPEED;
     return MEDIUM_SPEED;
 
@@ -123,12 +124,18 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
     # Give weight to Rotating_State and Forward_State; add two together.
     # Joystick y must be negated beforehand because the controller reports full forward
     # as -1 .
-    net_state = add_lists(scale_list(Rotating_State, m_joystick_x),
-                          scale_list(Strafe_Forward_State, m_joystick_y))
+    net_state = scale_list(Rotating_State, m_joystick_x)
     # Scale net_state to intended strength intended by joystick.
     # Strength is how far the stick is displaced from the center.
     net_state = normalize_list(net_state)
-    net_state = scale_list(net_state, sqrt(m_joystick_x**2 + m_joystick_y**2))
+    net_state = scale_list(net_state, sqrt(m_joystick_x**2))
+
+    # If sticks pointing in the same direction, chooses the most displaced value.
+    # Otherwise, if pointing in different directions, sums the two sticks.
+    if (abs(m_joystick_y + strafe_y) < abs(strafe_y)): # pointing in different directions
+        strafe_y = m_joystick_y + strafe_y
+    elif (abs(m_joystick_y) > abs(strafe_y)): # else, replace
+        strafe_y = m_joystick_y
 
     strafe_state = add_lists(scale_list(Strafe_Left_State, strafe_x), scale_list(Strafe_Forward_State, strafe_y))
     strafe_state = normalize_list(strafe_state)
@@ -136,16 +143,16 @@ def compute_lateral_motor_composite_state (m_joystick_x, m_joystick_y, strafe_x,
 
     # Add effect of strafing, then normalize and shift to byte-values
     net_state = add_lists(net_state, strafe_state)
+    ret = list(map(lambda x : constrain_value(x, 0, 255),
+               convert_list_to_motor_bytes(net_state)))
+    return ret
 
-    return map(lambda x : constrain_value(x, 0, 255),
-               convert_list_to_motor_bytes(net_state))
-
-#Smooths between a and b by some x (0-1).
+# Smooths between a and b by some x (0-1).
 def smoothstep(a, b, x):
     x = clamp(x, a, b)
     return x * x * (3 - 2 * x)
 
-#
+# Clamps x to be within the bounds given by min and max.
 def clamp(x, min, max):
     if x > max:
         return min
@@ -154,70 +161,73 @@ def clamp(x, min, max):
     else:
         return x
 
-
-def moveToTarget() -> Vector3:
+# Returns a Vector3 with the speed intensity for the X, Y, and Z movement to reach
+# target location.
+# [0-1] for each axis.
+def moveToTarget(position : Vector3, target : Vector3) -> Vector3:
     #determine displacement
     xDelta = 0.0
     yDelta = 0.0
     zDelta = 0.0
-    if lockX: #this is inverted, because +x should move in the left direction
+    if surface_comm_bottle.state_of("lock_x") == 1: #this is inverted, because +x should move in the left direction
         xDelta = position.x - target.x
-    if lockY:
+    if surface_comm_bottle.state_of("lock_y") == 1:
         yDelta = target.y - position.y
-    if lockZ:
+    if surface_comm_bottle.state_of("lock_z") == 1:
         yDelta = target.z - position.z
 
-    displacement = math.sqrt(xDelta*xDelta + yDelta*yDelta + zDelta*zDelta)
+    displacement = sqrt(xDelta*xDelta + yDelta*yDelta + zDelta*zDelta)
     minimum_speed = 0.0
-    maximum_speed = 1.0 #spoof controller input
+    maximum_speed = 1.0 #spoof controller input by constraining [0, 1]
     max_speed_distance = 16.0
     speed = smoothstep((displacement / max_speed_distance), minimum_speed, maximum_speed)
 
     #normalize
-    direction = new Vector3(xDelta, yDelta, zDelta).normalize()
-
-    #set motor speed and direction
+    direction = Vector3(xDelta, yDelta, zDelta).normalize()
 
     return direction * speed;
 
 # Computes and transmits motor states to Arduino.
 def compute_and_transmit_motor_states():
-    while True:
-        if surface_comm_bottle.state_of("auto_mode" == 1):
-            #initiate auto
-            var = 0 #so that if branch works correctly
-        else:
-            if surface_comm_bottle.state_of("leftstick") != 0:
-                if MOTORS_ZEROED == 0:
-                    MOTORS_ZEROED = 1;
-                    zero_all_motors();
-            elif joystick_updated_p():  # only compute and transmit if state has changed
-                MOTORS_ZEROED = 0;
-                reset_joystick_updated()
-                #Calculate motor speed
-                strafe_x_in = surface_comm_bottle.state_of("dleft") - surface_comm_bottle.state_of("dright") # Calculate strafe_x and strafe_y
-                strafe_y_in = surface_comm_bottle.state_of("dup") - surface_comm_bottle.state_of("ddown")
-                # Reads joystick if D-Pad has no input (or negates itself)
-                if strafe_x_in == 0 and strafe_y_in == 0:
-                    strafe_x_in = -surface_comm_bottle.state_of("lstick-x")
-                    strafe_y_in = -surface_comm_bottle.state_of("lstick-y")
+    if auto_mode == 1:
+        #initiate auto
+        var = 0 #so that if branch works correctly
+    else:
+        if surface_comm_bottle.state_of("leftstick") != 0:
+            if DEBUG_MODE == 0:
+                zero_all_motors()
+        elif joystick_updated_p():  # only compute and transmit if state has changed
+            MOTORS_ZEROED = 0;
+            reset_joystick_updated()
+            #Calculate motor speed
+            strafe_x_in = surface_comm_bottle.state_of("dleft") - surface_comm_bottle.state_of("dright") # Calculate strafe_x and strafe_y
+            strafe_y_in = surface_comm_bottle.state_of("dup") - surface_comm_bottle.state_of("ddown")
+            # Reads joystick if D-Pad has no input (or negates itself)
+            if strafe_x_in == 0 and strafe_y_in == 0:
+                strafe_x_in = -surface_comm_bottle.state_of("lstick-x")
+                strafe_y_in = -surface_comm_bottle.state_of("lstick-y")
 
-                strafe_z_in = surface_comm_bottle.state_of("rtrigger") - surface_comm_bottle.state_of("ltrigger")
+            strafe_z_in = surface_comm_bottle.state_of("rtrigger") - surface_comm_bottle.state_of("ltrigger")
 
-                auto_input = moveToTarget()
-                if abs(strafe_x_in) < AXIS_CUTOFF:
-                    strafe_x_in = auto_input.x
-                if abs(strafe_y_in) < AXIS_CUTOFF:
-                    strafe_y_in = auto_input.y
-                if abs(strafe_z_in) < AXIS_CUTOFF:
-                    strafe_z_in = auto_input.z
+            auto_input = moveToTarget(surface_comm_bottle.state_of("position"), surface_comm_bottle.state_of("target"))
+            if abs(strafe_x_in) < AXIS_CUTOFF:
+                strafe_x_in = auto_input.x
+            if abs(strafe_y_in) < AXIS_CUTOFF:
+                strafe_y_in = auto_input.y
+            if abs(strafe_z_in) < AXIS_CUTOFF:
+                strafe_z_in = auto_input.z
 
-                lateral_motor_speeds = compute_lateral_motor_composite_state(
-                        surface_comm_bottle.state_of("rstick-x"),
-                        -surface_comm_bottle.state_of("rstick-y"),
-                        strafe_x_in,
-                        strafe_y_in)
-                vert_motor_byte = int(128 + get_speed_mode() * strafe_z_in)
+            lateral_motor_speeds = compute_lateral_motor_composite_state(
+                    surface_comm_bottle.state_of("rstick-x"),
+                    -surface_comm_bottle.state_of("rstick-y"),
+                    strafe_x_in,
+                    strafe_y_in)
+            vert_motor_byte = int(128 + get_speed_mode() * strafe_z_in)
+
+            surface_comm_bottle.store_state("lateral_motor_speeds", lateral_motor_speeds)
+            surface_comm_bottle.store_state("vert_motor_byte", vert_motor_byte)
+
+            if (DEBUG_MODE == 0):
                 # Note that the array of numbers is supposed to represent the array index of the motor in the Arduino.  They should somehow be redefined as constants for portability and readability.
                 for motor_speed, motor_number in zip(lateral_motor_speeds, [0, 1, 2, 3]):
                     sendMotorSignal(motor_number, motor_speed)
@@ -225,6 +235,10 @@ def compute_and_transmit_motor_states():
                 sendMotorSignal(4, vert_motor_byte)
                 sendMotorSignal(5, vert_motor_byte)
         sleep(WAIT_TIME)  # delay between successive calls of this function in its own thread
+
+def main_loop():
+    while AUTO_RUN == 1:
+        compute_and_transmit_motor_states()
 
 # Shell command, zeroes the motors and exits the program.
 def kill():
@@ -239,38 +253,36 @@ def initiate_communications():
         try:
             #start_new_thread(lambda : bottle.run(host='192.168.8.102', port=8085), ())
             bottle.run(host='192.168.8.102', port=8085)
-            print "[Connected successfully.]"
+            print("[Connected successfully.]")
             break
         except socket.error as serr:
-            print serr
-            print "[Error encountered. Attempt to kill processes and reconnect... ({}/{})]".format(attempts, max_attempts)
+            print(serr)
+            print("[Error encountered. Attempt to kill processes and reconnect... ({}/{})]".format(attempts, max_attempts))
             PROCNAME = "python"
             myPID = psutil.Process(os.getpid()).pid
-            print myPID
+            print(myPID)
             for proc in psutil.process_iter():
                 if PROCNAME in proc.name():
                     if myPID != proc.pid:
-                        print "Attempting kill on {}, {}".format(proc.name(), proc.pid)
+                        print("Attempting kill on {}, {}".format(proc.name(), proc.pid))
                         proc.kill()
         attempts = attempts - 1
 
-# Init communications
-if (arduinoSetup("/dev/ttyACM0") == 0):
+def main():
+    # Init communications
+    #if (arduinoSetup("/dev/ttyACM0") == 0): #This original statement was to prevent running if arduino not connected
     if (len(sys.argv) > 1):
         # IMPORTANT NOTE! PASSING IN AN ARG WILL AUTOMATICALLY SET
         # THE ROV TO TESTING MODE.
         print("STARTED IN DEBUG MODE: Run without arguments to disable.")
-        ENABLE_INPUT = 0;
+        DEBUG_MODE = 1
+        AUTO_RUN = 0
     else:
         print("STARTED IN OP MODE: (Run with arguments to enable debug mode.)")
     print("Type kill() at any time to exit ROV operation safely.")
     # This expression will start periodically computating and transmitting motor states
-    start_new_thread(compute_and_transmit_motor_states, ())
-    start_new_thread(initiate_communications, ())
+    initiate_communications()
+    main_loop()
 
-# def tester():
-#     while 1:
-#         print(Lateral)
-#         sleep(5)
-
-# start_new_thread(tester, ())
+if __name__ == "__main__":
+    main()
