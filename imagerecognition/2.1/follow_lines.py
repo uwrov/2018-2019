@@ -65,7 +65,7 @@ def main():
             dx = x2 - x1
             
             # Angle from vertical (clockwise - positive angle)
-            angle = np.arctan(dx/dy) * 180 / np.pi 
+            angle = np.arctan(dx/dy) * 180 / np.pi # output in degrees
             cv2.putText(frame, str(angle), (5, height), cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 255), 4, cv2.LINE_AA)
 
         # draw central vertical
