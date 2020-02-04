@@ -13,7 +13,7 @@ IMAGE_CORNER = (30, 30)
 captureButtonLastState = False
 captureButtonCurrentState = False
 
-def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
+def resizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     """ Resizes an image while maintaining aspect ratio.
 
     """
@@ -89,16 +89,16 @@ def transformImage(image, size, points):
     """ How to get points:
         points[0-3][0][0-1]
                ^ four different points
-                       ^ 0 is x and 1 is y
+                       ^ 0 is y and 1 is x
 
                      b =   0    1      0    1      0    1      0    1
         point[a][0][b] = [[279, 274], [279, 427], [440, 427], [440, 274]]
                      a =   0           1           2           3
     """
-    sorted(points, key=lambda point: point[0][0], reverse = True)
+    sorted(points, key=lambda point: point[0][1], reverse = True)
 
     # get left side points
-    if(points[0][0][1] < points[1][0][1]):
+    if(points[0][0][0] < points[1][0][0]):
         topleft = points[0][0]
         bottomleft = points[1][0]
     else:
@@ -106,7 +106,7 @@ def transformImage(image, size, points):
         bottomleft = points[0][0]
 
     # get right side points
-    if(points[2][0][1] < points[3][0][1]):
+    if(points[2][0][0] < points[3][0][0]):
         topright = points[2][0]
         bottomright = points[3][0]
     else:
@@ -115,13 +115,13 @@ def transformImage(image, size, points):
     #print(points)
 
     quadPoints = np.array([topleft, topright, bottomleft, bottomright], dtype = "float32")
-    width = size[0]
-    height = size[1]
+    height = size[0]
+    width = size[1]
     finalPoints = np.array([
         [0, 0],
-        [width, 0],
-        [0, height],
-        [width, height]],
+        [height, 0],
+        [0, width],
+        [height, width]],
         dtype = "float32")
 
     transform = cv2.getPerspectiveTransform(quadPoints, finalPoints) #Get matrix
@@ -147,7 +147,7 @@ imageSizes = scaleTupleArray(sizes, DISPLAY_IMAGE_SCALE)
 imageIndex = 0
 outputImages = [None] * 5
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 if(cap.isOpened()):
     print("Opened camera.")
@@ -156,7 +156,7 @@ if(cap.isOpened()):
     while(imageIndex < len(sizes)):
         # Capture frame-by-frame
         ret, image = cap.read()
-        image = resize(image, width = 800)
+        image = resizeWithAspectRatio(image, width = 800)
         warpedImage, points = getRectangleImage(image.copy(), sizes[imageIndex])
 
         k = cv2.waitKey(1) & 0xFF
@@ -171,24 +171,22 @@ if(cap.isOpened()):
         x, y = IMAGE_CORNER
         for i in range(imageIndex):
             width, height = imageSizes[i]
-            resized_img = resize(warpedImage.copy(), width = width)
-            print("x: {}, y: {}, width: {}, height{}".format(x, y, width, height))
+            resized_img = cv2.resize(outputImages[i].copy(), (width, height))
+            print("x: {}, y: {}, width: {}, height: {}".format(x, y, width, height))
             print(resized_img.shape)
-            image[x : x + width, y : y + height] = resized_img
+            image[y:y + height, x:x + width] = resized_img
             x += width
 
         if points is not None and warpedImage is not None:
             cv2.drawContours(image, [points], -1, (0, 0, 255), 4)
             width, height = imageSizes[imageIndex]
-            shrink_img = resize(warpedImage.copy(), width = width)
-            rows, columns, channels = shrink_img.shape
-            image[x:x + rows, y:y +columns] = shrink_img
-
-        if (captureButtonCurrentState and not captureButtonLastState):
-            # time to capture!!!
-            outputImages[imageIndex] = warpedImage;
-            print("Captured image {}.".format(imageIndex))
-            imageIndex += 1;
+            shrink_img = cv2.resize(warpedImage.copy(), (width, height))
+            image[y:y + height, x:x + width] = shrink_img
+            if (captureButtonCurrentState and not captureButtonLastState):
+                # time to capture!!!
+                outputImages[imageIndex] = warpedImage;
+                print("Captured image {}.".format(imageIndex))
+                imageIndex += 1;
 
         cv2.imshow("Camera View", image)
         captureButtonLastState = captureButtonCurrentState
