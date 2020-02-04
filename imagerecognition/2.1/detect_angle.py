@@ -26,9 +26,9 @@ def main():
 
         # Isolate blue, draw lines on edges
         mask = cv2.inRange(hsv, lower_blue, upper_blue)
-        mask = cv2.GaussianBlur(mask, (5,5), 0)
+        mask = cv2.GaussianBlur(mask, (5, 5), 0)
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~ Rectangle Approach ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~ Rectangle Approach ~~~~~~~~~~~~~~~~~~~~~~~~~~
         # bluecnts = cv2.findContours(mask.copy(),
         #                     cv2.RETR_EXTERNAL,
         #                     cv2.CHAIN_APPROX_SIMPLE)[-2]
@@ -38,7 +38,7 @@ def main():
         #     cv2.line(frame, (x, y+h//2), (x+w, y+h//2), (0,255,0), 2)
         #     cv2.rectangle(frame, (x, y), (x+w, y+h), (0,255,0), 2)
 
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~ Line approach ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~ Line approach ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         # Isolate lines
         edges = cv2.Canny(mask, 75, 150)
