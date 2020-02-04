@@ -14,6 +14,7 @@ captureButtonLastState = False
 captureButtonCurrentState = False
 captureButtonDeleteState = False
 
+
 def resizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     """ Resizes an image while maintaining aspect ratio.
 
@@ -33,6 +34,7 @@ def resizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
 
     return cv2.resize(image, dim, interpolation=inter)
 
+
 def getRectangleImage(img, size):
     """ Converts an image to a cropped, translated image of a rectangle
     :param img: The original image (in color)
@@ -44,11 +46,12 @@ def getRectangleImage(img, size):
     points = getRectangle(binary_img)
 
     if points is None:
-        #print("getRectangleImage(): No Rectangle Found."
+        # print("getRectangleImage(): No Rectangle Found."
         return None, None
 
     transformed_img = transformImage(img.copy(), size, points)
     return transformed_img, points
+
 
 def getRectangle(binary_img):
     """ Finds a rectangle in a binary image and returns its corners (points)
@@ -57,19 +60,19 @@ def getRectangle(binary_img):
               Otherwise, returns None.
     """
 
-    #Using cv2.RETR_LIST to prevent nesting contours
+    # Using cv2.RETR_LIST to prevent nesting contours
     cnts = cv2.findContours(binary_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
     # Sorts contours by size and gets largest contour
-    cnts = sorted(cnts, key = cv2.contourArea, reverse = True)
+    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
 
     if len(cnts) == 0:
         return None
 
     largest_contour = cnts[0]
-    epsilon = 0.1*cv2.arcLength(largest_contour,True)
-    approx = cv2.approxPolyDP(largest_contour,epsilon,True)
+    epsilon = 0.1*cv2.arcLength(largest_contour, True)
+    approx = cv2.approxPolyDP(largest_contour, epsilon, True)
 
     # Extra code to visualize the image
     # test_img = cv2.drawContours(cv2.cvtColor(binary_img.copy(), cv2.COLOR_GRAY2BGR), largest_contour, -1, (255, 0, 255), 8)
@@ -78,6 +81,7 @@ def getRectangle(binary_img):
     if len(approx) == 4:
         return approx
     return None
+
 
 def transformImage(image, size, points):
     """ Takes in the points of a rectangle and transforms and crops the image to it.
@@ -96,7 +100,7 @@ def transformImage(image, size, points):
         point[a][0][b] = [[279, 274], [279, 427], [440, 427], [440, 274]]
                      a =   0           1           2           3
     """
-    sorted(points, key=lambda point: point[0][1], reverse = True)
+    sorted(points, key=lambda point: point[0][1], reverse=True)
 
     # get left side points
     if(points[0][0][0] < points[1][0][0]):
@@ -113,9 +117,9 @@ def transformImage(image, size, points):
     else:
         topright = points[3][0]
         bottomright = points[2][0]
-    #print(points)
+    # print(points)
 
-    quadPoints = np.array([topleft, topright, bottomleft, bottomright], dtype = "float32")
+    quadPoints = np.array([topleft, topright, bottomleft, bottomright], dtype="float32")
     height = size[0]
     width = size[1]
     finalPoints = np.array([
@@ -123,11 +127,12 @@ def transformImage(image, size, points):
         [height, 0],
         [0, width],
         [height, width]],
-        dtype = "float32")
+        dtype="float32")
 
-    transform = cv2.getPerspectiveTransform(quadPoints, finalPoints) #Get matrix
-    output = cv2.warpPerspective(image, transform, size) #Transform image
+    transform = cv2.getPerspectiveTransform(quadPoints, finalPoints)  # Get matrix
+    output = cv2.warpPerspective(image, transform, size)  # Transform image
     return output
+
 
 def scaleTupleArray(array, scale):
     """ Returns a new array where new[i] = array[i] * scale
@@ -146,10 +151,11 @@ def addTupleX(tup1, tup2):
     x2, y2 = tup2
     return x1 + x2
 
+
 """ Main
 """
 
-#image = cv2.imread("images/test3.JPG")
+# image = cv2.imread("images/test3.JPG")
 end = (WIDTH * PIXELS_PER_CM, HEIGHT * PIXELS_PER_CM)
 side = (LENGTH * PIXELS_PER_CM, HEIGHT * PIXELS_PER_CM)
 top = (LENGTH * PIXELS_PER_CM, WIDTH * PIXELS_PER_CM)
@@ -175,12 +181,11 @@ cap = cv2.VideoCapture(1)
 
 if(cap.isOpened()):
     print("Opened camera.")
-            #outputImages = image
-            #sizesIndex++
+
     while(imageIndex <= len(sizes)):
         # Capture frame-by-frame
         ret, image = cap.read()
-        image = resizeWithAspectRatio(image, width = 800)
+        image = resizeWithAspectRatio(image, width=800)
         warpedImage, points = getRectangleImage(image.copy(), sizes[imageIndex])
 
         k = cv2.waitKey(1) & 0xFF
@@ -195,7 +200,7 @@ if(cap.isOpened()):
             captureButtonCurrentState = False
             captureButtonDeleteState = False
 
-        for i in range(imageIndex): #from 0 to imageIndex, exclusive [0, imageIndex)
+        for i in range(imageIndex):  # from 0 to imageIndex, exclusive [0, imageIndex)
             width, height = imageSizes[i]
             x, y = coords[i]
             resized_img = cv2.resize(outputImages[i].copy(), (width, height))
@@ -223,4 +228,3 @@ if(cap.isOpened()):
 
 else:
     print("Failed to get camera.")
-#getRectangleImage(image)
