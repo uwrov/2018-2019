@@ -3,15 +3,16 @@ import numpy as np
 import imutils
 
 RECTANGLE_THRESHOLD = 150
-PIXELS_PER_CM = 2
+PIXELS_PER_CM = 1
 LENGTH = 110
 HEIGHT = 50
 WIDTH = 50
 DISPLAY_IMAGE_SCALE = 1
-IMAGE_CORNER = (30, 30)
+IMAGE_CORNER = (60, 60)
 
 captureButtonLastState = False
 captureButtonCurrentState = False
+captureButtonDeleteState = False
 
 def resizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     """ Resizes an image while maintaining aspect ratio.
@@ -129,10 +130,21 @@ def transformImage(image, size, points):
     return output
 
 def scaleTupleArray(array, scale):
+    """ Returns a new array where new[i] = array[i] * scale
+
+    """
     output = [None] * len(array)
     for i in range(len(array)):
         output[i] = (int(array[i][0] * scale), int(array[i][1] * scale))
     return output
+
+
+def addTupleX(tup1, tup2):
+    """ Adds the x values of two tuples and returns a new tuple from them.
+    """
+    x1, y1 = tup1
+    x2, y2 = tup2
+    return x1 + x2
 
 """ Main
 """
@@ -143,6 +155,18 @@ side = (LENGTH * PIXELS_PER_CM, HEIGHT * PIXELS_PER_CM)
 top = (LENGTH * PIXELS_PER_CM, WIDTH * PIXELS_PER_CM)
 sizes = [end, side, end, side, top]
 imageSizes = scaleTupleArray(sizes, DISPLAY_IMAGE_SCALE)
+x_0, y_0 = IMAGE_CORNER
+
+img_width, img_height = imageSizes[0]
+img_length, _ = imageSizes[1]
+coords = [
+    (x_0, y_0),
+    (x_0 + img_width, y_0),
+    (x_0 + img_width + img_length, y_0),
+    (x_0 + (2 * img_width) + img_length, y_0),
+    (x_0 + img_width, y_0 - img_height)
+    ]
+
 
 imageIndex = 0
 outputImages = [None] * 5
@@ -153,7 +177,7 @@ if(cap.isOpened()):
     print("Opened camera.")
             #outputImages = image
             #sizesIndex++
-    while(imageIndex < len(sizes)):
+    while(imageIndex <= len(sizes)):
         # Capture frame-by-frame
         ret, image = cap.read()
         image = resizeWithAspectRatio(image, width = 800)
@@ -165,28 +189,34 @@ if(cap.isOpened()):
             break
         elif k == ord('c'):
             captureButtonCurrentState = True
+        elif k == ord('b'):
+            captureButtonDeleteState = True
         else:
             captureButtonCurrentState = False
+            captureButtonDeleteState = False
 
-        x, y = IMAGE_CORNER
-        for i in range(imageIndex):
+        for i in range(imageIndex): #from 0 to imageIndex, exclusive [0, imageIndex)
             width, height = imageSizes[i]
+            x, y = coords[i]
             resized_img = cv2.resize(outputImages[i].copy(), (width, height))
             print("x: {}, y: {}, width: {}, height: {}".format(x, y, width, height))
             print(resized_img.shape)
-            image[y:y + height, x:x + width] = resized_img
-            x += width
+            image[y: y + height, x: x + width] = resized_img
 
-        if points is not None and warpedImage is not None:
+        if (imageIndex != len(imageSizes)) and points is not None and warpedImage is not None:
             cv2.drawContours(image, [points], -1, (0, 0, 255), 4)
             width, height = imageSizes[imageIndex]
+            x, y = coords[imageIndex]
             shrink_img = cv2.resize(warpedImage.copy(), (width, height))
             image[y:y + height, x:x + width] = shrink_img
             if (captureButtonCurrentState and not captureButtonLastState):
                 # time to capture!!!
-                outputImages[imageIndex] = warpedImage;
+                outputImages[imageIndex] = warpedImage
                 print("Captured image {}.".format(imageIndex))
-                imageIndex += 1;
+                imageIndex += 1
+            elif (captureButtonDeleteState):
+                if (imageIndex > 0):
+                    imageIndex -= 1
 
         cv2.imshow("Camera View", image)
         captureButtonLastState = captureButtonCurrentState
