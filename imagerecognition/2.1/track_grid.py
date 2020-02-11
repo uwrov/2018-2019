@@ -26,6 +26,15 @@ def main():
     mask = cv2.inRange(hsv, lower_pink, upper_pink)
     mask = cv2.GaussianBlur(mask, (5, 5), 0)
 
+    # Isolate lines
+    edges = cv2.Canny(mask, 75, 150)
+    lines = cv2.HoughLinesP(edges, 1, np.pi/180, 50, maxLineGap=50)
+
+    if lines is not None:
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(im, (x1, y1), (x2, y2), (0, 255, 0), 5)
+
     cv2.imshow('hi', im)
     cv2.imshow("bye", mask)
     cv2.waitKey(0)

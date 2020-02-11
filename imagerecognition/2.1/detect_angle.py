@@ -5,11 +5,6 @@ import numpy as np
 # then it will find the angle between the vertical
 # and a blue line displayed on screen.
 
-# TODO: Find height of rov based on line distance
-#       - suggest elevation accordingly
-# TODO: Identify where in the screen the blue lines are
-#       - suggest strafing accordingly
-
 
 def main():
     # Grab video feed from source
