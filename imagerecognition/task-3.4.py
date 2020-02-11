@@ -29,7 +29,7 @@ def trim_to_size(img1, img2):
     img2 = cv2.resize(img2, (h_min,w_min))
     return img1, img2
 
-# align the before and after picture to make sure
+# align the before and after picture to make suref
 # they are in the same orientation when comparing
 # color
 def alignImages(align, ref):
@@ -135,10 +135,20 @@ def classify_change_types(ref_w, ref_p, new_w, new_p):
     cv2.imshow("ref_b", ref_b)
     
     # Growth: New pink/white in ref background areas
-    #growth = cv2.bitwise_and(new_p, ref_p) one of these was wp
-    #gt = cv2.bitwise_or(new_p, ref_p)
+    #growth = cv2.bitwise_and(new_p, ref_p)
+    growth = cv2.bitwise_or(new_p, ref_p)
     gt = new_p - ref_p
 
+    
+    shiftedGrowth = cv2.bitwise_xor(ref_p, growth)
+    shiftedGrowth = cv2.GaussianBlur(shiftedGrowth, (5, 5), 0)
+    #cv2.imshow("shiftedGrowth", shiftedGrowth)
+    '''
+    shiftedGrowth = cv2.bitwise_not(growth)
+    cv2.imshow("shifted growth", shiftedGrowth)
+    finalGrowthTest = cv2.bitwise_or(shiftedGrowth, new_p)
+    cv2.imshow("final growth test", finalGrowthTest)
+    '''
     finalGrowth = cv2.bitwise_or(gt, ref_b)
     cv2.imshow("finalGrowth", finalGrowth)
     # Damage: New background in ref pink/white
@@ -149,24 +159,35 @@ def classify_change_types(ref_w, ref_p, new_w, new_p):
 
     # Recovery: New pink in ref white
     recovery = cv2.bitwise_and(new_p, ref_w)
-    '''
-    ret, thresh = cv2.threshold(growth, 127, 255, 0)
+    
+    ret, thresh = cv2.threshold(shiftedGrowth, 127, 255, 0)#growth
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
+    '''
     growth = cv2.cvtColor(growth, cv2.COLOR_GRAY2BGR)
     cv2.drawContours(growth, cnts, -1, (0, 255, 0), 2)
     cv2.imshow("growth", growth)
-    '''
+    
     ret, thresh = cv2.threshold(gt, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
-    gt = cv2.cvtColor(gt, cv2.COLOR_GRAY2BGR)
-    '''for c in cnts:
+    '''
+    shiftedGrowth = cv2.cvtColor(shiftedGrowth, cv2.COLOR_GRAY2BGR)
+    for c in cnts:
         xP,yP,wP,hP = cv2.boundingRect(c)
-        if(wP * hP >= 1 and wP*hP <= 3):
-            print(wP*hP)
-            cv2.drawContours(gt, cnts, -1, (0, 255, 0), 2)'''
-    cv2.imshow("gt", gt)
+        
+        mean_val = np.array(cv2.mean(shiftedGrowth[yP:yP+hP,xP:xP+wP])).astype(np.uint8)
+        print(mean_val)
+        if(mean_val[3] == 255):
+            #print(area)
+            cv2.drawContours(shiftedGrowth, cnts, -1, (0, 0, 255), 2)
+        '''#cv2.drawContours(shiftedGrowth, cnts, -1, (0, 255, 0), 2)
+        #print(wP*hP)
+        area = cv2.contourArea(c)
+        if(area >= 10):
+            #print(area)
+            cv2.drawContours(shiftedGrowth, cnts, -1, (0, 0, 255), 2)'''
+    cv2.imshow("shiftedGrowth", shiftedGrowth)
     '''
     ret, thresh = cv2.threshold(gt, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -198,13 +219,13 @@ def classify_change_types(ref_w, ref_p, new_w, new_p):
     #cv2.imshow("recovery", recovery)
 
 
-img1 = cv2.imread("/home/margot/Documents/uwrov/2018-2019-master/imagerecognition/images/coral1_mod.png")
-img2 = cv2.imread("/home/margot/Documents/uwrov/2018-2019-master/imagerecognition/images/coral2.PNG")
+img1 = cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/coral1_mod.png")
+img2 = cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/coral2.PNG")
 img1, img2 = trim_to_size(img1, img2)
-cv2.imshow("image1", resize(img1, 480))
+#cv2.imshow("image1", resize(img1, 480))
 #cv2.imshow("image2", resize(img2, 480))
 img2_aligned = alignImages(img2, img1)
-cv2.imshow("aligned 2", resize(img2_aligned, 480))
+#cv2.imshow("aligned 2", resize(img2_aligned, 480))
 img_diff = matrix_difference(img1, img2_aligned)
 #cv2.imshow("diff", resize(img_diff, 480))
 
@@ -217,10 +238,10 @@ cv2.imshow("img1_p", img1_p)
 cv2.imshow("img2_p", img2_p)
 
 
-img3 = cv2.cvtColor(cv2.imread("/home/margot/Documents/uwrov/2018-2019-master/imagerecognition/images/identifytest_ref_white.png"), cv2.COLOR_BGR2GRAY) #/home/margot/Documents/uwrov/2018-2019-master/imagerecognition/images
-img4 = cv2.cvtColor(cv2.imread("/home/margot/Documents/uwrov/2018-2019-master/imagerecognition/images/identifytest_ref_pink.png"), cv2.COLOR_BGR2GRAY)
-img5 = cv2.cvtColor(cv2.imread("/home/margot/Documents/uwrov/2018-2019-master/imagerecognition/images/identifytest_new_white.png"), cv2.COLOR_BGR2GRAY)
-img6 = cv2.cvtColor(cv2.imread("/home/margot/Documents/uwrov/2018-2019-master/imagerecognition/images/identifytest_new_pink.png"), cv2.COLOR_BGR2GRAY)
+img3 = cv2.cvtColor(cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/identifytest_ref_white.png"), cv2.COLOR_BGR2GRAY) #/home/margot/Documents/uwrov/2018-2019-master/imagerecognition/images
+img4 = cv2.cvtColor(cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/identifytest_ref_pink.png"), cv2.COLOR_BGR2GRAY)
+img5 = cv2.cvtColor(cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/identifytest_new_white.png"), cv2.COLOR_BGR2GRAY)
+img6 = cv2.cvtColor(cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/identifytest_new_pink.png"), cv2.COLOR_BGR2GRAY)
 
 classify_change_types(img1_w, img1_p, img2_w, img2_p) #Use this to test the new input
 #classify_change_types(img3, img4, img5, img6) #Use this to test using sample input
