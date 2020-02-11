@@ -3,6 +3,7 @@ import numpy as np
 import imutils
 
 RECTANGLE_THRESHOLD = 150
+CENTER_THRESHOLD_VARIANCE = 20
 PIXELS_PER_CM = 1
 LENGTH = 110
 HEIGHT = 50
@@ -36,7 +37,17 @@ def getRectangleImage(img, size):
     :return: A transformed image cropped to the rectangle (or None if none found)
     :return: Points defining the rectangle found
     """
+
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    rows, columns, channels = img.shape
+    centerPixel = img[rows // 2, columns // 2]
+    sum = 0
+    for i in range(3):
+        sum += centerPixel[i]
+    sum = (sum // 3) - CENTER_THRESHOLD_VARIANCE
+    RECTANGLE_THRESHOLD = sum
+
     ret, binary_img = cv2.threshold(gray_img, RECTANGLE_THRESHOLD, 255, cv2.THRESH_BINARY)
     points = getRectangle(binary_img)
     if points is None:
@@ -152,6 +163,7 @@ coords = [
 imageIndex = 0
 outputImages = [None] * 5
 cap = cv2.VideoCapture(1)
+
 if(cap.isOpened()):
     print("Opened camera.")
     while(imageIndex <= len(sizes)):
@@ -160,7 +172,7 @@ if(cap.isOpened()):
         image = resizeWithAspectRatio(image, width=800)
         warpedImage, points = getRectangleImage(image.copy(), sizes[imageIndex])
         k = cv2.waitKey(1) & 0xFF
-        
+
         if k == ord('q'):
             cv2.destroyAllWindows()
             break
@@ -186,6 +198,7 @@ if(cap.isOpened()):
             x, y = coords[imageIndex]
             shrink_img = cv2.resize(warpedImage.copy(), (width, height))
             image[y:y + height, x:x + width] = shrink_img
+
             if (captureButtonCurrentState and not captureButtonLastState):
                 # time to capture!!!
                 outputImages[imageIndex] = warpedImage
@@ -194,6 +207,7 @@ if(cap.isOpened()):
             elif (captureButtonDeleteState):
                 if (imageIndex > 0):
                     imageIndex -= 1
+
         cv2.imshow("Camera View", image)
         captureButtonLastState = captureButtonCurrentState
 else:
