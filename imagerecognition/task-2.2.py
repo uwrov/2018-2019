@@ -3,6 +3,7 @@ import numpy as np
 import imutils
 
 RECTANGLE_THRESHOLD = 150
+CENTER_THRESHOLD_VARIANCE = 25
 PIXELS_PER_CM = 2
 LENGTH = 110
 HEIGHT = 50
@@ -33,6 +34,16 @@ def getRectangleImage(img, size):
     :return: A transformed image cropped to the rectangle (or None if none found)
     :return: Points defining the rectangle found
     """
+
+    rows, columns, channels = img.shape
+    centerPixel = img[rows / 2, columns / 2]
+    sum = 0
+    for i in range(3):
+        sum += centerPixel[i]
+    sum = (sum / 3) - CENTER_THRESHOLD_VARIANCE
+    RECTANGLE_THRESHOLD = sum
+
+
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, binary_img = cv2.threshold(gray_img, RECTANGLE_THRESHOLD, 255, cv2.THRESH_BINARY)
     points = getRectangle(binary_img)
