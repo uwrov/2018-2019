@@ -3,15 +3,11 @@ import numpy as np
 import imutils
 
 RECTANGLE_THRESHOLD = 150
+CENTER_THRESHOLD_VARIANCE = 25
 PIXELS_PER_CM = 2
 LENGTH = 110
 HEIGHT = 50
 WIDTH = 50
-DISPLAY_IMAGE_SCALE = 1
-IMAGE_CORNER = (30, 30)
-
-captureButtonLastState = False
-captureButtonCurrentState = False
 
 def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
     """ Resizes an image while maintaining aspect ratio.
@@ -38,6 +34,16 @@ def getRectangleImage(img, size):
     :return: A transformed image cropped to the rectangle (or None if none found)
     :return: Points defining the rectangle found
     """
+
+    rows, columns, channels = img.shape
+    centerPixel = img[rows / 2, columns / 2]
+    sum = 0
+    for i in range(3):
+        sum += centerPixel[i]
+    sum = (sum / 3) - CENTER_THRESHOLD_VARIANCE
+    RECTANGLE_THRESHOLD = sum
+
+
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, binary_img = cv2.threshold(gray_img, RECTANGLE_THRESHOLD, 255, cv2.THRESH_BINARY)
     points = getRectangle(binary_img)
@@ -128,12 +134,6 @@ def transformImage(image, size, points):
     output = cv2.warpPerspective(image, transform, size) #Transform image
     return output
 
-def scaleTupleArray(array, scale):
-    output = [None] * len(array)
-    for i in range(len(array)):
-        output[i] = (int(array[i][0] * scale), int(array[i][1] * scale))
-    return output
-
 """ Main
 """
 
@@ -142,57 +142,30 @@ end = (WIDTH * PIXELS_PER_CM, HEIGHT * PIXELS_PER_CM)
 side = (LENGTH * PIXELS_PER_CM, HEIGHT * PIXELS_PER_CM)
 top = (LENGTH * PIXELS_PER_CM, WIDTH * PIXELS_PER_CM)
 sizes = [end, side, end, side, top]
-imageSizes = scaleTupleArray(sizes, DISPLAY_IMAGE_SCALE)
+sizesIndex = 0
+outputImages = []
 
-imageIndex = 0
-outputImages = [None] * 5
-
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 if(cap.isOpened()):
     print("Opened camera.")
-            #outputImages = image
-            #sizesIndex++
-    while(imageIndex < len(sizes)):
+    while(sizesIndex < len(sizes)):
         # Capture frame-by-frame
         ret, image = cap.read()
         image = resize(image, width = 800)
-        warpedImage, points = getRectangleImage(image.copy(), sizes[imageIndex])
-
-        k = cv2.waitKey(1) & 0xFF
-        if k == ord('q'):
-            cv2.destroyAllWindows()
-            break
-        elif k == ord('c'):
-            captureButtonCurrentState = True
-        else:
-            captureButtonCurrentState = False
-
-        x, y = IMAGE_CORNER
-        for i in range(imageIndex):
-            width, height = imageSizes[i]
-            resized_img = resize(warpedImage.copy(), width = width)
-            print("x: {}, y: {}, width: {}, height{}".format(x, y, width, height))
-            print(resized_img.shape)
-            image[x : x + width, y : y + height] = resized_img
-            x += width
+        warpedImage, points = getRectangleImage(image.copy(), sizes[sizesIndex])
 
         if points is not None and warpedImage is not None:
-            cv2.drawContours(image, [points], -1, (0, 0, 255), 4)
-            width, height = imageSizes[imageIndex]
-            shrink_img = resize(warpedImage.copy(), width = width)
+            cv2.drawContours(image, [points], -1, (0, 0, 255), 5)
+            shrink_img = resize(warpedImage.copy(), width = 50)
             rows, columns, channels = shrink_img.shape
-            image[x:x + rows, y:y +columns] = shrink_img
-
-        if (captureButtonCurrentState and not captureButtonLastState):
-            # time to capture!!!
-            outputImages[imageIndex] = warpedImage;
-            print("Captured image {}.".format(imageIndex))
-            imageIndex += 1;
-
+            image[0:rows, 0:columns] = shrink_img
         cv2.imshow("Camera View", image)
-        captureButtonLastState = captureButtonCurrentState
+            #outputImages = image
+            #sizesIndex++
 
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 else:
     print("Failed to get camera.")
 #getRectangleImage(image)

@@ -127,7 +127,6 @@ def classify_change_types(ref_w, ref_p, new_w, new_p):
 
     #cv2.imshow("ref_wp", ref_wp)
     cv2.imshow("new_wp", new_wp)
-    
     # Get masks of background color (areas where there is no pink/white)
     ref_b = cv2.bitwise_not(ref_wp) # white = background color
     new_b = cv2.bitwise_not(new_wp)
@@ -163,11 +162,11 @@ def classify_change_types(ref_w, ref_p, new_w, new_p):
     ret, thresh = cv2.threshold(shiftedGrowth, 127, 255, 0)#growth
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
-    '''
+    
     growth = cv2.cvtColor(growth, cv2.COLOR_GRAY2BGR)
     cv2.drawContours(growth, cnts, -1, (0, 255, 0), 2)
     cv2.imshow("growth", growth)
-    
+    '''
     ret, thresh = cv2.threshold(gt, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
@@ -222,10 +221,10 @@ def classify_change_types(ref_w, ref_p, new_w, new_p):
 img1 = cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/coral1_mod.png")
 img2 = cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/coral2.PNG")
 img1, img2 = trim_to_size(img1, img2)
-#cv2.imshow("image1", resize(img1, 480))
-#cv2.imshow("image2", resize(img2, 480))
+cv2.imshow("image1", resize(img1, 480))
+cv2.imshow("image2", resize(img2, 480))
 img2_aligned = alignImages(img2, img1)
-#cv2.imshow("aligned 2", resize(img2_aligned, 480))
+cv2.imshow("aligned 2", resize(img2_aligned, 480))
 img_diff = matrix_difference(img1, img2_aligned)
 #cv2.imshow("diff", resize(img_diff, 480))
 
@@ -250,3 +249,11 @@ classify_change_types(img1_w, img1_p, img2_w, img2_p) #Use this to test the new 
 cv2.waitKey(0)
 
 cv2.destroyAllWindows()
+
+
+
+
+'''
+use histogram to get rid of background, then use it to create threshold in middle between white and pink and use that to create two images, one
+that is white and one that is pink
+'''
