@@ -28,12 +28,16 @@ def main():
 
     # Isolate lines
     edges = cv2.Canny(mask, 75, 150)
-    lines = cv2.HoughLinesP(edges, 1, np.pi/180, 50, maxLineGap=50)
+    lines = cv2.HoughLinesP(edges, 1, np.pi/180, 50,
+                            maxLineGap=75, minLineLength=200)
+    print(len(lines))
+
+    #TODO: Filter out lines that are very similar
 
     if lines is not None:
         for line in lines:
             x1, y1, x2, y2 = line[0]
-            cv2.line(im, (x1, y1), (x2, y2), (0, 255, 0), 5)
+            cv2.line(im, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
     cv2.imshow('hi', im)
     cv2.imshow("bye", mask)
