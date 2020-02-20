@@ -1,0 +1,13 @@
+#console {
+    position: relative;
+   
+    width: 500px;
+    text-align: left;
+    vertical-align: bottom;
+}
+input[type=text] {
+    position: absolute;
+    width: 592px;
+    left: 0px;
+    bottom: 0px;
+}
