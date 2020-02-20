@@ -8,7 +8,8 @@ import numpy as np
 
 def main():
     # Grab video feed from source
-    cap = cv2.VideoCapture('http://10.19.52.3:8080/video/mjpeg')
+    # cap = cv2.VideoCapture('http://10.19.52.3:8080/video/mjpeg')
+    cap = cv2.VideoCapture(1)
     height, width, _ = cap.read()[1].shape
 
     while True:
