@@ -1,6 +1,8 @@
 import React from "react";
 import Settings from "./Settings";
 import MainCam from "./MainCam";
+import NavBar from "./NavBar";
+
 
 class GUI extends React.Component {
    state = {
@@ -17,15 +19,15 @@ class GUI extends React.Component {
    buttons = [
       {
          text: "Settings",
-         onClick: () => this.showComponent("settings");
+         onClick: () => {this.showComponent("settings");}
       },
       {
          text: "Debugger",
-         onClick: () => this.showComponent("debugger");
+         onClick: () => {this.showComponent("debugger");}
       }
 
    ]
-   
+
    render() {
       return (
          <div>
