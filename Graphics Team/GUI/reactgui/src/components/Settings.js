@@ -14,7 +14,6 @@ class Settings extends React.Component {
       super(props);
 
       this.localStorage = window.localStorage;
-
    }
 
    render() {

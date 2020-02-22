@@ -2,8 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import Button from './Button';
-import GUI from "./GUI.js";
+import GUI from "./components/GUI.js";
 
 //ReactDOM.render(<App />, document.getElementById('root'));
 

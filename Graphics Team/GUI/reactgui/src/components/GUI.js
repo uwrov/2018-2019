@@ -14,6 +14,18 @@ class GUI extends React.Component {
       ]
    }
 
+   buttons = [
+      {
+         text: "Settings",
+         onClick: () => this.showComponent("settings");
+      },
+      {
+         text: "Debugger",
+         onClick: () => this.showComponent("debugger");
+      }
+
+   ]
+   
    render() {
       return (
          <div>
@@ -23,6 +35,8 @@ class GUI extends React.Component {
             {
                //<Widgets ip={this.state.cam_ip} cam_ports={this.state.cam_ports} />
             }
+
+            <NavBar buttons={this.state.buttons}/>
 
          </div>
       );
@@ -40,7 +54,20 @@ class GUI extends React.Component {
       this.setState( {cam_ip: state.ip} );
    }
 
+   showComponent(name) {
+      let visible = this.state.shownComponents.slice(0);
+      if(visible.indexOf(name) === -1)
+         visible.push(name);
+      this.setState({ shownComponents: visible });
+   }
 
+   removeComponent(name) {
+      let visible = this.state.shownComponents.slice(0);
+      let index = visible.indexOf(name)
+      if(index !== -1)
+         visible.splice(index, 1);
+      this.setState({ shownComponents: visible } );
+   }
 
 }
 
