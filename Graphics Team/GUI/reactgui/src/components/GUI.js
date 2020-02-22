@@ -38,7 +38,7 @@ class GUI extends React.Component {
                //<Widgets ip={this.state.cam_ip} cam_ports={this.state.cam_ports} />
             }
 
-            <NavBar buttons={this.state.buttons}/>
+            <NavBar buttons={this.buttons}/>
 
          </div>
       );
