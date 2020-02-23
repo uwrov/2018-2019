@@ -2,6 +2,7 @@ import React from "react";
 import Settings from "./Settings";
 import MainCam from "./MainCam";
 import NavBar from "./NavBar";
+import Widgets from "./Widgets";
 
 
 class GUI extends React.Component {
@@ -12,7 +13,7 @@ class GUI extends React.Component {
       ],
       main_cam_index: 0,
       shownComponents: [
-         "settings"
+
       ]
    }
 
@@ -34,9 +35,9 @@ class GUI extends React.Component {
             <MainCam ip={this.state.cam_ip + ":" +
                         this.state.cam_ports[this.state.main_cam_index]}/>
             {this.renderSettings()}
-            {
-               //<Widgets ip={this.state.cam_ip} cam_ports={this.state.cam_ports} />
-            }
+
+           <Widgets ip={this.state.cam_ip} camPorts={this.state.cam_ports} />
+
 
             <NavBar buttons={this.buttons}/>
 
