@@ -90,7 +90,7 @@ public class ROVState {
      * Gets the vertical speed of the ROV State.
      * @return vertical speed.
      */
-    public void getVerticalSpeed() {
+    public float getVerticalSpeed() {
        return verticalSpeed;
     }
     
@@ -112,12 +112,14 @@ public class ROVState {
      * Gets the rotational speed of the ROV State.
      * @return rotation speed.
      */
-    public void getRotationSpeed() {
+    public float getRotationSpeed() {
         return rotationSpeed;
     }
     
     /**
      * Turns on all the lights of the ROV
+     * @modifies this
+     * @effects turn on all lights
      */
     public void turnOnLights() {
         for (int i = 0; i < lights.size(); i++) {
@@ -125,10 +127,33 @@ public class ROVState {
         }
     }
     
-    
+    /**
+     * Turns off all the lights of the ROV
+     * @modifies this
+     * @effects turn off all lights
+     */
     public void turnOffLights() {
         for (int i = 0; i < lights.size(); i++) {
             lights[i] = false;
+        }
+    }
+    
+    /**
+     * Switches the state of a light in the given index and appends
+       a new state if the index is greater than the bounds
+     * @param index index of the light state to be switched
+     * @requires index is not less than 0
+     * @modifies this
+     * @effects changes the state of the light in the given index
+     */
+    public void switchLight(int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("Invalid index.");
+        }
+        if (index > lights.size()) {
+            lights.add(true);
+        } else {
+            lights.set(index, !lights[index]);
         }
     }
     
