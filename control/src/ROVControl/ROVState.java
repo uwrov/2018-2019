@@ -1,5 +1,6 @@
-import java.util.*;
 package ROVControl;
+
+import java.util.*;
 
 /**
  * A mutable representation of the state of an ROV.
@@ -9,7 +10,7 @@ public class ROVState {
     private float forwardSpeed;
     private float rightSpeed;
     private float rotationSpeed;
-    private ArrayList<boolean> lights;
+    private ArrayList<Boolean> lights;
 
     /**
      * Constructs a new, default ROVState.
@@ -81,7 +82,7 @@ public class ROVState {
      */
     public void setVerticalSpeed(float verticalSpeed) {
        if (verticalSpeed < -1 || verticalSpeed > 1) {
-          throw new IllegalAgumentExcpetion("Vertical speed must be between [-1, 1].");
+          throw new IllegalArgumentException("Vertical speed must be between [-1, 1].");
        }
        this.verticalSpeed = verticalSpeed;
     }
@@ -103,7 +104,7 @@ public class ROVState {
      */
     public void setRotationSpeed(float rotationSpeed) {
        if (rotationSpeed < -1 || rotationSpeed > 1) {
-          throw new IllegalAgumentExcpetion("Rotational speed must be between [-1, 1].");
+          throw new IllegalArgumentException("Rotational speed must be between [-1, 1].");
        }
        this.rotationSpeed = rotationSpeed;
     }
@@ -123,7 +124,7 @@ public class ROVState {
      */
     public void turnOnLights() {
         for (int i = 0; i < lights.size(); i++) {
-            lights[i] = true;
+            lights.set(i, true);
         }
     }
     
@@ -134,7 +135,7 @@ public class ROVState {
      */
     public void turnOffLights() {
         for (int i = 0; i < lights.size(); i++) {
-            lights[i] = false;
+            lights.set(i, false);
         }
     }
     
@@ -142,7 +143,7 @@ public class ROVState {
      * Switches the state of a light in the given index and appends
        a new state if the index is greater than the bounds
      * @param index index of the light state to be switched
-     * @requires index is not less than 0
+     * @requires index >= 0
      * @modifies this
      * @effects changes the state of the light in the given index
      */
@@ -150,11 +151,10 @@ public class ROVState {
         if (index < 0) {
             throw new IllegalArgumentException("Invalid index.");
         }
-        if (index > lights.size()) {
-            lights.add(true);
-        } else {
-            lights.set(index, !lights[index]);
+        while (index > lights.size()) {
+            lights.add(false);
         }
+        lights.set(index, !lights.get(index));
     }
     
 }
