@@ -33,8 +33,12 @@ public class ROVState {
     }
 
     /**
-     * Sets the horizontal Speed components of the ROV State.
-     * @spec.requires forwardSpeed and rightSpeed must be between [-1, 1] (inclusive).
+     * Sets the horizontal (forward and right) speed components of the ROV State.
+     * @param forwardSpeed forward speed component
+     * @param rightSpeed right speed component
+     * @requires forwardSpeed and rightSpeed must be between [-1, 1] (inclusive).
+     * @modifies this
+     * @effects set forward speed and right speed of the ROVState to the given values.
      */
     public void setHorizontalSpeed(float forwardSpeed, float rightSpeed) {
         if (forwardSpeed < -1 && forwardSpeed > 1) {
@@ -49,7 +53,8 @@ public class ROVState {
     }
 
     /**
-     *
+     * Gets the forward speed of the ROV State.
+     * @return forward speed.
      */
     public float getForwardSpeed() {
         throw new IllegalArgumentException("Not yet implemented.");
