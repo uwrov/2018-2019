@@ -109,10 +109,22 @@ def binarization(img):
     boundariesPink = [[140, 50, 140], [255, 135, 255]]
     return binarize_color(img, boundariesWhite), binarize_color(img, boundariesPink)
 
-#
+#int, int, int, int, string
+def drawing_bounding_boxes(x, y, w, h, tp, img):
+    if(tp == 'growth'):
+        print("drawing growth box")
+        img = cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),3)
+    elif(tp == 'damage'):
+        img = cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,255),3)
+    elif(tp == 'bleaching'):
+        img = cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),3)
+    elif(tp == 'recovery'):
+        img = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),3)
+    return img
+
 # THESE IMAGES MUST BE IN GRAYSCALE!!
 #
-def classify_change_types(ref_w, ref_p, new_w, new_p):
+def classify_change_types(ref_w, ref_p, new_w, new_p, img2):
     scale = 2
     # Masks of areas where there is coral
     ref_wp = cv2.bitwise_or(ref_w, ref_p)
@@ -147,54 +159,68 @@ def classify_change_types(ref_w, ref_p, new_w, new_p):
     cnts = imutils.grab_contours(cnts)
     shiftedGrowth = cv2.cvtColor(shiftedGrowth, cv2.COLOR_GRAY2BGR)
     for c in cnts:
+        '''
         area = cv2.contourArea(c)
-        if(area >= 2000):
+        if(area >= 20):
             #print(area)
-            cv2.drawContours(shiftedGrowth, cnts, -1, (0, 0, 255), 2)
+            cv2.drawContours(shiftedGrowth, c, -1, (0, 0, 255), 2)'''
+        x,y,w,h = cv2.boundingRect(c)
+        area = cv2.contourArea(c)
+        if(h/w > 1 and h/w < 2 and area > 2000):
+            cv2.drawContours(shiftedGrowth, [c], -1, (255, 0, 255), 3)
+            shiftedGrowth = cv2.rectangle(shiftedGrowth,(x,y),(x+w,y+h),(0,255,0),3)
+            img2 = drawing_bounding_boxes(x, y, w, h, 'growth', img2)
     cv2.imshow('shiftedGrowth', shiftedGrowth)
     
     ret, thresh = cv2.threshold(damage, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     damage = cv2.cvtColor(damage, cv2.COLOR_GRAY2BGR)
-    cv2.drawContours(damage, cnts, -1, (255, 0, 0), 2)#
-    #cv2.imshow("damage", damage)
+    cv2.drawContours(damage, cnts, -1, (255, 0, 0), 2)
+    for c in cnts:
+        x,y,w,h = cv2.boundingRect(c)
+        damage = cv2.rectangle(damage,(x,y),(x+w,y+h),(0,255,0),3)
+    cv2.imshow("damage", damage)
 
     ret, thresh = cv2.threshold(bleaching, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     bleaching = cv2.cvtColor(bleaching, cv2.COLOR_GRAY2BGR)
     cv2.drawContours(bleaching, cnts, -1, (255, 0, 255), 2)
-    #cv2.imshow("bleaching", bleaching)
+    cv2.imshow("bleaching", bleaching)
 
     ret, thresh = cv2.threshold(recovery, 127, 255, 0)
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     recovery = cv2.cvtColor(recovery, cv2.COLOR_GRAY2BGR)
     cv2.drawContours(recovery, cnts, -1, (0, 255, 255), 2)
-    #cv2.imshow("recovery", recovery)
-
+    for c in cnts:
+        x,y,w,h = cv2.boundingRect(c)
+        recovery = cv2.rectangle(recovery,(x,y),(x+w,y+h),(0,255,0),3)
+    cv2.imshow("recovery", recovery)
+    cv2.imshow('new_wp', img2)
 
 img1 = cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/coral1_mod.png")
 img2 = cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/coral2.PNG")
 img1, img2 = trim_to_size(img1, img2)
 cv2.imshow("image1", resize(img1, 480))
-cv2.imshow("image2", resize(img2, 480))
+#cv2.imshow("image2", resize(img2, 480))
 img2_aligned = alignImages(img2, img1)
 cv2.imshow("aligned 2", resize(img2_aligned, 480))
 img_diff = matrix_difference(img1, img2_aligned)
-#cv2.imshow("diff", resize(img_diff, 480))
+cv2.imshow("diff", resize(img_diff, 480))
 
 img1_w, img1_p = binarization(img1)
 img2_w, img2_p = binarization(img2_aligned)
-
+new_wp = cv2.bitwise_or(img2_w, img2_p)
+new_wp  = cv2.cvtColor(new_wp, cv2.COLOR_GRAY2BGR)
 cv2.imshow("img1_w", img1_w)
 cv2.imshow("img2_w", img2_w)
 cv2.imshow("img1_p", img1_p)
 cv2.imshow("img2_p", img2_p)
 
 
-classify_change_types(img1_w, img1_p, img2_w, img2_p) #Use this to test the new input
+classify_change_types(img1_w, img1_p, img2_w, img2_p, new_wp) #Use this to test the new input
 #classify_change_types(img3, img4, img5, img6) #Use this to test using sample input
 
 
@@ -203,7 +229,9 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 
-
+#TODO
+#   make pink less noisey (damage, growth)
+#   draw the bounding boxes on img2
 
 '''
 use histogram to get rid of background, then use it to create threshold in middle between white and pink and use that to create two images, one
