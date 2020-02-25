@@ -6,8 +6,8 @@ class Settings extends React.Component {
       ip: "localhost",
       ports: [
          { value: "8080" },
-
-
+         { value: "8081" },
+         { value: "8082" },
       ],
       left: 100,
       top: 100,
@@ -52,24 +52,29 @@ class Settings extends React.Component {
    }
 
    renderPorts() {
-      return this.state.ports.map((port) => {
-         return (<div>
-            Port:
-            <input type="text " value={port.value}>
+      return this.state.ports.map((port, index) => (
+         <div>
+            Port: {index + 1}
+            <input key={index} type="text " value={port.value}>
             </input>
-            <div className="button">
+            <div className="button" onClick={() => this.removePort(index)}>
                -
             </div>
          </div>
-      )});
+      ));
    }
 
    addPort() {
-
+      let newPorts = this.state.ports.slice(0); // make variable to access entire array
+         newPorts.push(); // use push to ADD to end of array. not sure what to put inside push?
+      this.setState({ ports : newPorts }); // update Ports with the newPorts value
    }
 
-   removePort() {
-
+   removePort(index) {
+      let newPorts = this.state.ports.slice(0);
+      if(index < newPorts.length && index >= 0)
+         newPorts.splice(index, 1);
+      this.setState({ ports: newPorts });
    }
 
    handleIpChange = (e) => {
