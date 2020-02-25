@@ -42,7 +42,6 @@ class GUI extends React.Component {
 
          </div>
       );
-
    }
 
    renderSettings() {

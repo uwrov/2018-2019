@@ -1,10 +1,13 @@
 import React from "react";
+import "./stylesheets/settings.css";
 
 class Settings extends React.Component {
    state = {
       ip: "localhost",
       ports: [
-         { value: "8080" }
+         { value: "8080" },
+
+
       ],
       left: 100,
       top: 100,
@@ -16,27 +19,56 @@ class Settings extends React.Component {
       this.localStorage = window.localStorage;
    }
 
+   getStyles() {
+      return {
+         left: this.state.left + "px",
+         top: this.state.top + "px"
+      }
+   }
+
    render() {
       return (
-         <div>
+         <div id="settings" style={this.getStyles()}>
+            <div class="header">
+            </div>
             Camera IP:
             <input
                type="text"
                value={this.state.ip}
                onChange={this.handleIpChange}
                />
+            <br />
             Camera Ports:
             <div>
                {this.renderPorts()}
-               <div>Add Port</div>
+               <div className="button">Add Port</div>
             </div>
-            <div onClick={this.handleSave}>Save Settings</div>
-            <div>Reset to Defaults</div>
+            <div className="footer">
+               <div className="button" onClick={this.handleSave}>Save Settings</div>
+               <div className="button">Reset to Defaults</div>
+            </div>
          </div>
       );
    }
 
    renderPorts() {
+      return this.state.ports.map((port) => {
+         return (<div>
+            Port:
+            <input type="text " value={port.value}>
+            </input>
+            <div className="button">
+               -
+            </div>
+         </div>
+      )});
+   }
+
+   addPort() {
+
+   }
+
+   removePort() {
 
    }
 
