@@ -27,9 +27,10 @@
 .button {
    background: #9c4ab0;
    display: inline-block;
+   text-align: center;
    margin: 3px;
    padding: 3px 5px;
-   border-radius: 5px;
+   border-radius: 10px;
 }
 
 .button:hover {
@@ -39,4 +40,9 @@
 
 .button:active {
    background: #7a2890;
+}
+
+.remButt {
+   height: 15px;
+   width: 10px;
 }
