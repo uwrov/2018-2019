@@ -1,0 +1,48 @@
+#settings {
+   position:absolute;
+   resize: both;
+   overflow: auto;
+   background: #eeeeee;
+   min-width: 300px;
+   min-height: 300px;
+}
+
+.header {
+   height: 15px;
+   width: 100%;
+   padding: 5px 0px;
+   margin-bottom: 10px;
+   background: #aacc56;
+}
+
+.footer {
+   position: absolute;
+   bottom: 0px;
+   left: 0px;
+   padding: 5px 0px;
+   width: 100%;
+   text-align: center;
+}
+
+.button {
+   background: #9c4ab0;
+   display: inline-block;
+   text-align: center;
+   margin: 3px;
+   padding: 3px 5px;
+   border-radius: 10px;
+}
+
+.button:hover {
+   cursor: pointer;
+   background: #8b39a0;
+}
+
+.button:active {
+   background: #7a2890;
+}
+
+.remButt {
+   height: 15px;
+   width: 10px;
+}

@@ -43,18 +43,22 @@ class GUI extends React.Component {
 
          </div>
       );
-
    }
 
    renderSettings() {
       if(this.state.shownComponents.indexOf("settings") !== -1)
          return (
-            <Settings onSave={this.handleSettings}/>
+            <Settings onSave={this.handleSettings} onExit={
+               () => this.removeComponent("Settings")
+            }/>
          );
    }
 
    handleSettings = (state) => {
-      this.setState( {cam_ip: state.ip} );
+      this.setState({
+         cam_ip: state.ip,
+         cam_ports: state.ports.map((port) => port.value)
+      });
    }
 
    showComponent(name) {
