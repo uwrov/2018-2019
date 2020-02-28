@@ -30,9 +30,9 @@ class Settings extends React.Component {
       return (
          <div id="settings" style={this.getStyles()}>
             <div class="header">
-            <div onClick={this.exit}>
-            &times:
-            </div>
+               <div onClick={this.handleExit}>
+                  &times;
+               </div>
             </div>
             Camera IP:
             <input
@@ -103,7 +103,8 @@ class Settings extends React.Component {
       }
    }
 
-   exit = () => {
+   handleExit = () => {
+      console.log("Exit!")
       this.props.onExit();
    }
 

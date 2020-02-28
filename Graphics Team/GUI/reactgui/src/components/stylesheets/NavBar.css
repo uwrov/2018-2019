@@ -1,7 +1,30 @@
 #NavBar {
   position: absolute;
-  background-color: #808080;
+  background-color: hsla(120, 100%, 50%, 0.4);
   width: 100%;
-  height: 200px;
+  height: 50px;
 
+}
+
+#Settings {
+   background-color: #add8e6;
+   font-size: 20px;
+   text-align: center;
+   margin-right: 10px;
+   transition-duration: 0.4s;
+
+}
+
+#Debugger {
+   background-color: #ffcccb;
+   font-size: 20px;
+   text-align: center;
+}
+
+#Settings:hover {
+   background-color: #008CBA;
+}
+
+#Debugger:hover {
+   background-color: #f44336;
 }

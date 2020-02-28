@@ -32,14 +32,15 @@ class GUI extends React.Component {
    render() {
       return (
          <div>
+            <NavBar buttons={this.buttons}/>
             <MainCam ip={this.state.cam_ip + ":" +
                         this.state.cam_ports[this.state.main_cam_index]}/>
             {this.renderSettings()}
 
-           <Widgets ip={this.state.cam_ip} camPorts={this.state.cam_ports} />
+           <Widgets ip={this.state.cam_ip} camPorts={this.state.cam_ports}/>
 
 
-            <NavBar buttons={this.buttons}/>
+
 
          </div>
       );
@@ -49,7 +50,7 @@ class GUI extends React.Component {
       if(this.state.shownComponents.indexOf("settings") !== -1)
          return (
             <Settings onSave={this.handleSettings} onExit={
-               () => this.removeComponent("Settings")
+               () => this.removeComponent("settings")
             }/>
          );
    }

@@ -29,7 +29,7 @@ state = {
     return(
       <div id="NavBar">
         {this.state.buttons.map(button => (
-          <Button key={button.id} value={button.value} onClick={button.onClick} >{button.text}</Button>
+          <Button id={button.text} key={button.id} value={button.value} onClick={button.onClick} >{button.text}</Button>
         ))}
 
 
