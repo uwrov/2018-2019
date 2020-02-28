@@ -1,4 +1,6 @@
 #NavBar {
+  position: absolute;
+  background-color: #808080;
   width: 100%;
   height: 200px;
 
