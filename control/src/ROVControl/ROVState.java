@@ -22,8 +22,6 @@ public class ROVState {
         forwardSpeed = 0;
         rightSpeed = 0;
         rotationSpeed = 0;
-
-        // Array list of primitive boolean defaults to false
         lights = new ArrayList<>();
     }
 
@@ -143,7 +141,23 @@ public class ROVState {
             lights.set(i, false);
         }
     }
-    
+
+    /**
+     * Sets the number of lights of the ROV
+     * @param index the number of lights of the ROV
+     * @requires index >= 0
+     * @modifies this
+     * @effects adds lights up to the index
+     */
+    public void setLights(int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("Invalid index.");
+        }
+        while (index > lights.size()) {
+            lights.add(false);
+        }
+    }
+
     /**
      * Switches the state of a light in the given index and appends
        a new state if the index is greater than the bounds
@@ -153,13 +167,30 @@ public class ROVState {
      * @effects changes the state of the light in the given index
      */
     public void switchLight(int index) {
-        if (index < 0) {
+        if (index < 0 || index > lights.size()) {
             throw new IllegalArgumentException("Invalid index.");
-        }
-        while (index > lights.size()) {
-            lights.add(false);
         }
         lights.set(index, !lights.get(index));
     }
-    
+
+    /**
+     * Gets the state of the lights at the given index
+     * @param index index of the light to return the state of
+     * @return returns the state of the light at the given index
+     */
+    public boolean getLightState(int index) {
+        if (index < 0 || index > lights.size()) {
+            throw new IllegalArgumentException("Invalid index.");
+        }
+        return lights.get(index);
+    }
+
+    /**
+     * Gets the number of lights of the ROV
+     * @return number of lights of the ROV
+     */
+    public int getLightsSize() {
+        return lights.size();
+    }
+
 }
