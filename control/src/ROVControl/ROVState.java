@@ -18,6 +18,11 @@ public class ROVState {
      * @effects this is a new ROVState with all lights set to off and speed of 0.
      */
     public ROVState() {
+        verticalSpeed = 0;
+        forwardSpeed = 0;
+        rightSpeed = 0;
+        rotationSpeed = 0;
+
         // Array list of primitive boolean defaults to false
         lights = new ArrayList<>();
     }
@@ -33,7 +38,7 @@ public class ROVState {
         state.forwardSpeed = forwardSpeed;
         state.rightSpeed = rightSpeed;
         state.rotationSpeed = rotationSpeed;
-        state.lights = lights;
+        state.lights = new ArrayList<>(lights);
         return state;
     }
 

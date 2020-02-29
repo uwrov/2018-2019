@@ -1,14 +1,14 @@
 package Nautilus;
+import ROVControl.Layout;
 import ROVControl.ROVState;
-import jdk.jshell.spi.ExecutionControl;
 
 import java.util.Map;
 
 /**
- * The layout for the 2020 Nautilus ROV.
+ * The layout for the 2020 main.test.Nautilus ROV.
  * Parses an ROV state and updates the 
  */
-public class NautilusLayout implements ROVControl.Layout {
+public class NautilusLayout implements Layout {
 
 
     @Override
