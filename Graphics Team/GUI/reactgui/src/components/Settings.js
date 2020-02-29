@@ -30,6 +30,9 @@ class Settings extends React.Component {
       return (
          <div id="settings" style={this.getStyles()}>
             <div class="header">
+               <div onClick={this.handleExit}>
+                  &times;
+               </div>
             </div>
             Camera IP:
             <input
@@ -41,7 +44,7 @@ class Settings extends React.Component {
             Camera Ports:
             <div>
                {this.renderPorts()}
-               <div className="button">Add Port</div>
+               <div className="button" onClick={() => this.addPort()}>Add Port</div>
             </div>
             <div className="footer">
                <div className="button" onClick={this.handleSave}>Save Settings</div>
@@ -55,9 +58,14 @@ class Settings extends React.Component {
       return this.state.ports.map((port, index) => (
          <div>
             Port: {index + 1}
-            <input key={index} type="text " value={port.value}>
+            <input
+               key={index}
+               type="text "
+               value={port.value}
+               onChange={(e) => this.handlePortChange(index, e)}
+               >
             </input>
-            <div className="button" onClick={() => this.removePort(index)}>
+            <div className="button remButt" onClick={() => this.removePort(index)}>
                -
             </div>
          </div>
@@ -66,7 +74,7 @@ class Settings extends React.Component {
 
    addPort() {
       let newPorts = this.state.ports.slice(0); // make variable to access entire array
-         newPorts.push(); // use push to ADD to end of array. not sure what to put inside push?
+         newPorts.push({ value: 8080 }); // use push to ADD to end of array. not sure what to put inside push
       this.setState({ ports : newPorts }); // update Ports with the newPorts value
    }
 
@@ -81,12 +89,23 @@ class Settings extends React.Component {
       this.setState( {ip: e.target.value} );
    }
 
+   handlePortChange = (index, e) => {
+      let newPorts = this.state.ports.splice(0);
+      newPorts[index].value = e.target.value;
+      this.setState( {ports: newPorts});
+   }
+
    handleSave = () => {
       try {
          this.props.onSave(this.state);
       } catch (e) {
 
       }
+   }
+
+   handleExit = () => {
+      console.log("Exit!")
+      this.props.onExit();
    }
 
 

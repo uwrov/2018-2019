@@ -1,12 +1,17 @@
 import React from 'react';
-import "./minicam.css"
+import "./stylesheets/minicam.css"
 
 class MiniCam extends React.Component {
 
-  constructor() {
-    super();
-    this.img_URL = "10.19.";
-    this.cam_Num = 2;
+  state = {
+    ip: "",
+    ports: [],
+  }
+
+  constructor(props) {
+    super(props);
+    this.state.ip = this.props.ip;
+    this.state.ports = this.props.camPorts;
 
   }
 
@@ -14,7 +19,10 @@ class MiniCam extends React.Component {
     render() {
       let altText = "This is cam #: " + this.cam_Num;
       return(
-        <img id="minicam" src={this.img_URL} alt={altText}> </img>;
+        <div id="minicam">
+          {this.state.ports.map(port => (<img src={this.state.ip + ":" + port} alt="MiniCam" />))}
+        </div>
+        // <img id="minicam" src={this.img_URL} alt={altText}> </img>;
       )
     }
 

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Controller State</h2>
+
+<form>
+	id: <input type="text" id="param_id">
+  	Name: <input type="text" id="name">
+  	Params: <input type="text" id="params">
+  	<input type="button" id="post" value="Post">
+</form>
+
+<form>
+	remove id: <input type="text" id="remove_id">
+  	<input type="button" id="remove" value="remove">
+</form>
+
+<p id="cur_state"></p>
+<p id="stored"></p>
+
+<script>
+let controller_state = [];
+//document.getElementById("contoller_state").innerHTML = controller_state;
+window.addEventListener("load", init);
+
+function init() {
+	document.getElementById("post").addEventListener("click", function() {
+	  	updateState(createState());
+	   printStates();
+   });
+  	document.getElementById("remove").addEventListener("click", function() {
+	  	removeState();
+	   printStates();
+  	});
+	document.getElementById("cur_state").innerHTML = "loaded";
+}
+
+function updateState(object){
+  let text = "";
+  for(let i = 0; i < controller_state.length; i++){
+    if(controller_state[i].id === object.id){
+      controller_state[i] = object;
+      text = "updated";
+  		document.getElementById("cur_state").innerHTML = text;
+  		return;
+    }
+  }
+  controller_state.push(object);
+  text = "added";
+  document.getElementById("cur_state").innerHTML = text;
+}
+
+
+function createState(){
+	let input_id = document.getElementById("param_id").value;
+	let input_name = document.getElementById("name").value;
+	let input_params = document.getElementById("params").value;
+	let state = {
+   	id: input_id,
+    	name: input_name,
+    	param: input_params
+  	};
+	return state;
+}
+
+function removeState(){
+	let remove_id = document.getElementById("remove_id").value;
+  	let text = "";
+	for(let i = 0; i < controller_state.length; i++){
+      if(controller_state[i].id == remove_id){
+			controller_state.splice(i,1);
+         text = "removed";
+         document.getElementById("cur_state").innerHTML = text;
+         return;
+      }
+  	}
+   text = "id not found";
+   document.getElementById("cur_state").innerHTML = text;
+}
+
+function printStates(){
+	let text = "Stored: ";
+	for(let i = 0; i < controller_state.length; i++){
+   	text += controller_state[i].id + " " + controller_state[i].name
+      		+ " " + controller_state[i].param + " || ";
+   }
+   document.getElementById("stored").innerHTML = text;
+}
+
+</script>
+
+</body>
+</html>

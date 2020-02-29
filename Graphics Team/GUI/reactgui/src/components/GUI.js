@@ -2,6 +2,7 @@ import React from "react";
 import Settings from "./Settings";
 import MainCam from "./MainCam";
 import NavBar from "./NavBar";
+import Widgets from "./Widgets";
 
 
 class GUI extends React.Component {
@@ -12,7 +13,7 @@ class GUI extends React.Component {
       ],
       main_cam_index: 0,
       shownComponents: [
-         "settings"
+
       ]
    }
 
@@ -31,14 +32,15 @@ class GUI extends React.Component {
    render() {
       return (
          <div>
+            <NavBar buttons={this.buttons}/>
             <MainCam ip={this.state.cam_ip + ":" +
                         this.state.cam_ports[this.state.main_cam_index]}/>
             {this.renderSettings()}
-            {
-               //<Widgets ip={this.state.cam_ip} cam_ports={this.state.cam_ports} />
-            }
 
-            <NavBar buttons={this.buttons}/>
+           <Widgets ip={this.state.cam_ip} camPorts={this.state.cam_ports}/>
+
+
+
 
          </div>
       );
@@ -47,12 +49,17 @@ class GUI extends React.Component {
    renderSettings() {
       if(this.state.shownComponents.indexOf("settings") !== -1)
          return (
-            <Settings onSave={this.handleSettings}/>
+            <Settings onSave={this.handleSettings} onExit={
+               () => this.removeComponent("settings")
+            }/>
          );
    }
 
    handleSettings = (state) => {
-      this.setState( {cam_ip: state.ip} );
+      this.setState({
+         cam_ip: state.ip,
+         cam_ports: state.ports.map((port) => port.value)
+      });
    }
 
    showComponent(name) {

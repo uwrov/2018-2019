@@ -1,10 +1,16 @@
 import React from "react";
-
+import MiniCam from './MiniCam';
+import './stylesheets/widgets.css';
 
 class Widgets extends React.Component {
 
    render() {
-      <MiniCam cam_ports={this.props.cam_ports} ip={this.props.ip}/>
+      return (
+         <div id="widgets">
+            <MiniCam camPorts={this.props.camPorts} ip={this.props.ip}/>
+         </div>
+      );
    }
 
 }
+export default Widgets;
