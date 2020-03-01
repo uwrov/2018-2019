@@ -2,7 +2,7 @@ package ROVControl;
 
 import java.util.Map;
 
-public interface Layout {
+public interface ROVLayout {
 
     /**
      * Updates the ROVs motors, sensors, and lights to reflect a new ROV state.

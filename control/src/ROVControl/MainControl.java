@@ -1,6 +1,16 @@
 package ROVControl;
 
+import Nautilus.NautilusLayout;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 
 /**
  * Runs the ROV Movement and Surface Communication.
@@ -12,9 +22,20 @@ public class MainControl {
         SET_HORIZONTAL_MOVEMENT
     }
 
+    private static String SERVER_URL = "";
+    private static int SERVER_TIMEOUT = 2000;
 
-    public static void main (String[] args) {
+    public static void main (String[] args) throws IOException {
+        ROVState state = new ROVState();
+        ROVLayout layout = new NautilusLayout();
 
+        layout.update(state);
+
+        while (true) {
+            URL serverURL =  new URL(SERVER_URL);
+
+            JSONArray commands = getInputFromServer(serverURL);
+        }
     }
 
     /**
@@ -51,13 +72,22 @@ public class MainControl {
 
     /**
      * Retrieves an array of commands from the server.
-     * @param address address of the server to retrieve data from
-     * @requires address is not null
+     * @param url URL address of the server to retrieve data from
+     * @requires {@code url} is not null
      * @throws java.io.IOException if server cannot be contacted
      * @return an array of commands, represented by JSON Objects.
      */
-    public JSONObject[] getInputFromServer(String address) {
-        return null;
+    public static JSONArray getInputFromServer(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        //connection.setRequestProperty("");
+        connection.setConnectTimeout(SERVER_TIMEOUT);
+        connection.setReadTimeout(SERVER_TIMEOUT);
+        BufferedReader input = new BufferedReader(
+                new InputStreamReader(connection.getInputStream()));
+
+        // Delete after implementing
+        throw new RuntimeException("Not yet implemented");
     }
 
 }
