@@ -1,7 +1,6 @@
 package test.Nautilus;
 
 import ROVControl.ROVState;
-import java.util.*;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -9,6 +8,8 @@ import static org.junit.Assert.*;
 public class ROVStateTest {
 
     private static float DELTA = 0.000001f;
+    private static int TEST_SIZE = 10;
+    private static boolean[] TEST_LIGHTS_STATE = {true, false, true, false, false, true, true};
 
     // Test setHorizontalSpeed()
 
@@ -88,9 +89,62 @@ public class ROVStateTest {
         state.setRotationSpeed(-2f);
     }
 
+    // Lights
+
+    private ROVState makeStateWithLights(boolean[] lights) {
+        ROVState state = new ROVState();
+        state.setLightsSize(lights.length);
+
+        for (int i = 0; i < lights.length; i++) {
+            state.setLightState(i, lights[i]);
+        }
+        return state;
+    }
+
+    /** Test that the initial size of the lights is 0, and that the number of lights can be increased. */
+    @Test
+    public void testSetLightsSize() {
+        ROVState state = new ROVState();
+        int size = 10;
+
+        // Should be initialized to 0
+        assertEquals(state.getLightsSize(), 0);
+
+        state.setLightsSize(size);
+        assertEquals(state.getLightsSize(), size);
+    }
+
+    /** Test that added lights are all off. */
+    @Test
+    public void testSetLightsSizeIsAllOff() {
+        ROVState state = new ROVState();
+        state.setLightsSize(TEST_SIZE);
+        for(int i = 0; i < TEST_SIZE; i++) {
+            assertFalse(state.getLightState(i));
+        }
+    }
+
+    /** Test that adding lights does not change existing states. */
+    @Test
+    public void testSetLightsSizeKeepsOldStates() {
+        int finalSize = TEST_LIGHTS_STATE.length + 5;
+        ROVState state = makeStateWithLights(TEST_LIGHTS_STATE);
+
+        state.setLightsSize(finalSize); // resize
+
+        for (int i = 0; i < finalSize; i++) {
+            if (i < TEST_LIGHTS_STATE.length) {
+                assertEquals(state.getLightState(i), TEST_LIGHTS_STATE[i]);
+            } else {
+                assertFalse(state.getLightState(i));
+            }
+        }
+    }
+
     @Test
     public void testTurnOnLights() {
-        ROVState state = new ROVState();
+        ROVState state = makeStateWithLights(TEST_LIGHTS_STATE);
+
         state.turnOnLights();
         for (int i = 0; i < state.getLightsSize(); i++) {
             assertTrue(state.getLightState(i));
@@ -99,7 +153,8 @@ public class ROVStateTest {
 
     @Test
     public void testTurnOffLights() {
-        ROVState state = new ROVState();
+        ROVState state = makeStateWithLights(TEST_LIGHTS_STATE);
+
         state.turnOffLights();
         for (int i = 0; i < state.getLightsSize(); i++) {
             assertFalse(state.getLightState(i));

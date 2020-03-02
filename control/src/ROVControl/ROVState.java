@@ -15,7 +15,7 @@ public class ROVState {
     /**
      * Constructs a new, default ROVState.
      * @modifies this
-     * @effects this is a new ROVState with all lights set to off and speed of 0.
+     * @effects this is a new ROVState with no lights and a speed of 0.
      */
     public ROVState() {
         verticalSpeed = 0;
@@ -145,11 +145,11 @@ public class ROVState {
     /**
      * Sets the number of lights of the ROV
      * @param index the number of lights of the ROV
-     * @requires index >= 0
+     * @requires {@code index} >= 0
      * @modifies this
      * @effects adds lights up to the index
      */
-    public void setLights(int index) {
+    public void setLightsSize(int index) {
         if (index < 0) {
             throw new IllegalArgumentException("Invalid index.");
         }
@@ -159,18 +159,17 @@ public class ROVState {
     }
 
     /**
-     * Switches the state of a light in the given index and appends
-       a new state if the index is greater than the bounds
+     * Sets the state of a light in the given index.
      * @param index index of the light state to be switched
-     * @requires index >= 0
+     * @requires 0 <= {@code index} < {@code getLightsSize()}
      * @modifies this
-     * @effects changes the state of the light in the given index
+     * @effects changes the status of the light at {@code index} to {@code state}
      */
-    public void switchLight(int index) {
-        if (index < 0 || index > lights.size()) {
+    public void setLightState(int index, boolean state) {
+        if (index < 0 || index >= getLightsSize()) {
             throw new IllegalArgumentException("Invalid index.");
         }
-        lights.set(index, !lights.get(index));
+        lights.set(index, state);
     }
 
     /**
