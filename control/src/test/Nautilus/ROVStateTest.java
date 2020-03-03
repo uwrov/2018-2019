@@ -41,6 +41,54 @@ public class ROVStateTest {
     }
 
     @Test
+    public void testSetForwardSpeedStoresValues() {
+        ROVState state = new ROVState();
+        assertEquals(state.getForwardSpeed(), 0f, DELTA);
+
+        // test setting to positive
+        state.setForwardSpeed(1);
+        assertEquals(state.getForwardSpeed(), 1, DELTA);
+
+        // test setting to negative
+        state.setForwardSpeed(-0.5f);
+        assertEquals(state.getForwardSpeed(), -0.5f, DELTA);
+
+        // test setting to 0
+        state.setForwardSpeed(0);
+        assertEquals(state.getForwardSpeed(), 0, DELTA);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testSetForwardSpeedTooBig() {
+        ROVState state = new ROVState();
+        state.setForwardSpeed(2f);
+    }
+
+    @Test
+    public void testSetRightSpeedStoresValues() {
+        ROVState state = new ROVState();
+        assertEquals(state.getRightSpeed(), 0f, DELTA);
+
+        // test setting to positive
+        state.setRightSpeed(1);
+        assertEquals(state.getRightSpeed(), 1, DELTA);
+
+        // test setting to negative
+        state.setRightSpeed(-0.5f);
+        assertEquals(state.getRightSpeed(), -0.5f, DELTA);
+
+        // test setting to 0
+        state.setRightSpeed(0);
+        assertEquals(state.getRightSpeed(), 0, DELTA);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testSetRightSpeedTooSmall() {
+        ROVState state = new ROVState();
+        state.setRightSpeed(-2f);
+    }
+
+    @Test
     public void testSetVerticalSpeedStoresValues() {
         ROVState state = new ROVState();
         assertEquals(state.getVerticalSpeed(), 0f, DELTA);
