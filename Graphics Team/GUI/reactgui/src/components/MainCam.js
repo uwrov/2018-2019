@@ -1,11 +1,12 @@
 import React from "react";
+import "./stylesheets/maincam.css";
 
 
 class MainCam extends React.Component {
 
    render() {
       return (
-         <img src={this.props.ip} alt= "Main Cam"/>
+         <img id="maincam" src={"http://" + this.props.ip} alt= "Main Cam"/>
       );
    }
 

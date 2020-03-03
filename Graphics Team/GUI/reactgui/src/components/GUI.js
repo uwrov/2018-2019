@@ -3,13 +3,14 @@ import Settings from "./Settings";
 import MainCam from "./MainCam";
 import NavBar from "./NavBar";
 import Widgets from "./Widgets";
+import MiniCam from "./MiniCam";
 
 
 class GUI extends React.Component {
    state = {
       cam_ip: "localhost",
       cam_ports: [
-         "8080"
+         "8080", "8081", "8082", "8083", "8084"
       ],
       main_cam_index: 0,
       shownComponents: [
@@ -36,8 +37,10 @@ class GUI extends React.Component {
             <MainCam ip={this.state.cam_ip + ":" +
                         this.state.cam_ports[this.state.main_cam_index]}/>
             {this.renderSettings()}
-
-           <Widgets ip={this.state.cam_ip} camPorts={this.state.cam_ports}/>
+           <Widgets ip={this.state.cam_ip}
+             camPorts={this.state.cam_ports}
+             mainIndex={this.state.main_cam_index}
+             />
 
 
 
@@ -76,7 +79,6 @@ class GUI extends React.Component {
          visible.splice(index, 1);
       this.setState({ shownComponents: visible } );
    }
-
 }
 
 export default GUI;
