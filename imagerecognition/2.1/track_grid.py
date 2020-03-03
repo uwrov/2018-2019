@@ -8,11 +8,11 @@ import numpy as np
 # -- Define what we want the increment barrier to be
 
 def main():
-    process_vid()
-    process_img('poopie.png')
+    # process_vid()
+    process_img('raw_grid.png')
 
 
-def process_vid(src='poopie.png'):
+def process_vid(src):
     cam = cv2.VideoCapture(src)
 
     while(True):
@@ -31,7 +31,7 @@ def process_vid(src='poopie.png'):
     cv2.destroyAllWindows()
 
 
-def process_img(filename):
+def process_img(filename='raw_grid.png'):
     img = cv2.imread(filename)
     grid_lines = find_grid(img)
     identify(grid_lines, 0.1)
