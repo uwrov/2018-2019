@@ -8,7 +8,6 @@ import static org.junit.Assert.*;
 public class ROVStateTest {
 
     private static float DELTA = 0.000001f;
-    private static int TEST_SIZE = 10;
     private static boolean[] TEST_LIGHTS_STATE = {true, false, true, false, false, true, true};
 
     // Test setHorizontalSpeed()
@@ -89,7 +88,7 @@ public class ROVStateTest {
         state.setRotationSpeed(-2f);
     }
 
-    // Lights
+    //////////////////// Lights
 
     private ROVState makeStateWithLights(boolean[] lights) {
         ROVState state = new ROVState();
@@ -118,8 +117,8 @@ public class ROVStateTest {
     @Test
     public void testSetLightsSizeIsAllOff() {
         ROVState state = new ROVState();
-        state.setLightsSize(TEST_SIZE);
-        for(int i = 0; i < TEST_SIZE; i++) {
+        state.setLightsSize(10);
+        for(int i = 0; i < 10; i++) {
             assertFalse(state.getLightState(i));
         }
     }

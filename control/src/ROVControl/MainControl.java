@@ -19,7 +19,9 @@ public class MainControl {
 
     public enum COMMANDS {
         SET_VERTICAL_MOVEMENT,
-        SET_HORIZONTAL_MOVEMENT
+        SET_HORIZONTAL_MOVEMENT,
+        SET_LIGHT_STATE,
+        WUMBO
     }
 
     private static String SERVER_URL = "";
@@ -52,6 +54,9 @@ public class MainControl {
                     setVerticalMovement(command, state);
                     break;
                 case SET_HORIZONTAL_MOVEMENT:
+                    // do something
+                    break;
+                case WUMBO:
 
                 default:
             }
@@ -60,7 +65,14 @@ public class MainControl {
         return state;
     }
 
-    // Sets the vertical movement of a ROVState based on a SET_VERTICAL_MOVEMENT command.
+    /**
+     * Sets the vertical movement of a ROVState based on a SET_VERTICAL_MOVEMENT command.
+     * @param state ROVState to modify
+     * @param command the Vertical Movement command
+     * @requires {@code state} != null, {@code command} != null, {@code command} has parameter {@code upward_speed}
+     * @modifies state
+     *
+      */
     // Requires that the command has an upward speed value.
     private void setVerticalMovement(JSONObject command, ROVState state) {
         if(command.has("upward_speed")) {
