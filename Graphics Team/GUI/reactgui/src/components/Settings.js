@@ -17,6 +17,7 @@ class Settings extends React.Component {
       super(props);
 
       this.localStorage = window.localStorage;
+
    }
 
    getStyles() {
@@ -98,6 +99,9 @@ class Settings extends React.Component {
    handleSave = () => {
       try {
          this.props.onSave(this.state);
+
+         this.localStorage.setItem("cam_ip", this.state.ip);
+         this.localStorage.setItem("ports", JSON.stringify(this.state.ports));
       } catch (e) {
 
       }
