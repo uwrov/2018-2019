@@ -8,7 +8,6 @@ import static org.junit.Assert.*;
 public class ROVStateTest {
 
     private static float DELTA = 0.000001f;
-    private static int TEST_SIZE = 10;
     private static boolean[] TEST_LIGHTS_STATE = {true, false, true, false, false, true, true};
 
     // Test setHorizontalSpeed()
@@ -39,6 +38,54 @@ public class ROVStateTest {
     public void testSetHorizontalSpeedForwardSpeedTooLarge() {
         ROVState state = new ROVState();
         state.setHorizontalSpeed(2f, 0);
+    }
+
+    @Test
+    public void testSetForwardSpeedStoresValues() {
+        ROVState state = new ROVState();
+        assertEquals(state.getForwardSpeed(), 0f, DELTA);
+
+        // test setting to positive
+        state.setForwardSpeed(1);
+        assertEquals(state.getForwardSpeed(), 1, DELTA);
+
+        // test setting to negative
+        state.setForwardSpeed(-0.5f);
+        assertEquals(state.getForwardSpeed(), -0.5f, DELTA);
+
+        // test setting to 0
+        state.setForwardSpeed(0);
+        assertEquals(state.getForwardSpeed(), 0, DELTA);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testSetForwardSpeedTooBig() {
+        ROVState state = new ROVState();
+        state.setForwardSpeed(2f);
+    }
+
+    @Test
+    public void testSetRightSpeedStoresValues() {
+        ROVState state = new ROVState();
+        assertEquals(state.getRightSpeed(), 0f, DELTA);
+
+        // test setting to positive
+        state.setRightSpeed(1);
+        assertEquals(state.getRightSpeed(), 1, DELTA);
+
+        // test setting to negative
+        state.setRightSpeed(-0.5f);
+        assertEquals(state.getRightSpeed(), -0.5f, DELTA);
+
+        // test setting to 0
+        state.setRightSpeed(0);
+        assertEquals(state.getRightSpeed(), 0, DELTA);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testSetRightSpeedTooSmall() {
+        ROVState state = new ROVState();
+        state.setRightSpeed(-2f);
     }
 
     @Test
@@ -89,7 +136,7 @@ public class ROVStateTest {
         state.setRotationSpeed(-2f);
     }
 
-    // Lights
+    //////////////////// Lights
 
     private ROVState makeStateWithLights(boolean[] lights) {
         ROVState state = new ROVState();
@@ -118,8 +165,8 @@ public class ROVStateTest {
     @Test
     public void testSetLightsSizeIsAllOff() {
         ROVState state = new ROVState();
-        state.setLightsSize(TEST_SIZE);
-        for(int i = 0; i < TEST_SIZE; i++) {
+        state.setLightsSize(10);
+        for(int i = 0; i < 10; i++) {
             assertFalse(state.getLightState(i));
         }
     }
