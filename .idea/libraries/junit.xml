@@ -1,0 +1,24 @@
+<component name="libraryTable">
+  <library name="junit">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/junit.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-core-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-device.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-example.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-gpio-extension.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-core-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-device-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-example-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-gpio-extension-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-core-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-device-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-example-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/control/lib/pi4j-1.2/pi4j-1.2/lib/pi4j-gpio-extension-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
