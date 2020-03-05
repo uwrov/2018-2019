@@ -2,11 +2,15 @@ package Nautilus;
 
 import ROVControl.ROVLayout;
 import ROVControl.ROVState;
+import com.pi4j.component.servo.ServoDriver;
+import com.pi4j.component.servo.ServoProvider;
 import com.pi4j.component.servo.impl.RPIServoBlasterProvider;
 import com.pi4j.io.gpio.GpioPin;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.RaspiPin;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -31,6 +35,12 @@ public class NautilusLayout implements ROVLayout {
             RaspiPin.GPIO_03  // Motor F/5
     };
 
+    // Testing
+    public static void main(String[] args) throws IOException {
+        ServoProvider provider = new RPIServoBlasterProviderCustom();
+        ServoDriver driver = provider.getServoDriver(RaspiPin.GPIO_04);
+        System.out.println(provider.getDefinedServoPins());
+    }
 
     private float[] horizontalMotorSpeeds;
 
