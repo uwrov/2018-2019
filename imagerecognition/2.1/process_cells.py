@@ -8,7 +8,7 @@ import cv2
 
 
 def main():
-    process_img('section.png')
+    process_img('images/section.png')
 
 
 def process_img(filename):

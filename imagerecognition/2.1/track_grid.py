@@ -9,7 +9,7 @@ import numpy as np
 
 def main():
     # process_vid()
-    process_img('section.png')
+    process_img('images/section.png')
 
 
 def process_vid(src):
@@ -19,13 +19,16 @@ def process_vid(src):
         ret, img = cam.read()
 
         # Using this requries some slight modification in process_img
-        process_img(img)
+        rows = []
+        rows.append(process_img(img))
 
-        cv2.imshow('frame', img)
+        # TODO: find stopping condition
 
-        if cv2.waitKey(27) == 1:
+        end = False
+        if cv2.waitKey(27) == 1 or end:
             break
 
+    # TODO: transfer data up to the main script, process the rows
     # === Free resources ===
     cam.release()
     cv2.destroyAllWindows()
@@ -48,9 +51,13 @@ def process_img(filename='raw_grid.png'):
     top_at_bound = check_bound(top, expected, 0, tol)
     bot_at_bound = check_bound(top, expected, height, tol)
 
+    # TODO: Implement system which will take output of this function,
+    # process the cells, then update the graphical interface
+
     # if both are in bound, then we are looking at a new row of cells
     if top_at_bound and bot_at_bound:
         # Update row count and representation
+        # yield img
         pass
 
     # Display image
