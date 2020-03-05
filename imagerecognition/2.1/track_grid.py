@@ -9,7 +9,7 @@ import numpy as np
 
 def main():
     # process_vid()
-    process_img('raw_grid.png')
+    process_img('section.png')
 
 
 def process_vid(src):
@@ -18,8 +18,8 @@ def process_vid(src):
     while(True):
         ret, img = cam.read()
 
-        grid_lines = find_grid(img)
-        identify(grid_lines, 0.1)
+        # Using this requries some slight modification in process_img
+        process_img(img)
 
         cv2.imshow('frame', img)
 
@@ -33,16 +33,25 @@ def process_vid(src):
 
 def process_img(filename='raw_grid.png'):
     img = cv2.imread(filename)
-    grid_lines = find_grid(img)
-    identify(grid_lines, 0.1)
+    height, width, _ = img.shape
+    tol = 0.01
+    top = find_grid(img[0:height//2, 0:width], tol)
+    bot = find_grid(img[height//2:height, 0:width], tol, height//2)
 
-    # ------ What line we consider when incrementing -----
-    boundary = 500.
-    boundary_line = [[boundary, np.pi/2]]
-    print("boundary:", boundary_line)
+    # put lines on the image (for visual confirmation)
+    draw_lines(top + bot, img, (0, 0, 255))
 
-    grid_lines.append(boundary_line)
-    draw_lines(grid_lines, img)
+    # TODO: Find good way to deterimine what the boundaries should be
+    expected = height//6
+    tol = [0, 10]
+
+    top_at_bound = check_bound(top, expected, 0, tol)
+    bot_at_bound = check_bound(top, expected, height, tol)
+
+    # if both are in bound, then we are looking at a new row of cells
+    if top_at_bound and bot_at_bound:
+        # Update row count and representation
+        pass
 
     # Display image
     cv2.imshow('hough.jpg', img)
@@ -52,7 +61,9 @@ def process_img(filename='raw_grid.png'):
     cv2.destroyAllWindows()
 
 
-def draw_lines(lines, img):
+# Draws all polar lines in a given collection onto
+# a given image, using a given color and width
+def draw_lines(lines, img, color, width=2):
     for line in lines:
         rho, theta = line[0]
         a = np.cos(theta)
@@ -64,11 +75,11 @@ def draw_lines(lines, img):
         x2 = int(x0 - 1000*(-b))
         y2 = int(y0 - 1000*(a))
 
-        cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+        cv2.line(img, (x1, y1), (x2, y2), color, width)
 
 
 # returns a list of the pink mason lines found in the given image/frame
-def find_grid(img):
+def find_grid(img, tol, offset=0):
     # convert rgb image to hsv for color isolation
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -115,7 +126,7 @@ def find_grid(img):
             if not line_flags[indices[i]]:
                 continue
 
-            # we are only considering very unique lines
+            # filter lines which are too similar to each other
             for j in range(i + 1, len(lines)):
                 if not line_flags[indices[j]]:
                     continue
@@ -127,37 +138,38 @@ def find_grid(img):
                     # if it is similar and has not yet been dropped
                     line_flags[indices[j]] = False
 
-        print('number of Hough lines:', len(lines))
+        # print('number of Hough lines:', len(lines))
 
         filtered_lines = []
 
+        # Filter lines which are horizontal out, return these
         for i in range(len(lines)):
-            if line_flags[i]:
+            the = lines[i][0][1]
+            if line_flags[i] and abs(np.pi/2 - the) <= tol:
+                # ensure lines are at correct height
+                # relative to original image before packing
+                lines[i][0][0] += offset
                 filtered_lines.append(lines[i])
 
-        print('Number of filtered lines:', len(filtered_lines))
+        # print('Number of filtered lines:', len(filtered_lines))
 
         return filtered_lines
 
 
-def identify(lines, tol):
-    hor_ct = 0
-    ver_ct = 0
-
+# returns a boolean if one line in a given collection is
+# an expected distance away from a specified y-coordinate,
+# within a given tolerance
+def check_bound(lines, expected, frame_end, tol=[0, 10]):
     for line in lines:
-        # rho = line[0][0]
-        the = line[0][1] % (np.pi)
-        print(the)
+        rho, _ = line[0]
+        actual = abs(rho - frame_end)
 
-        if abs(the) <= tol or abs(the - np.pi) <= tol:
-            print('vertical line: ', line)
-            ver_ct += 1
-        if abs(np.pi/2 - the) <= tol:
-            print('horizontal line: ', line)
-            hor_ct += 1
+        diff = abs(actual - expected)
+        if diff >= tol[0] and diff <= tol[1]:
+            return True
 
-    print('horizontal count', hor_ct)
-    print('vertical count', ver_ct)
+    # if we haven't found anything in bounds, report it
+    return False
 
 
 if __name__ == '__main__':

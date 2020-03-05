@@ -2,13 +2,17 @@ import numpy as np
 from imutils import contours
 import cv2
 
+# Hi! This script will
+# --- Process an image to find a grid
+# --- Explore each of the cells found in the grid
+
 
 def main():
     process_img('section.png')
 
 
 def process_img(filename):
-    # === declare and crop image ==
+    # === declare image, specify area of interest ==
     img = cv2.imread(filename)
     # height, width, _ = img.shape
 
