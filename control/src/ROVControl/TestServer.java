@@ -1,10 +1,8 @@
 package ROVControl;
 
-import java.io.IOException;
-
 public class TestServer {
-   public static void main(String[] args) throws IOException {
+   public static void main(String[] args) {
       ROVServer server = new ROVServer("localhost:8080");
-      System.out.println(server.getRequest("/commands", new String[]{"sup", "hi"}));
+      System.out.println(server.getRequest("/commands"));
    }
 }
