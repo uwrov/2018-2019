@@ -15,7 +15,8 @@ class GUI extends React.Component {
       main_cam_index: 0,
       shownComponents: [
 
-      ]
+      ],
+      ip_only: false,
    }
 
    buttons = [
@@ -30,11 +31,24 @@ class GUI extends React.Component {
 
    ]
 
+   constructor(props) {
+      super(props);
+
+      let ip = window.localStorage.getItem("cam_ip");
+      if(ip !== null) {
+         this.state.cam_ip = ip;
+      }
+      let ports = window.localStorage.getItem("ports");
+      if(ports !== null) {
+         this.state.cam_ports = JSON.parse(ports);
+      }
+   }
    render() {
       return (
          <div>
             <NavBar buttons={this.buttons}/>
-            <MainCam ip={this.state.cam_ip + ":" +
+            <MainCam ip={(!this.state.ip_only) ? this.state.cam_ip + ":" +
+                        this.state.cam_ports[this.state.main_cam_index] :
                         this.state.cam_ports[this.state.main_cam_index]}/>
             {this.renderSettings()}
            <Widgets ip={this.state.cam_ip}
@@ -61,7 +75,8 @@ class GUI extends React.Component {
    handleSettings = (state) => {
       this.setState({
          cam_ip: state.ip,
-         cam_ports: state.ports.map((port) => port.value)
+         cam_ports: state.ports.map((port) => port.value),
+         ip_only: state.ip_only,
       });
    }
 
@@ -78,6 +93,10 @@ class GUI extends React.Component {
       if(index !== -1)
          visible.splice(index, 1);
       this.setState({ shownComponents: visible } );
+   }
+
+   getMainIp() {
+
    }
 }
 
