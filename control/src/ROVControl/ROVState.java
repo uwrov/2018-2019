@@ -56,7 +56,35 @@ public class ROVState {
             throw new IllegalArgumentException("Right speed must be between [-1, 1].");
         }
 
+        setForwardSpeed(forwardSpeed);
+        setRightSpeed(rightSpeed);
+    }
+
+    /**
+     * Sets the forward speed component of the ROV State
+     * @param forwardSpeed forward speed component
+     * @requires forwardSpeed must be between [-1, 1] (inclusive)
+     * @modifies this
+     * @effects set forward speed of the ROVState to the given value
+     */
+    public void setForwardSpeed(float forwardSpeed) {
+        if (forwardSpeed < -1 || forwardSpeed > 1) {
+            throw new IllegalArgumentException("Forward speed must be between [-1, 1]");
+        }
         this.forwardSpeed = forwardSpeed;
+    }
+
+    /**
+     * Sets the right speed component of the ROV State
+     * @param rightSpeed forward speed component
+     * @requires rightSpeed must be between [-1, 1] (inclusive)
+     * @modifies this
+     * @effects set right speed of the ROVState to the given value
+     */
+    public void setRightSpeed(float rightSpeed) {
+        if (rightSpeed < -1 || rightSpeed > 1) {
+            throw new IllegalArgumentException("Forward speed must be between [-1, 1]");
+        }
         this.rightSpeed = rightSpeed;
     }
 
@@ -75,7 +103,7 @@ public class ROVState {
     public float getRightSpeed() {
        return rightSpeed;
     }
-    
+
     /**
      * Sets the vertical speed components of the ROV State.
      * @param verticalSpeed vertical speed component

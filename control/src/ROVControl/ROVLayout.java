@@ -11,6 +11,12 @@ public interface ROVLayout {
     void update(ROVState state);
 
     /**
+     * Returns the speed of the ROVs motors.
+     * @return a float array of the ROVs motor speeds, where 1 is full forward and -1 is full backwards.
+     */
+    float[] getMotorSpeeds(); // NOTE: THIS SHOULD BE A READONLY COPY!
+
+    /**
      *
      * @return
      */
