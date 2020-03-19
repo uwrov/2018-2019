@@ -1,19 +1,27 @@
 import cv2
 import numpy as np
-
+from constants import InBoundTol as bound_tols
 
 # Hello, currently this script will :
 # -- Isolate and draw Pink Lines
 # -- Identify what kind of lines a pink line is (vertical vs horizontal)
 # -- Define what we want the increment barrier to be
 
+
 def main():
     # process_vid()
-    process_img('images/section.png')
+    rows = find_row('images/section.png')
+
+    for row in rows:
+        cv2.imshow('a', row)
+        cv2.waitKey()
+
+    cv2.destroyAllWindows()
 
 
 def process_vid(src):
     cam = cv2.VideoCapture(src)
+    end = False
 
     while(True):
         ret, img = cam.read()
@@ -22,9 +30,10 @@ def process_vid(src):
         rows = []
         rows.append(process_img(img))
 
-        # TODO: find stopping condition
+        # If we have seen every row, then exit the script
+        if len(rows) == 9:
+            end = True
 
-        end = False
         if cv2.waitKey(27) == 1 or end:
             break
 
@@ -34,38 +43,27 @@ def process_vid(src):
     cv2.destroyAllWindows()
 
 
-def process_img(filename='raw_grid.png'):
+def find_row(filename='raw_grid.png'):
     img = cv2.imread(filename)
     height, width, _ = img.shape
-    tol = 0.01
-    top = find_grid(img[0:height//2, 0:width], tol)
-    bot = find_grid(img[height//2:height, 0:width], tol, height//2)
+    theta_tol = 0.01
+    top = find_grid(img[0:height//2, 0:width], theta_tol)
+    bot = find_grid(img[height//2:height, 0:width], theta_tol, height//2)
 
     # put lines on the image (for visual confirmation)
-    draw_lines(top + bot, img, (0, 0, 255))
+    # draw_lines(top + bot, img, (0, 0, 255))
 
-    # TODO: Find good way to deterimine what the boundaries should be
-    expected = height//6
-    tol = [0, 10]
+    # check if we are looking at a new row
+    expected = height//6  # TODO: find a new way to see expected height
+    tol = [bound_tols.LOWER_BOUND.value, bound_tols.UPPER_BOUND.value]
 
     top_at_bound = check_bound(top, expected, 0, tol)
-    bot_at_bound = check_bound(top, expected, height, tol)
+    bot_at_bound = check_bound(bot, expected, height, tol)
 
-    # TODO: Implement system which will take output of this function,
-    # process the cells, then update the graphical interface
-
-    # if both are in bound, then we are looking at a new row of cells
+    # if both are in bound, then we are looking at a new row,
+    # pass back this row up to the top
     if top_at_bound and bot_at_bound:
-        # Update row count and representation
-        # yield img
-        pass
-
-    # Display image
-    cv2.imshow('hough.jpg', img)
-
-    # === Keep image until we want to get rid of it ===
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+        yield img
 
 
 # Draws all polar lines in a given collection onto
@@ -163,7 +161,7 @@ def find_grid(img, tol, offset=0):
         return filtered_lines
 
 
-# returns a boolean if one line in a given collection is
+# returns true if one line in a given collection is
 # an expected distance away from a specified y-coordinate,
 # within a given tolerance
 def check_bound(lines, expected, frame_end, tol=[0, 10]):

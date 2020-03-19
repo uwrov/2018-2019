@@ -1,6 +1,7 @@
 import numpy as np
 from imutils import contours
 import cv2
+from constants.py import CntSizeTol as size_tols
 
 # Hi! This script will
 # --- Process an image to find a grid
@@ -8,10 +9,10 @@ import cv2
 
 
 def main():
-    process_img('images/section.png')
+    process_row('images/section.png')
 
 
-def process_img(filename):
+def process_row(filename):
     # === declare image, specify area of interest ==
     img = cv2.imread(filename)
     # height, width, _ = img.shape
@@ -25,9 +26,9 @@ def process_img(filename):
     # === process images and isolate contents of cells ===
     grid = isolate_grid_lines(img)
     grid = fix_lines(grid)
-    cnts = isolate_cells(grid)
+    row = isolate_cells(grid)
 
-    process_cells(img, cnts)
+    process_cells(img, row)
 
     # cv2.imshow('grid', grid)
     # cv2.waitKey(0)
@@ -89,14 +90,14 @@ def isolate_cells(img):
     (cnts, _) = contours.sort_contours(cnts, method="left-to-right")
 
     # Sort into rows
-    filtered_contours = []
+    row = []
     for (i, c) in enumerate(cnts, 1):
         area = cv2.contourArea(c)
-        # TODO: Find appropriate bounds for the area to be in
-        if area > 8600 and area < 150000:
-            filtered_contours.append(c)
+        if area > size_tols.LOWER_BOUND.value and \
+           area < size_tols.UPPER_BOUND.value:
+            row.append(c)
 
-    return filtered_contours
+    return row
 
 
 # Will run through and process the cells found by isolate_cells
@@ -109,7 +110,6 @@ def process_cells(img, cnts):
         result[mask == 0] = 255
 
         # TODO: Run through shape recognition software for each box
-        # TODO: Tell graphing software what is in each box
 
         cv2.imshow('result', result)
         cv2.waitKey(0)
