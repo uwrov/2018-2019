@@ -19,22 +19,21 @@ def main():
     cv2.destroyAllWindows()
 
 
-def process_vid(src):
+def process_feed(src):
     cam = cv2.VideoCapture(src)
-    end = False
 
     while(True):
-        ret, img = cam.read()
+        ret, frame = cam.read()
 
         # Using this requries some slight modification in process_img
         rows = []
-        rows.append(process_img(img))
+        rows.append(find_row(frame))
 
         # If we have seen every row, then exit the script
         if len(rows) == 9:
-            end = True
+            return rows
 
-        if cv2.waitKey(27) == 1 or end:
+        if cv2.waitKey(27) == 1:
             break
 
     # TODO: transfer data up to the main script, process the rows

@@ -1,7 +1,7 @@
 import numpy as np
 from imutils import contours
 import cv2
-from constants.py import CntSizeTol as size_tols
+from constants import CntSizeTol as size_tols
 
 # Hi! This script will
 # --- Process an image to find a grid
@@ -9,30 +9,23 @@ from constants.py import CntSizeTol as size_tols
 
 
 def main():
-    process_row('images/section.png')
+    img = cv2.imread('images/section.png')
+    process_row(img)
 
 
-def process_row(filename):
-    # === declare image, specify area of interest ==
-    img = cv2.imread(filename)
-    # height, width, _ = img.shape
-
-    # xbnd = width//4
-    # ybnd = height//6
-
-    # img = img[3*ybnd:5*ybnd, xbnd:3*xbnd]
-    cv2.imshow('img', img)
-
+def process_row(img):
     # === process images and isolate contents of cells ===
     grid = isolate_grid_lines(img)
     grid = fix_lines(grid)
-    row = isolate_cells(grid)
+    cells = identify_cells(img, grid)
 
-    process_cells(img, row)
+    draw_cells(img, cells)
 
     # cv2.imshow('grid', grid)
     # cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+    return cells
 
 
 # Returns dict full of color bounds
@@ -81,37 +74,35 @@ def fix_lines(img):
     return thresh
 
 
-# Returns a list of the contents of the boxes in the row
-def isolate_cells(img):
+# Returns a list of contours of the cells in the row
+def identify_cells(img, grid):
     # Find the contours of the image
-    invert = 255 - img.copy()
+    invert = 255 - grid.copy()
     cnts = cv2.findContours(invert, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_KCOS)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     (cnts, _) = contours.sort_contours(cnts, method="left-to-right")
 
-    # Sort into rows
-    row = []
-    for (i, c) in enumerate(cnts, 1):
+    # split row into cells
+    cells = []
+    tols = (size_tols.LOWER_BOUND.value, size_tols.UPPER_BOUND.value)
+
+    for c in cnts:
         area = cv2.contourArea(c)
-        if area > size_tols.LOWER_BOUND.value and \
-           area < size_tols.UPPER_BOUND.value:
-            row.append(c)
 
-    return row
+        if area > tols[0] and area < tols[1]:
+            rect = cv2.boundingRect(c)
+            x, y, w, h = rect
+
+            cells.append(img[y:y+h, x:x+h])
+
+    return cells
 
 
-# Will run through and process the cells found by isolate_cells
-def process_cells(img, cnts):
+# draws the found cells
+def draw_cells(img, cnts):
     # Iterate through each box
-    for cnt in cnts:
-        mask = np.zeros(img.shape, dtype=np.uint8)
-        cv2.drawContours(mask, [cnt], -1, (255, 255, 255), -1)
-        result = cv2.bitwise_and(img, mask)
-        result[mask == 0] = 255
-
-        # TODO: Run through shape recognition software for each box
-
-        cv2.imshow('result', result)
+    for cell in cnts:
+        cv2.imshow('cell', cell)
         cv2.waitKey(0)
 
 
