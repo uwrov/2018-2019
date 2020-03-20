@@ -1,4 +1,4 @@
-import detect_angle
+from detect_angle import course_correct
 import control_line
 from track_grid import find_row
 from process_cells import process_row
@@ -17,7 +17,7 @@ def main():
         ret, frame = cam.read()
 
         # ====== Ensure that ROV is on track =====
-        # detect angle (frame)
+        course_correct(frame, 10)
         # control line (frame)
 
         # ====== Collect image data =====
@@ -28,12 +28,12 @@ def main():
             return rows
 
     # ===== Shape Recognition and Finding Results =====
-    processed_rows = []
-    for row in rows:
-        # split each row into cells
-        cells = process_row(row)
+    # processed_rows = []
+    # for row in rows:
+        # # split each row into cells
+        # cells = process_row(row)
 
-        # identify the objects in each cell
+        # # identify the objects in each cell
         # row_contents = identify(cells) (type list)
 
         # processed_rows.append(row_contents)
