@@ -44,7 +44,7 @@ function updateState(object){
       text = "updated";
   		document.getElementById("cur_state").innerHTML = text;
   		return;
-    }
+	}
   }
   controller_state.push(object);
   text = "added";
@@ -56,11 +56,24 @@ function createState(){
 	let input_id = document.getElementById("param_id").value;
 	let input_name = document.getElementById("name").value;
 	let input_params = document.getElementById("params").value;
-	let state = {
-   	id: input_id,
-    	name: input_name,
-    	param: input_params
-  	};
+	let separated = input_params.split(",");
+	let size = separated.length;
+	for (let i = 0; i < size; i++){
+		separated.push(separated[i].split(":"));
+	}
+	separated.splice(0,size);
+	separated.splice(0,0,["id", "1"], ["name", "andrew"]);
+
+	// let state = {
+   // 	id: input_id,
+   //  	name: input_name,
+   //  	param: input_params
+  	// };
+	let state = {};
+	for (let pair of separated){
+		state[pair[0].trim()] = pair[1].trim();
+	}
+
 	return state;
 }
 
