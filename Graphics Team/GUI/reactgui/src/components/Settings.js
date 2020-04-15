@@ -18,6 +18,7 @@ class Settings extends React.Component {
 
       this.localStorage = window.localStorage;
 
+       this.localStorage.setItem("test", "just a test");
    }
 
    getStyles() {
