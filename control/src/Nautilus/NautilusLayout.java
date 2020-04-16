@@ -20,6 +20,7 @@ import java.util.Map;
 public class NautilusLayout implements ROVLayout {
 
     private static int HORIZONTAL_MOTORS = 4;
+    private static int VERTICAL_MOTORS = 2;
     private static final float[] FORWARD_BASE = {1, 1, 1, 1};
     private static final float[] RIGHT_BASE = {1, -1, -1, 1};
     private static final float[] ROTATION_BASE = {1, -1, 1, -1};
@@ -129,8 +130,16 @@ public class NautilusLayout implements ROVLayout {
     @Override
     public void update(ROVState state) {
         horizontalMotorSpeeds = computeHorizontalMotorSpeeds(state); // this is a float[]
+        int[] horizontalMotorSpeedData = new int[HORIZONTAL_MOTORS];
+        for (int i = 0; i < HORIZONTAL_MOTORS; i++) {
+            horizontalMotorSpeedData[i] = translateToESC(horizontalMotorSpeeds[i]);
+        }
+        int[] verticalMotorSpeedData = new int[VERTICAL_MOTORS];
+        for (int i = 0; i < VERTICAL_MOTORS; i++) {
+            verticalMotorSpeedData[i] = translateToESC(state.getVerticalSpeed());
+        }
 
-
+        // Transmit data to the ESC providers
     }
 
     /**
