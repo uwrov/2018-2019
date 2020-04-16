@@ -6,6 +6,11 @@
    min-width: 300px;
    min-height: 300px;
 }
+#settings > input {
+   position: relative;
+   height: 15px;
+   width: 100px;
+}
 
 .header {
    height: 15px;
@@ -16,9 +21,7 @@
 }
 
 .footer {
-   position: absolute;
-   bottom: 0px;
-   left: 0px;
+
    padding: 5px 0px;
    width: 100%;
    text-align: center;
@@ -45,4 +48,13 @@
 .remButt {
    height: 15px;
    width: 10px;
+}
+
+.container{
+   cursor: pointer;
+   font-size: 22px;
+   -webkit-user-select: none;
+   -moz-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
 }

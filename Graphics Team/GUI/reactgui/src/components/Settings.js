@@ -11,6 +11,7 @@ class Settings extends React.Component {
       ],
       left: 100,
       top: 100,
+      ip_only: false,
    }
 
    constructor(props) {
@@ -18,6 +19,15 @@ class Settings extends React.Component {
 
       this.localStorage = window.localStorage;
 
+      let ip = this.localStorage.getItem("cam_ip");
+      if(ip !== null) {
+         this.state.ip = ip;
+      }
+      let ports = this.localStorage.getItem("ports");
+      if(ports !== null) {
+         this.state.ports = JSON.parse(ports);
+      }
+      this.handleChecked = this.handleChecked.bind(this);
    }
 
    getStyles() {
@@ -35,12 +45,11 @@ class Settings extends React.Component {
                   &times;
                </div>
             </div>
-            Camera IP:
-            <input
-               type="text"
-               value={this.state.ip}
-               onChange={this.handleIpChange}
-               />
+            {this.renderCamIp()}
+            <br />
+            Ip-only Mode:
+            <input type="checkbox" onChange={ this.handleChecked }/>
+
             <br />
             Camera Ports:
             <div>
@@ -55,10 +64,25 @@ class Settings extends React.Component {
       );
    }
 
+   renderCamIp() {
+      if(!this.state.ip_only)
+         return (
+            <React.Fragment>
+               Camera IP:
+               <input
+                  type="text"
+                  value={this.state.ip}
+                  onChange={this.handleIpChange}
+               >
+               </input>
+            </ React.Fragment>
+         );
+   }
+
    renderPorts() {
       return this.state.ports.map((port, index) => (
          <div>
-            Port: {index + 1}
+            {this.portLabel(index)}
             <input
                key={index}
                type="text "
@@ -69,9 +93,16 @@ class Settings extends React.Component {
             <div className="button remButt" onClick={() => this.removePort(index)}>
                -
             </div>
-         </div>
+         </ div>
       ));
    }
+
+   portLabel(index) {
+      if(!this.state.ip_only)
+         return "Port " + (index + 1) + ": ";
+      return "IP " + (index + 1) + ": ";
+   }
+
 
    addPort() {
       let newPorts = this.state.ports.slice(0); // make variable to access entire array
@@ -94,6 +125,10 @@ class Settings extends React.Component {
       let newPorts = this.state.ports.splice(0);
       newPorts[index].value = e.target.value;
       this.setState( {ports: newPorts});
+   }
+
+   handleChecked() {
+      this.setState({ip_only: !this.state.ip_only});
    }
 
    handleSave = () => {
