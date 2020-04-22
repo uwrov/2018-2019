@@ -21,10 +21,15 @@ market_cards = []
 # what turn it is in the game. ends at turn 10
 turn_index = 0
 # 0 = buying phase 1 = selling phase
-turn_phase = 0;
+turn_phase = 0
 # what player's turn it is in the turn
-player_index = 0;
+player_index = 0
 
+#list of unique company names
+company_names = set()
+
+flucuation_deck = []
+current_fluct = []
 
 class Player:
 	def __init__(self, name):
@@ -38,6 +43,10 @@ class Card:
 		self.company = name
 		self.amount = amount
 		self.price = price
+
+class Market_Card:
+	def __init__(self):
+		self.market_dict = {}
 
 #	Game Rules
 #	Each turn you can buy a stock or a bond
@@ -53,12 +62,20 @@ def create_deck():
 		lines = file.readlines()
 		for line in lines:
 			details = line.split(' ')
+			company_names.add(details[0])
 			deck.append(Card(details[0], details[1], details[2]))
-
+		for i in range(20):
+			card = Market_Card()
+			for company in company_names:
+				card.market_dict[company] = random.randint(-5,5)
+			flucuation_deck.append(card)
 
 def print_deck():
 	for card in deck:
-		print(card.company, card.amount, card.price, sep =' ')
+		print(card.company, card.amount, card.price)
+	for card in flucuation_deck:
+		print(card.market_dict)
+
 
 
 def shuffle_deck():
@@ -68,6 +85,9 @@ def shuffle_deck():
 # resets the Game
 #
 def start_game():
+	global graveyard
+	global deck
+	global market_cards
 	for p in player_list:
 		graveyard += p.hand
 		p.money = 20
@@ -88,13 +108,14 @@ def add_player(name):
 # if move == -1 then the player wants to skip buying a cards
 # 0 represents the first card in the market, 1 represents the second card etc...
 def market_phase(move):
-	if turn_phase = 0:
+	global turn_phase
+	global market_cards
+	if turn_phase == 0:
 		if move != -1 and move < len(market_cards):
-			player = player_list[player_index]
 			card = market_cards.pop(move)
-			if player.money >= card.price:
-				player.money -= card.price
-				player.hand.append(card)
+			if player_list[player_index].money >= card.price:
+				player_list[player_index].money -= card.price
+				player_list[player_index].hand.append(card)
 				turn_phase = 1
 			else:
 				market_cards.append(card)
@@ -124,8 +145,30 @@ def get_market_cards():
 def get_players_data():
 	return json.dumps(player_list)
 
+@route('/makeAction')
+def can_make_action():
+	return
+
+@route('/getStockMarket')
+def get_stock_market():
+	return
 
 def main():
 	create_deck()
 	shuffle_deck()
-	print_deck()
+	add_player('Justin')
+	add_player('Andrew')
+	add_player('Alex')
+	add_player('Chris')
+	start_game()
+	for card in market_cards:
+		print(card.company, card.amount, card.price)
+	for card in player_list:
+		print(card.name, card.money, card.hand)
+
+	market_phase(1);
+
+	for card in player_list:
+		print(card.name, card.money, card.hand)
+
+main();
