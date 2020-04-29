@@ -19,6 +19,9 @@ class Settings extends React.Component {
 
       this.localStorage = window.localStorage;
 
+
+       
+
       let ip = this.localStorage.getItem("cam_ip");
       if(ip !== null) {
          this.state.ip = ip;
@@ -28,6 +31,7 @@ class Settings extends React.Component {
          this.state.ports = JSON.parse(ports);
       }
       this.handleChecked = this.handleChecked.bind(this);
+
    }
 
    getStyles() {

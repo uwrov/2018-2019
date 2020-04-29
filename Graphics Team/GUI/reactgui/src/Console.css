@@ -1,19 +1,14 @@
 #console {
-    position: relative;
-   
-    width: 500px;
-    text-align: left;
-    vertical-align: bottom;
-}
-input[type=text] {
+    bottom: 0;
     position: absolute;
-    width: 592px;
-    left: 0px;
-    bottom: 0px;
+    resize: vertical;
 }
-iframe.hidden {
-    display: none;
+
+#in {
+    bottom: 0;
+    position: relative;
+    resize: none;
 }
-input[type=submit] {
-    display: none;
+#outputText {
+    resize: vertical;
 }

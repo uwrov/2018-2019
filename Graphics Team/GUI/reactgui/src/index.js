@@ -11,6 +11,7 @@ import * as serviceWorker from './serviceWorker';
 
 //let button = new Button();
 ReactDOM.render(<GUI />, document.getElementById('root'));
+ReactDOM.render(<Console />, document.getElementById('console'));
 //ReactDOM.render(button.render(), document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change

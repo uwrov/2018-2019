@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import './Console.css';
-import Enter from './ConsoleFunctions'
-import ReactDOM from 'react-dom';
-//Access - Control - Allow - Origin: *
-//Access - Control - Allow - Origin: http://localhost:4000
+
 
 class Console extends Component {
     static thisConsole;
@@ -11,42 +8,136 @@ class Console extends Component {
 
     constructor(props) {
         super(props);
-        this.argCounter = 0;
-        this.serverText = "";
+        this.prevArgs = []; // list of prev args
+        this.argCount = -1;
+        this.tempArgNum = 0;
         this.state = { text: '' }//state of the input field 
-        this.state = {text1: ''}//state of the output textbox 
-        this.keyPressed = this.keyPressed.bind(this);//event handler for enter press
+        this.state = {consoleWindow: ''}//state of the output textbox 
+        this.keyPressed = this.keyPressed.bind(this);//event handler for key press
         this.handleChange = this.handleChange.bind(this);//event handler for typing
-        this.clear = this.clear.bind(this);
-       // this.t = this.t.bind(this);
-        //this.sendToConsole = sendToConsole.bind(this);
-      //  this.log = this.log.bind(this);//test
-        Console.count += 1;
-        let timerId = setInterval(this.clear, 20000);
-       
-       
+        this.updateConsole = this.updateConsole.bind(this);//constantly update the console
+        this.handleEnter = this.handleEnter.bind(this);//event handler for enter key press
+        this.handlePgUp = this.handleBackSlash.bind(this);//even handler for enter key press
+        this.addArgs = this.addArgs.bind(this);// add args to array
+        this.getPrevArg = this.getPrevArg.bind(this); // get prev arg
+        this.consoleStorage = window.localStorage;
+        this.data = "Console created.\nListening...\n";
+        var temp = "Console created.\nListening...\n";
+        this.consoleStorage.setItem('ConsoleData', temp);//set empty console
+        let timerId = setInterval(this.updateConsole, 100);//update the console every 100 ms   
+    }
+
+    addArgs() {
+        if (this.state.text != undefined && this.state.text != "\\") {
+            this.prevArgs.push(this.state.text);
+            this.argCount += 1; // increment counter
+            //console.log(this.argCount);
+        }
         
     }
-    
-    
-    clear() {
-
-        fetch("http://localhost:4000/getOutput")
-            .then(this.checkResponse)
-            .then((response) => this.setState({ text1: response }))
-            .catch(this.handleError);
-
+    getPrevArg() {
        
-    }
-    handleError()
-    {
+        if (this.tempArgNum >= 0) {
+            console.log("This is the arg: " + this.prevArgs[this.tempArgNum]);
+            this.setState({
+                text: this.prevArgs[this.tempArgNum]
+            });
+            this.tempArgNum -= 1;
+        } else {
+            this.setState({
+                text: ""
+            });
+        }
+       
+        
+
 
     }
-    checkResponse(response) {
-        if (!response.ok) {
-            throw Error("err");
+
+    updateConsole() {
+        try {
+            if (this.data == this.consoleStorage.getItem("ConsoleData")) {
+                this.setState({ consoleWindow: this.consoleStorage.getItem("ConsoleData") });//update the console every 100 ms
+            }
+            else {
+                this.data = this.consoleStorage.getItem("ConsoleData");
+                this.setState({ consoleWindow: this.consoleStorage.getItem("ConsoleData") });
+                var textarea = document.getElementById('outputText');
+                textarea.scrollTop = textarea.scrollHeight; 
+
+            }
+        } catch (e) {
+            console.log(e);
+       
         }
-        return response.text();
+    }
+    handleBackSlash() {
+        console.log("triggred");
+        this.getPrevArg();
+    }
+    handleEnter() {
+        
+        this.addArgs();
+        this.tempArgNum = this.argCount; // reset current prev arg to start again
+        var temp = this.consoleStorage.getItem('ConsoleData');
+        var command = this.state.text + " $";
+        var commandArr = Array.from(command);
+        if (commandArr[0] == '!') {//command handle
+            var commandInfo = command.split(' ');
+            if (commandInfo[0] == '!get') {
+                if (commandInfo[1] == '$' || commandInfo[1] == '') {//empty string handle
+                    temp += "$>" + this.state.text + "\n";
+                    temp += "$>" + "no key specified...\n";
+                }
+                else {
+                    temp += "$>" + this.state.text + "\n";
+                    temp += "$>" + "the data in " + commandInfo[1] + " is:\n" +
+                        this.consoleStorage.getItem(commandInfo[1]) + "\n";
+                }
+                this.consoleStorage.removeItem('ConsoleData');
+                this.consoleStorage.setItem('ConsoleData', temp);
+                this.setState({
+                    text: "" // clear the input field
+                });
+                this.setState({
+                    consoleWindow: this.consoleStorage.getItem('ConsoleData')
+                });
+
+
+            }
+            else {
+                temp += "$>" + "command not recognized..." + "\n";
+                this.consoleStorage.removeItem('ConsoleData');
+                this.consoleStorage.setItem('ConsoleData', temp);
+                this.setState({
+                    text: "" // clear the input field
+                });
+                this.setState({
+                    consoleWindow: this.consoleStorage.getItem('ConsoleData')
+                });
+
+            }
+        } else {
+            console.log(temp);
+            if (this.state.text == undefined) {
+                temp += "$>" + "\n";
+            }
+            else {
+                temp += "$>" + this.state.text + "\n";
+            }
+            console.log(temp);
+            this.consoleStorage.removeItem('ConsoleData');
+            this.consoleStorage.setItem('ConsoleData', temp);
+            this.setState({
+                text: "" // clear the input field
+            });
+            this.setState({
+                consoleWindow: this.consoleStorage.getItem('ConsoleData')
+            });
+        }
+
+
+    
     }
 
     handleChange(event) {
@@ -54,52 +145,47 @@ class Console extends Component {
     }
 
     keyPressed(event) {
-        var d = new Date();
- 
-        if (event.key === "Enter") {
-           event.preventDefault();
-           document.getElementById("s").click();  
-           this.setState({
-                text: ""
-           });
-            
+        console.log(event.key);
+        if (event.key === "Enter") {//if enter is pressed
+            event.preventDefault();
+            this.handleEnter();
         }
-        
-        
+        else if (event.key === "\\") {
+            event.preventDefault();
+            this.handleBackSlash();
+        }
     };
     
         render() {
             return (
                 
                 <div id="console">
-                    <label>Console</label>
-                    
-                   
-                    < textarea id ="outputText" value={this.state.text1} disabled
+                    < textarea id="outputText" value={this.state.consoleWindow} disabled
+                        
                         onChange={this.handleChange.bind(this)}
                         onKeyPress={this.keyPressed.bind(this)}
                         
                         rows="20"
-                        cols="80"
+                        cols="106"
                     > </textarea>
                   
 
-                    <iframe name='t' src='localhost:3000' width="0" height="0" tabindex="-1" title="empty" class="hidden"/>
+                    
                     
                   
-                    <form id="console" action="http://localhost:4000/console" method="post" target="t">
+                   
                        
-                        <textarea id="in" width="200" height="20" name = "t" value={this.state.text} 
+                    <textarea id="in" rows="1" cols="106" name = "t" value={this.state.text} 
                         placeholder="your command here"
-                        type="text" rows="20"
+                        type="text"
                         onChange={this.handleChange.bind(this)}
                         onKeyPress={this.keyPressed.bind(this)}
                         >
 
 
                         </textarea>
-                        <input id="s" type="submit" width="0" height="0" tabindex="-1" title="empty" class="hidden" />
-                        </form>
+                        
+                        
 
                 </div>
 

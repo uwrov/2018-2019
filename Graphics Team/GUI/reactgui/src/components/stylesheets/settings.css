@@ -1,5 +1,6 @@
 #settings {
    position:absolute;
+   z-index: 1;
    resize: both;
    overflow: auto;
    background: #eeeeee;
