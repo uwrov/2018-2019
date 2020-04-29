@@ -1,7 +1,7 @@
+
 const WebSocket = require('ws');
 var url = "wss://localhost:8080";
 var protocols = "protocolOne";
-
 webSocket = new WebSocket(url, protocols);
 //webSocket.send("hello, can you hear me");
 webSocket.onopen = function (event) {
@@ -12,5 +12,6 @@ webSocket.onmessage = function (event) {
     var state = JSON.parse(event)
 
 }
+
 
 
