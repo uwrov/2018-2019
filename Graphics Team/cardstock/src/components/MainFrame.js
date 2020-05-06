@@ -1,4 +1,7 @@
 import React from "react";
+import GameStat from "./GameStat";
+import CurrPlayer from "./CurrPlayer";
+
 
 class MainFrame extends React.Component {
    state = {
@@ -25,9 +28,9 @@ class MainFrame extends React.Component {
             ]},
       ],
       stock_market: {
-         "Gooble": 10
-         "Amazoom": 15
-         "Macrosoft": 13
+         "Gooble": 10,
+         "Amazoom": 15,
+         "Macrosoft": 13,
       },
       turn: 3,
       current_market: [
@@ -42,9 +45,14 @@ class MainFrame extends React.Component {
    render() {
       return (
          <div>
+            <GameStat
+               turn={this.state.turn}
+               players={this.state.players}
+               market= {this.state.stock_market}/>
+            <CurrPlayer info={this.state.currentPlayer}/>
          </div>
       );
    }
-
-
 }
+
+export default MainFrame;

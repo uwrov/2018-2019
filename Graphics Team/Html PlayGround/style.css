@@ -89,3 +89,120 @@ header, #gamble-bot {
    padding: 0px 10%;
    padding-bottom: 3vh;
 }
+
+#controller {
+   position: relative;
+   background-image: url("bg.png");
+   height: 600px;
+   width: 700px;
+   top: 0px;
+   left: 0px;
+   z-index: 0;
+}
+
+#a-image {
+   position: absolute;
+   top: 234px;
+   left: 506px;
+   z-index: 1;
+   filter: brightness(100%);
+}
+#b-image {
+   position: absolute;
+   top: 180px;
+   left: 558px;
+   z-index: 1;
+   filter: brightness(100%);
+}
+
+#x-image {
+   position: absolute;
+   top: 180px;
+   left: 452px;
+   z-index: 1;
+   filter: brightness(100%);
+}
+
+#y-image {
+   position: absolute;
+   top: 126px;
+   left: 506px;
+   z-index: 1;
+   filter: brightness(100%);
+}
+
+#lstick-image {
+   position: absolute;
+   top: 167px;
+   left: 89px;
+   z-index: 1;
+}
+
+#rstick-image {
+   position: absolute;
+   top: 289px;
+   left: 387px;
+   z-index: 1;
+}
+
+#back-image {
+   position: absolute;
+   top: 200px;
+   left: 230px;
+   z-index: 1;
+}
+
+#start-image {
+   position: absolute;
+   top: 200px;
+   left: 400px;
+   z-index: 1;
+}
+
+#lb-image {
+   position: absolute;
+   visibility: hidden;
+   top: 84px;
+   left: 76px;
+   z-index: 1;
+}
+
+#rb-image {
+   position: absolute;
+   visibility: hidden;
+   top: 84px;
+   left: 473px;
+   z-index: 1;
+}
+
+#dup-image {
+   position: absolute;
+   visibility: hidden;
+   top: 278px;
+   left: 214px;
+   z-index: 1;
+}
+
+#dright-image {
+   position: absolute;
+   visibility: hidden;
+   top: 315px;
+   left: 250px;
+   z-index: 1;
+}
+
+#ddown-image {
+   position: absolute;
+   visibility: hidden;
+   top: 345px;
+   left: 214px;
+   z-index: 1;
+}
+
+#dleft-image {
+   position: absolute;
+   visibility: hidden;
+   top: 315px;
+   left: 178px;
+   z-index: 1;
+}

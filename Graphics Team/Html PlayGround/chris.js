@@ -135,6 +135,45 @@
 			listeningToController = true;
 			controllerInterval = setInterval(updateControls, 10);
 		}
+
+		//button listeners for displaying values
+		for(let i = 0; i <= 5; i++) {
+			addButtonListener(0, i, "pressed", pressedDisplayValue);
+			addButtonListener(0, i, "released", releasedDisplayValue);
+		}
+		for(let i = 8; i <= 16; i++) {
+			addButtonListener(0, i, "pressed", pressedDisplayValue);
+			addButtonListener(0, i, "released", releasedDisplayValue);
+		}
+		//addButtonListener(0, 6, "pressed", printValue);
+		addButtonListener(0, 6, "released", releasedDisplayValue);
+		//addButtonListener(0, 7, "pressed", printValue);
+		addButtonListener(0, 7, "released", releasedDisplayValue);
+
+		//button listeners for the functionality
+		for(let i = 0; i <= 3; i++) {
+			addButtonListener(0, i, "pressed", pressedButton);
+			addButtonListener(0, i, "released", releasedButton);
+		}
+		for(let i = 8; i <= 11; i++) {
+			addButtonListener(0, i, "pressed", pressedButton);
+			addButtonListener(0, i, "released", releasedButton);
+		}
+		for(let i = 4; i <= 5; i++) {
+			addButtonListener(0, i, "pressed", pressedReveal);
+			addButtonListener(0, i, "released", releasedHide);
+		}
+		for(let i = 12; i <= 15; i++) {
+			addButtonListener(0, i, "pressed", pressedReveal);
+			addButtonListener(0, i, "released", releasedHide);
+		}
+
+		//button listeners for the axis
+		addAxisListener(0, 0, updatePos);
+		addAxisListener(0, 1, updatePos);
+		addAxisListener(0, 2, updatePos);
+		addAxisListener(0, 3, updatePos);
+
 	});
 
 	function updateControls() {
@@ -145,20 +184,26 @@
 			let aMap = axisMappings[i];
 			if(currGamepad.timestamp != prevTimeStamp[i]) {
 				for(let j = 0; j < currGamepad.buttons.length; j++) {
-					if(currGamepad.buttons[j].pressed !== bMap[j].prevState) {
+					if(currGamepad.buttons[j].value !== bMap[j].prevState) {
 						if(currGamepad.buttons[j].pressed) {
-							bMap[j].func_press(BUTTON_NAME[j]);
+							bMap[j].func_press.forEach(function(func) {
+								func(BUTTON_NAME[j], currGamepad.buttons[j].value);
+							});
 						} else {
-							bMap[j].func_release(BUTTON_NAME[j]);
+							bMap[j].func_release.forEach(function(func) {
+								func(BUTTON_NAME[j], currGamepad.buttons[j].value);
+							});
 						}
-						bMap[j].prevState = currGamepad.buttons[j].pressed;
+						bMap[j].prevState = currGamepad.buttons[j].value;
 					}
 				}
 				for(let j = 0; j < currGamepad.axes.length; j++) {
-					if(currGamepad.axes[j] !== aMap[j].prevState) {
-						console.log(AXIS[j] + ": " + currGamepad.axes[j]);
+					//if(currGamepad.axes[j] !== aMap[j].prevState) {
 						aMap[j].prevState = currGamepad.axes[j];
-					}
+						aMap[j].func_change.forEach(function(func) {
+							func(AXIS[j], currGamepad.axes[j]);
+						});
+					//}
 				}
 				prevTimeStamp[i] = currGamepad.timestamp;
 			}
@@ -172,23 +217,124 @@
 		let axes = [];
 		gp.buttons.forEach(function() {
 			buttons[buttons.length] = {
-				prevState: false,
-				func_press: function(name) {
-					console.log(name + " has been pressed!");
-				},
-				func_release: function(name) {
-					console.log(name + " has been released!");
-				}
+				prevState: 0.0,
+				func_press: [
+					function(name, value) {
+						console.log(name + " has been pressed");
+					}
+				],
+				func_release: [
+					function(name) {
+						console.log(name + " has been released!");
+					}
+				]
 			};
 		});
 		gp.axes.forEach(function() {
 			axes[axes.length] = {
 				prevState: 0.0,
+				func_change: [
+					function(name, value) {
+						console.log(name + ": " + value);
+						//document.getElementById(name).innerText = value;
+					},
+				]
 			};
 		});
 		buttonMappings[gp.index] = buttons;
 		axisMappings[gp.index] = axes;
 		prevTimeStamp[gp.index] = gp.timestamp;
+	}
+
+	function addButtonListener(index, buttonIndex, type, func) {
+		if(type ==="pressed") {
+			buttonMappings[index][buttonIndex].func_press.push(func);
+		} else {
+			buttonMappings[index][buttonIndex].func_release.push(func);
+		}
+	}
+
+	function addAxisListener(index, axisIndex, func) {
+		axisMappings[index][axisIndex].func_change.push(func);
+	}
+
+
+	function pressedDisplayValue(name, value) {
+		document.getElementById(name+"-image").innerText = "Pressed";
+
+	}
+	function releasedDisplayValue(name) {
+		document.getElementById(name + "-image").innerText = "Not Pressed";
+	}
+
+	function printValue(name, value) {
+		console.log(name + " value is " + value);
+		document.getElementById(name + "-image").innerText = value;
+	}
+
+	function pressedButton(name, value) {
+		let element = document.getElementById(name + "-image");
+		element.style.filter = "brightness(50%)";
+		if(name == "a" || name == "b" || name == "x" || name == "y" || name == "back" || name == "start") {
+			let tempP = getComputedStyle(element).top;
+			let pixels = parseInt(tempP.replace(/px/,"")) + 5 + "px";
+			console.log(pixels);
+			element.style.top = pixels;
+		}
+	}
+	function releasedButton(name, value) {
+		let element = document.getElementById(name + "-image");
+		element.style.filter = "brightness(100%)";
+		if(name == "a" || name == "b" || name == "x" || name == "y" || name == "back" || name == "start") {
+			let tempP = getComputedStyle(element).top;
+			let pixels = parseInt(tempP.replace(/px/,"")) - 5 + "px";
+			element.style.top = pixels;
+		}
+	}
+	function pressedReveal(name, value) {
+		let element = document.getElementById(name + "-image");
+		element.style.visibility = "visible";
+	}
+	function releasedHide(name, value) {
+		let element = document.getElementById(name + "-image");
+		element.style.visibility = "hidden";
+	}
+	function updateDarkness(name, value) {
+
+	}
+
+	function updatePos(name, value) {
+		let isX = name == "lstick_x" || name == "rstick_x";
+		let stick = (name == "lstick_x" || name == "lstick_y") ? "lstick" : "rstick";
+		let element = document.getElementById(stick + "-image");
+		let tempP = (isX) ? getComputedStyle(element).left : getComputedStyle(element).top;
+		//console.log(name + ": " + tempP);
+		//let pixels = parseInt(tempP.replace(/px/,"")) + Math.round(5 * value) + "px";
+		//console.log(pixels);
+		if(isX) {
+			if(stick == "lstick") {
+				element.style.left = 89 + 20 * value + "px";
+			} else {
+				element.style.left = 387 + 20 * value + "px";
+			}
+
+		} else {
+			if(stick == "lstick") {
+				element.style.top = 167 + 20 * value + "px";
+			} else {
+				element.style.top = 289 + 20 * value + "px";
+			}
+		}
+	}
+
+
+//////////to change
+	function removeButtonListener(index, type, func) {
+		if(type ==="pressed") {
+			buttonMappings[index][buttonIndex].func_press.remove(func);
+		} else {
+			buttonMappings[index][buttonIndex].func_release.remove(func);
+		}
 	}
 
 	function updateGamepadState() {
