@@ -43,16 +43,16 @@ class MainFrame extends React.Component {
    }
     constructor(props) {
         super(props);
-        var playerID;
+        this.playerID = null;
         this.socket = require('socket.io-client')('http://localhost:8080');
-        socket.on('Player Turn', this.updatePlayer);
-        socket.on('Update Market Cards', this.updateStockCards);
-        socket.on('Update Stock Market', this.updateStockMarket);
-        socket.on('Update Current Player', this.updateCurrentPlayer);
-        socket.on('UpdateEverything', this.updateEverything);
-        socket.on('Connect', this.updateEverything);
+        this.socket.on('Player Turn', this.updatePlayer);
+        this.socket.on('Update Market Cards', this.updateStockCards);
+        this.socket.on('Update Stock Market', this.updateStockMarket);
+        this.socket.on('Update Current Player', this.updateCurrentPlayer);
+        this.socket.on('UpdateEverything', this.updateEverything);
+        this.socket.on('Connect', this.updateEverything);
     }
-    
+
     updatePlayer = (data) => {
     }
     updateStockCards = (data) => {
