@@ -41,7 +41,29 @@ class MainFrame extends React.Component {
          { company: "Amazoom", stock: 1, price: 15 },
       ]
    }
-
+    constructor(props) {
+        super(props);
+        var playerID;
+        this.socket = require('socket.io-client')('http://localhost:8080');
+        socket.on('Player Turn', this.updatePlayer);
+        socket.on('Update Market Cards', this.updateStockCards);
+        socket.on('Update Stock Market', this.updateStockMarket);
+        socket.on('Update Current Player', this.updateCurrentPlayer);
+        socket.on('UpdateEverything', this.updateEverything);
+        socket.on('Connect', this.updateEverything);
+    }
+    
+    updatePlayer = (data) => {
+    }
+    updateStockCards = (data) => {
+    }
+    updateStockMarket = (data) => {
+    }
+    updateCurrentPlayer = (data) => {
+    }
+    updateEverything = (data) => {
+        this.playerID = data.playerID;//set the player id
+    }
    render() {
       return (
          <div>
