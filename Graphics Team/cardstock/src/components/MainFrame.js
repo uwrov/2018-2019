@@ -1,7 +1,7 @@
 import React from "react";
 import GameStat from "./GameStat";
 import CurrPlayer from "./CurrPlayer";
-
+import MarketCards from "./MarketCards";
 
 class MainFrame extends React.Component {
    state = {
@@ -45,6 +45,7 @@ class MainFrame extends React.Component {
    render() {
       return (
          <div>
+            <MarketCards market={this.state.current_market}/>
             <GameStat
                turn={this.state.turn}
                players={this.state.players}
