@@ -13,3 +13,11 @@ socket.on('message', function(data){
 socket.on('disconnect', function(){
    console.log("disconnected");
 });
+socket.on('requestPlayerTurn', function () {
+    console.log("requested players turn");
+    socket.emit('getPlayersTurn');
+});
+socket.on('getPlayerTurn', function (data) {
+
+})
+
