@@ -1,4 +1,6 @@
 import React from 'react';
+import './StockMarket.css';
+import Draggable from 'react-draggable';
 
 class StockMarket extends React.Component {
    constructor(props) {
@@ -8,11 +10,13 @@ class StockMarket extends React.Component {
 
    render() {
       return (
-         <div className="stock_market">
-            <ul>
-               {this.renderStocks()}
-            </ul>
-         </div>
+         <Draggable grid={[80, 80]}>
+            <div className="stock_market">
+               <ul>
+                  {this.renderStocks()}
+               </ul>
+            </div>
+         </Draggable>
       )
    }
 

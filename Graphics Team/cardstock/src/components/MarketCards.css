@@ -1,7 +1,7 @@
 .card {
    background-color: green;
-   width: 20%;
-   height: 100%;
+   width: 150px;
+   height: 250px;
    float: left;
    border-color: black;
 }
@@ -11,6 +11,6 @@
    top: 0;
    left: 0;
    width: 80vw;
-   height: 50vh;
+   height: 70vh;
    background-color: blue;
 }

@@ -2,6 +2,7 @@ import React from "react";
 import GameStat from "./GameStat";
 import CurrPlayer from "./CurrPlayer";
 import MarketCards from "./MarketCards";
+import StockMarket from "./StockMarket";
 
 class MainFrame extends React.Component {
    state = {
@@ -73,6 +74,7 @@ class MainFrame extends React.Component {
                players={this.state.players}
                market= {this.state.stock_market}/>
             <CurrPlayer info={this.state.currentPlayer}/>
+            <StockMarket stock_price={this.state.stock_market}/>
          </div>
       );
    }
