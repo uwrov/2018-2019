@@ -1,0 +1,25 @@
+.skipButton {
+   height: 50px;
+   width: 100px;
+   background-color: #9a00f9;
+}
+
+.skipButton:hover {
+   height: 52px;
+   width: 102px;
+   background-color: #8b00f9;
+   cursor: pointer;
+}
+
+.skipButton:active {
+   height: 52px;
+   width: 102px;
+   background-color: #7800f9;
+   cursor: grab;
+}
+
+.actionbuttons {
+   position: absolute;
+   bottom: 200px;
+   right: 300px;
+}
