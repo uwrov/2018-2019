@@ -1,8 +1,8 @@
-# import json
+import json
 import random
 import math
-# from flask import Flask, render_template
-# from flask_socketio import SocketIO, send, emit
+from flask import Flask, render_template
+from flask_socketio import SocketIO, send, emit
 
 
 # from bottle import route
@@ -13,8 +13,8 @@ HOST_PORT = "4000"
 DECK_FILE = "deck.txt"
 ACTION_FILE = "action_cards.txt"
 
-# app = Flask(__name__)
-# sio = SocketIO(app)
+app = Flask(__name__)
+sio = SocketIO(app)
 
 # list of all cards
 market_deck = []
@@ -34,7 +34,7 @@ turn_index = 0
 # 0 = buying phase 1 = selling phase
 turn_phase = 0
 # what player's turn it is in the turn
-player_index = 0
+player_index = -1
 
 # list of unique company names
 company_names = set()
@@ -43,6 +43,8 @@ fluctuation_deck = []
 stock_market = {}
 
 action_deck = []
+
+playing_game = True
 
 
 class Player:
@@ -198,7 +200,7 @@ def sell_card(move):
         if move != -1 and move < len(player_list[player_index].stock_hand):
             card = player_list[player_index].stock_hand.pop(move)
             print(card)
-            price = card.amount * card.scalar + market_v
+            card.update_price(stock_market[card.company])
             print(card)
             player_list[player_index].money += int(card.price)
             turn_phase = 1
@@ -244,15 +246,17 @@ def print_stock_market():
 
 
 def action_phase():
+    global playing_game
     print(player_list[player_index].name + " its your turn! What is your action? ")
     print(player_list[player_index])
     action = input()
     if action == "exit":
-        return
-    if action != 0:
-        action_card = player_list[player_index].action_hand.pop(int(action) - 1)
+        return False
+    if int(action) != -1:
+        action_card = player_list[player_index].action_hand.pop(int(action))
         print(player_list[player_index])
         print(player_list[player_index].name + " just played " + action_card)
+        return True
 
 
 def intro():
@@ -283,10 +287,10 @@ def print_market_cards():
 # Returned Data Format: JSON
 # Description: Returns current cards in the market in JSON Format
 # Example Response: [{"Company": "Amazoom", "Amount": "1", "Price": "3"}]
-# @sio.on("Get Market")
-# def get_market_cards():
-#     emit('Market Cards', json.dumps(market_cards))
-#     return True
+@sio.on("Get Market")
+def get_market_cards():
+    emit('Market Cards', json.dumps(market_cards))
+    return True
 
 
 # Request format: HOST_IP:port/getPlayers
@@ -294,29 +298,31 @@ def print_market_cards():
 # Returned Data Format: JSON
 # Description: Returns the player's current cards and money in JSON Format
 # Example Response: [{"Name": "Andrew", "Money": "100", "Hand": [...]}]
-# @sio.on("Get Player")
-# def get_players_data():
-#     emit('Market Cards', json.dumps(player_index))
-#     return True
-#
-#
-# @route('/makeAction')
+@sio.on("Get Player")
+def get_players_data():
+    emit('Player Data', json.dumps(player_list))
+    return True
+
+
+# @sio.on("Make Action")
 # def can_make_action():
 #     return
-#
-#
-# @route('/getStockMarket')
-# def get_stock_market():
-#     return
-#
-#
-# @route('/getPlayerTurn')
-# def get_player_index():
-#     return int(player_index)
+
+
+@sio.on("Get Stock Market")
+def get_stock_market():
+    emit('Stock Market', json.dumps(stock_market))
+    return True
+
+
+@sio.on("Get Player Index")
+def get_player_index():
+    emit('Player Index', json.dumps(player_index))
+    return True
 
 
 def main():
-    global player_index
+    global player_index, playing_game
     create_deck()
     shuffle_decks()
     add_player('Justin')
@@ -333,7 +339,9 @@ def main():
         begin_turn()
         update_market_card_price()
         print_stock_market()
-        action_phase()
+        result = action_phase()
+        if not result:
+            break
         market_phase()
         print(player_list[player_index])
         print()

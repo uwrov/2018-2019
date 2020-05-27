@@ -19,7 +19,7 @@
 }
 
 .actionbuttons {
-   position: absolute;
+   position: relative;
    bottom: 200px;
    right: 300px;
 }

@@ -1,24 +1,25 @@
-.card {
 
-   background-color: green;
+
+.playerCard {
+   background: #123475;
    width: 150px;
    height: 250px;
    float: left;
    border-color: black;
 }
 
-.cardMarket {
+.playerCards {
    position: absolute;
-   top: 0;
-   left: 0;
-   width: 1000px;
-   height: 400px;
-   background-color: blue;
+   top: 400px;
+   left: 400px;
+   width: 500px;
+   height: 300px;
+   background-color: #9a00f9;
    display: flex;
    justify-content: space-evenly;
 }
 
-.buy {
+.sellButton {
    text-align: center;
    background-color: grey;
    width: 50px;

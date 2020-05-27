@@ -11,7 +11,7 @@ class ActionButtons extends React.Component {
       return (
          <div className="actionbuttons">
             <div className="skipButton" onClick={this.handleSkip}>
-               Skip turn!
+               End turn!
             </div>
          </div>
       );
@@ -19,7 +19,7 @@ class ActionButtons extends React.Component {
 
    handleSkip = () => {
       if(this.props.onSkipTurn instanceof Function) {
-         this.props.onSkipturn();
+         this.props.onSkipTurn();
       } else {
          console.log("Error: no function was supplied!");
       }
