@@ -5,8 +5,6 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
 
 
-# from bottle import route
-
 HOST_IP = "localhost"
 HOST_PORT = "4000"
 
@@ -119,13 +117,6 @@ def create_deck():
             action_deck.append(line)
 
 
-def print_deck():
-    for card in market_deck:
-        print(card.company, card.amount, card.price)
-    for card in fluctuation_deck:
-        print(card.change_in_stock)
-
-
 def shuffle_decks():
     random.shuffle(market_deck)
     random.shuffle(action_deck)
@@ -157,12 +148,53 @@ def add_player(name):
     player_list.append(Player(name))
 
 
+def change_stock():
+    global fluctuation_deck, stock_market
+    change_card = fluctuation_deck.pop()
+    for name in change_card.change_in_stock:
+        stock_market[name] += change_card.change_in_stock[name]
+    update_market_card_price()
+
+
+def update_market_card_price():
+    for card in market_cards:
+        card.update_price(stock_market[card.company])
+
+
+def begin_turn():
+    global market_deck, market_cards, turn_index, player_index, turn_phase
+
+    while len(market_cards) < 5:
+        market_cards.append(market_deck.pop(0))
+
+    turn_phase = 0
+
+    if player_index < len(player_list) - 1:
+        player_index += 1
+    else:
+        player_index = 0
+        turn_index += 1
+        change_stock()
+
+
+def action_phase():
+    global playing_game
+    print(player_list[player_index].name + " its your turn! What is your action? ")
+    print(player_list[player_index])
+    action = input()
+    if action == "exit":
+        return False
+    if int(action) != -1:
+        action_card = player_list[player_index].action_hand.pop(int(action))
+        print(player_list[player_index])
+        print(player_list[player_index].name + " just played " + action_card)
+        return True
+
+
 # move represents the market card the player wants to buy
 # if move == -1 then the player wants to skip buying a cards
 # 0 represents the first card in the market, 1 represents the second card etc...
 def market_phase():
-    global turn_phase
-    global market_cards
     print(player_list[player_index].name + " what stock do you want to buy? ")
     print_market_cards()
     buy_move = input()
@@ -178,8 +210,7 @@ def market_phase():
 
 
 def buy_card(move):
-    global turn_phase
-    global market_cards
+    global turn_phase, market_cards
     if turn_phase == 0:
         if move != -1 and move < len(market_cards):
             card = market_cards.pop(move)
@@ -194,8 +225,7 @@ def buy_card(move):
 
 
 def sell_card(move):
-    global turn_phase
-    global market_cards
+    global turn_phase, market_cards
     if turn_phase == 1:
         if move != -1 and move < len(player_list[player_index].stock_hand):
             card = player_list[player_index].stock_hand.pop(move)
@@ -208,55 +238,15 @@ def sell_card(move):
             turn_phase = 2
 
 
-def begin_turn():
-    global market_deck
-    global market_cards
-    global turn_index
-    global player_index
-    global turn_phase
-
-    while len(market_cards) < 5:
-        market_cards.append(market_deck.pop(0))
-
-    turn_phase = 0
-    if player_index < len(player_list) - 1:
-        player_index += 1
-    else:
-        player_index = 0
-        turn_index += 1
-        change_stock()
-
-
-def change_stock():
-    global fluctuation_deck
-    global stock_market
-    change_card = fluctuation_deck.pop()
-    for name in change_card.change_in_stock:
-        stock_market[name] += change_card.change_in_stock[name]
-    update_market_card_price()
-
-
-def update_market_card_price():
-    for card in market_cards:
-        card.update_price(stock_market[card.company])
+def print_deck():
+    for card in market_deck:
+        print(card.company, card.amount, card.price)
+    for card in fluctuation_deck:
+        print(card.change_in_stock)
 
 
 def print_stock_market():
     print(stock_market)
-
-
-def action_phase():
-    global playing_game
-    print(player_list[player_index].name + " its your turn! What is your action? ")
-    print(player_list[player_index])
-    action = input()
-    if action == "exit":
-        return False
-    if int(action) != -1:
-        action_card = player_list[player_index].action_hand.pop(int(action))
-        print(player_list[player_index])
-        print(player_list[player_index].name + " just played " + action_card)
-        return True
 
 
 def intro():
@@ -278,6 +268,15 @@ def print_market_cards():
     for card in market_cards:
         # print(card.company, card.amount, card.price, end=" ")
         print(card.company + " " + str(card.amount) + " " + str(card.price), end=" | ")
+
+
+def end():
+    print("End results:")
+    print("--------------------")
+    for player in player_list:
+        print(player)
+    print("--------------------")
+    print()
 
 
 # API Methods
@@ -345,21 +344,6 @@ def main():
         market_phase()
         print(player_list[player_index])
         print()
-
-
-#
-    # worth $3
-#  boomerberg 1 1       3
-#   boomerberg 2 0.9    6
-#   boomerberg 3 0.8
-#
-
-    print("End results:")
-    print("--------------------")
-    for player in player_list:
-        print(player)
-    print("--------------------")
-    print()
 
 
 main()
