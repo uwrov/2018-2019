@@ -18,8 +18,8 @@ class ActionButtons extends React.Component {
    }
 
    handleSkip = () => {
-      if(this.props.onSkipTurn instanceof Function) {
-         this.props.onSkipturn();
+      if(this.props.buyCard instanceof Function) {
+         this.props.buy();
       } else {
          console.log("Error: no function was supplied!");
       }

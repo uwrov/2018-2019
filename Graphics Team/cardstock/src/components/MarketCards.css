@@ -10,7 +10,13 @@
    position: absolute;
    top: 0;
    left: 0;
-   width: 80vw;
-   height: 70vh;
+   width: 1000px;
+   height: 400px;
    background-color: blue;
+}
+
+.buy {
+   text-align: center;
+   background-color: grey;
+   width: 50px;
 }
