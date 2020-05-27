@@ -40,7 +40,7 @@ class GameStat extends React.Component {
       sorter.reverse();
       return sorter.map(function(player, i) {
 
-         if(i == 0) {
+         if(i === 0) {
             return (
                <li className="BIGBOY">
                   {player[0].name}'s net worth: {player[1]}
