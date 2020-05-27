@@ -44,6 +44,7 @@ class MainFrame extends React.Component {
          { company: "Amazoom", stock: 1, price: 15 },
       ]
     }
+
     buyCard(index) {
         this.socket.emit("Buy Card", { playerN: this.playerNumber, index: index });//buy a card
     }
@@ -119,7 +120,7 @@ class MainFrame extends React.Component {
             <CurrPlayer info={this.state.currentPlayer}/>
             <StockMarket stock_price={this.state.stock_market}/>
             <PlayerCards playerCards={this.state.currentPlayer.stock}/>
-            <ActionButtons />
+            <ActionButtons onSkipTurn={this.skipTurn} />
          </div>
       );
    }
@@ -127,6 +128,12 @@ class MainFrame extends React.Component {
    buyStock = (index) => {
       console.log("Stock Bought");
       console.log("Bought: " + this.state.current_market[index]);
+   }
+
+   //End Turn
+   skipTurn = () => {
+
+
    }
 
 }
