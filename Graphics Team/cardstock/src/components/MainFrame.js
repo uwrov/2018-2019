@@ -128,13 +128,13 @@ class MainFrame extends React.Component {
    buyStock = (index) => {
       console.log("Stock Bought");
       console.log("Bought: " + this.state.current_market[index]);
-      this.socket.emit("buy card", index);
+       this.socket.emit("buy card", {"playerN":  this.playerNumber, "index":index });
    }
 
    //End Turn
     skipTurn = () => {
        console.log("Turn Skipped");
-       this.socket.emit("buy card", -1);//default for skip turn
+        this.socket.emit("buy card", { "playerN": this.playerNumber, "index": -1 });//default for skip turn
 
    }
 
