@@ -12,9 +12,6 @@ class CurrPlayer extends React.Component {
                   {
                      this.getPlayers(this.props.info)
                   }
-                  {
-                     this.stockInfo(this.props.info.stock)
-                  }
                </div>
             </div>
          </Draggable>
@@ -28,14 +25,6 @@ class CurrPlayer extends React.Component {
             <p>Money: {info.money}</p>
          </div>
       );
-   }
-   stockInfo(stocks) {
-      return stocks.map(function(stock) {
-         // Maybe include the value of the stocks as well.
-         // In order to do this, I must give access to the
-         // market field.
-         return <li># of {stock.company} Stock: {stock.stock}</li>
-      });
    }
 
 }
