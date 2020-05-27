@@ -1,13 +1,20 @@
-import json
+# import json
 import random
+import math
+# from flask import Flask, render_template
+# from flask_socketio import SocketIO, send, emit
 
-from bottle import route
+
+# from bottle import route
 
 HOST_IP = "localhost"
 HOST_PORT = "4000"
 
 DECK_FILE = "deck.txt"
 ACTION_FILE = "action_cards.txt"
+
+# app = Flask(__name__)
+# sio = SocketIO(app)
 
 # list of all cards
 market_deck = []
@@ -33,7 +40,7 @@ player_index = 0
 company_names = set()
 
 fluctuation_deck = []
-current_fluct = []
+stock_market = {}
 
 action_deck = []
 
@@ -46,17 +53,34 @@ class Player:
         self.action_hand = []
 
     def __str__(self):
-        return str(self.name + " " + str(self.money) + " " + str(self.stock_hand) + " " + str(self.action_hand))
+        return str(self.name + " " + str(self.money) + " " + str(self.stock_tostring()) + " " +
+                   str(self.action_tostring()))
+
+    def stock_tostring(self):
+        hand = "["
+        for card in self.stock_hand:
+            hand += card.company + " " + str(card.amount) + " "
+        return hand + "]"
+
+    def action_tostring(self):
+        hand = "["
+        for card in self.action_hand:
+            hand += card + ", "
+        return hand[:-2] + "]"
 
 
 class StockCard:
-    def __init__(self, name, amount, price):
+    def __init__(self, name, amount, scalar):
         self.company = name
         self.amount = amount
-        self.price = price
+        self.scalar = scalar
+        self.price = 0
+
+    def update_price(self, market_val):
+        self.price = math.ceil(int(self.amount) * int(self.scalar) * int(market_val))
 
     def __str__(self):
-        return self.company + " " + self.amount + " " + self.price
+        return self.company + " " + self.amount + " " + str(self.price)
 
 
 class MarketCard:
@@ -89,6 +113,7 @@ def create_deck():
     with open(ACTION_FILE) as file:
         lines = file.readlines()
         for line in lines:
+            line = line.strip()
             action_deck.append(line)
 
 
@@ -112,6 +137,7 @@ def set_up_game():
         p.money = 20
         p.stock_hand = []
         action_graveyard += p.action_hand
+        p.action_hand = []
     market_deck += stock_graveyard + market_cards
     action_deck += action_graveyard
     stock_graveyard = []
@@ -121,6 +147,8 @@ def set_up_game():
     for player in player_list:
         for i in range(0, 5):
             player.action_hand.append(action_deck.pop())
+    for name in company_names:
+        stock_market[name] = 5
 
 
 def add_player(name):
@@ -130,7 +158,24 @@ def add_player(name):
 # move represents the market card the player wants to buy
 # if move == -1 then the player wants to skip buying a cards
 # 0 represents the first card in the market, 1 represents the second card etc...
-def market_phase(move):
+def market_phase():
+    global turn_phase
+    global market_cards
+    print(player_list[player_index].name + " what stock do you want to buy? ")
+    print_market_cards()
+    buy_move = input()
+    buy_move = int(buy_move)
+    buy_card(buy_move)
+    print_market_cards()
+    print(player_list[player_index].name + " what stock do you want to sell? ")
+    print(player_list[player_index])
+    sell_move = input()
+    sell_move = int(sell_move)
+    sell_card(sell_move)
+    print(player_list[player_index])
+
+
+def buy_card(move):
     global turn_phase
     global market_cards
     if turn_phase == 0:
@@ -144,7 +189,21 @@ def market_phase(move):
                 market_cards.append(card)
         else:
             turn_phase = 1
-    print(market_cards)
+
+
+def sell_card(move):
+    global turn_phase
+    global market_cards
+    if turn_phase == 1:
+        if move != -1 and move < len(player_list[player_index].stock_hand):
+            card = player_list[player_index].stock_hand.pop(move)
+            print(card)
+            price = card.amount * card.scalar + market_v
+            print(card)
+            player_list[player_index].money += int(card.price)
+            turn_phase = 1
+        else:
+            turn_phase = 2
 
 
 def begin_turn():
@@ -152,62 +211,54 @@ def begin_turn():
     global market_cards
     global turn_index
     global player_index
+    global turn_phase
 
     while len(market_cards) < 5:
         market_cards.append(market_deck.pop(0))
 
-    turn_index = 1
-    player_index = 0
+    turn_phase = 0
+    if player_index < len(player_list) - 1:
+        player_index += 1
+    else:
+        player_index = 0
+        turn_index += 1
+        change_stock()
 
 
-# API Methods
-
-# Request format: HOST_IP:port/getCards
-# Request type: GET
-# Returned Data Format: JSON
-# Description: Returns current cards in the market in JSON Format
-# Example Response: [{"Company": "Amazoom", "Amount": "1", "Price": "3"}]
-@route('/getCards')
-def get_market_cards():
-    return json.dumps(market_cards)
+def change_stock():
+    global fluctuation_deck
+    global stock_market
+    change_card = fluctuation_deck.pop()
+    for name in change_card.change_in_stock:
+        stock_market[name] += change_card.change_in_stock[name]
+    update_market_card_price()
 
 
-# Request format: HOST_IP:port/getPlayers
-# Request type: GET
-# Returned Data Format: JSON
-# Description: Returns the player's current cards and money in JSON Format
-# Example Response: [{"Name": "Andrew", "Money": "100", "Hand": [...]}]
-@route('/getPlayers')
-def get_players_data():
-    return json.dumps(player_list)
+def update_market_card_price():
+    for card in market_cards:
+        card.update_price(stock_market[card.company])
 
 
-@route('/makeAction')
-def can_make_action():
-    return
+def print_stock_market():
+    print(stock_market)
 
 
-@route('/getStockMarket')
-def get_stock_market():
-    return
+def action_phase():
+    print(player_list[player_index].name + " its your turn! What is your action? ")
+    print(player_list[player_index])
+    action = input()
+    if action == "exit":
+        return
+    if action != 0:
+        action_card = player_list[player_index].action_hand.pop(int(action) - 1)
+        print(player_list[player_index])
+        print(player_list[player_index].name + " just played " + action_card)
 
 
-def main():
-    global player_index
-    create_deck()
-    shuffle_decks()
-    add_player('Justin')
-    add_player('Andrew')
-    add_player('Alex')
-    add_player('Chris')
-    set_up_game()
-    begin_turn()
-
+def intro():
     print("Market Cards")
     print("--------------------")
-    for card in market_cards:
-        print(card.company, card.amount, card.price)
-
+    print_market_cards()
     print("--------------------")
     print()
 
@@ -218,28 +269,82 @@ def main():
     print("--------------------")
     print()
 
+
+def print_market_cards():
+    for card in market_cards:
+        # print(card.company, card.amount, card.price, end=" ")
+        print(card.company + " " + str(card.amount) + " " + str(card.price), end=" | ")
+
+
+# API Methods
+
+# Request format: HOST_IP:port/getCards
+# Request type: GET
+# Returned Data Format: JSON
+# Description: Returns current cards in the market in JSON Format
+# Example Response: [{"Company": "Amazoom", "Amount": "1", "Price": "3"}]
+# @sio.on("Get Market")
+# def get_market_cards():
+#     emit('Market Cards', json.dumps(market_cards))
+#     return True
+
+
+# Request format: HOST_IP:port/getPlayers
+# Request type: GET
+# Returned Data Format: JSON
+# Description: Returns the player's current cards and money in JSON Format
+# Example Response: [{"Name": "Andrew", "Money": "100", "Hand": [...]}]
+# @sio.on("Get Player")
+# def get_players_data():
+#     emit('Market Cards', json.dumps(player_index))
+#     return True
+#
+#
+# @route('/makeAction')
+# def can_make_action():
+#     return
+#
+#
+# @route('/getStockMarket')
+# def get_stock_market():
+#     return
+#
+#
+# @route('/getPlayerTurn')
+# def get_player_index():
+#     return int(player_index)
+
+
+def main():
+    global player_index
+    create_deck()
+    shuffle_decks()
+    add_player('Justin')
+    add_player('Andrew')
+    add_player('Alex')
+    add_player('Chris')
+
+    set_up_game()
+    intro()
     playing_game = True
 
+    change_stock()
     while playing_game:
-        print(player_list[player_index].name + " its your turn! What is your action? ")
+        begin_turn()
+        update_market_card_price()
+        print_stock_market()
+        action_phase()
+        market_phase()
         print(player_list[player_index])
-        action = input()
-        if action == "exit":
-            break
-        if action != 0:
-            action_card = player_list[player_index].action_hand.pop(int(action) - 1)
-            print(player_list[player_index])
-            print(player_list[player_index].name + " just played " + action_card)
+        print()
 
-        print(player_list[player_index].name + " what stock do you want to buy? ")
-        print(market_cards)
-        stock = input()
-        market_phase(int(stock))
-        print(player_list[player_index])
-        if player_index < len(player_list)-1:
-            player_index += 1
-        else:
-            player_index = 0
+
+#
+    # worth $3
+#  boomerberg 1 1       3
+#   boomerberg 2 0.9    6
+#   boomerberg 3 0.8
+#
 
     print("End results:")
     print("--------------------")

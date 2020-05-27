@@ -41,10 +41,20 @@ class MainFrame extends React.Component {
          { company: "Macrosoft", stock: 3, price: 28 },
          { company: "Amazoom", stock: 1, price: 15 },
       ]
-   }
+    }
+    buyCard(index) {
+        this.socket.emit("Buy Card", { playerN: this.playerNumber, index: index });//buy a card
+    }
+    sellCard(index) {
+        this.socket.emit("Sell Card", { playerN: this.playerNumber, index: index }); //sell a card
+    }
+    requestTurn() {
+        this.socket.emit("Get Turn");//request the turn
+    }
     constructor(props) {
         super(props);
-        this.playerID = null;
+        this.playerNumber = -1;
+        this.myTurn = false;
         this.socket = require('socket.io-client')('http://localhost:8080');
         this.socket.on('Player Turn', this.updatePlayer);
         this.socket.on('Update Market Cards', this.updateStockCards);
@@ -52,9 +62,40 @@ class MainFrame extends React.Component {
         this.socket.on('Update Current Player', this.updateCurrentPlayer);
         this.socket.on('UpdateEverything', this.updateEverything);
         this.socket.on('Connect', this.updateEverything);
+        this.socket.on('buy outcome', this.buyOutcome);
+        this.socket.on('sell outcome', this.sellOutcome);
     }
+    sellOutcome = (data) => {
+        if (data == 0) {
+            console.log("sold, no errors!");
+        } else if (data == 1) {
+            console.log("error: index out of bounds!");
+        } else {
+            console.log("unknown error");
+        }
+    }
+    buyOutcome = (data) => {
+        if (data == 0) {
+            console.log("bought a card, no errors!");
+        } else if (data == 1) {
+            console.log("error: index out of bounds!");
+        } else if (data == 2) {
+            console.log("nothing bought, no errors!");
+        } else if (data == 3) {
+            console.log("error: not your turn, cannot buy!");
+        } else {
+            console.log("unknown error");
+        }
 
+    }
     updatePlayer = (data) => {
+        //set myTurn
+        if (this.playerNumber == data) {
+            this.myTurn = true;
+        }
+        else {
+            this.myTurn = false;
+        }
     }
     updateStockCards = (data) => {
     }
@@ -63,7 +104,7 @@ class MainFrame extends React.Component {
     updateCurrentPlayer = (data) => {
     }
     updateEverything = (data) => {
-        this.playerID = data.playerID;//set the player id
+        this.playerNumber = data;//set the player number
     }
    render() {
       return (
