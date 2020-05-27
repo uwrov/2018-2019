@@ -1,5 +1,4 @@
 
-
 .playerCard {
    background: #123475;
    width: 150px;
@@ -11,8 +10,8 @@
 .playerCards {
    position: absolute;
    top: 400px;
-   left: 400px;
-   width: 500px;
+   left: 200px;
+   width: 800px;
    height: 300px;
    background-color: #9a00f9;
    display: flex;
