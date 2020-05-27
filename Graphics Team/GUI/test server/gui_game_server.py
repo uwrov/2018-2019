@@ -303,22 +303,22 @@ def get_players_data():
     emit('Player Data', json.dumps(player_list))
     return True
 
-#@route('/makeAction')
-@sio.on("Make Action")
-def can_make_action():
-    return
+
+# @sio.on("Make Action")
+# def can_make_action():
+#     return
 
 
-#@route('/getStockMarket')
 @sio.on("Get Stock Market")
 def get_stock_market():
     emit('Stock Market', json.dumps(stock_market))
     return True
 
 
-#@route('/getPlayerTurn')
+@sio.on("Get Player Index")
 def get_player_index():
-    return int(player_index)
+    emit('Player Index', json.dumps(player_index))
+    return True
 
 
 def main():
