@@ -8,40 +8,33 @@ import ActionButtons from "./ActionButtons";
 
 class MainFrame extends React.Component {
    state = {
-      currentPlayer: {
-         name: "Bob",
-         money: 13,
-         stock: [
-            { company: "Gooble", stock: 3, price: 0 },
-            { company: "Amazoom", stock: 1, price: 0 },
-         ]
-      },
+      currentPlayer: 0,
       players: [
-         { name: "Bob", money: 13, stock: [
-               { company: "Gooble", stock: 3, price: 0 },
-               { company: "Amazoom", stock: 1, price: 0 },
+         { name: "test1", money: 13, stock: [
+               { company: "Goobletest1", stock: 3, price: 0 },
+               { company: "Amazoomtest2", stock: 1, price: 0 },
             ]},
-         { name: "Dad", money: 9, stock: [
-               { company: "Macrosoft", stock: 3, price: 0 },
-               { company: "Amazoom", stock: 2, price: 0 },
-               { company: "Amazoom", stock: 1, price: 0 },
+         { name: "test2", money: 9, stock: [
+               { company: "Macrosofttest3", stock: 3, price: 0 },
+               { company: "Amazoomtest2", stock: 2, price: 0 },
+               { company: "Amazoomtest2", stock: 1, price: 0 },
             ]},
-         { name: "Chris", money: 23, stock: [
-               { company: "Gooble", stock: 2, price: 0 },
+         { name: "test3", money: 23, stock: [
+               { company: "Goobletest1", stock: 2, price: 0 },
             ]},
       ],
       stock_market: {
-         "Gooble": 10,
-         "Amazoom": 15,
-         "Macrosoft": 13,
+         "Goobletest1": 10,
+         "Amazoomtest2": 15,
+         "Macrosofttest3": 13,
       },
       turn: 3,
       current_market: [
-         { company: "Gooble", stock: 3, price: 21 },
-         { company: "Gooble", stock: 1, price: 10 },
-         { company: "Amazoom", stock: 2, price: 24 },
-         { company: "Macrosoft", stock: 3, price: 28 },
-         { company: "Amazoom", stock: 1, price: 15 },
+         { company: "Goobletest1", stock: 3, price: 21 },
+         { company: "Goobletest1", stock: 1, price: 10 },
+         { company: "Amazoomtest2", stock: 2, price: 24 },
+         { company: "Macrosofttest3", stock: 3, price: 28 },
+         { company: "Amazoomtest2", stock: 1, price: 15 },
       ]
     }
 
@@ -59,15 +52,15 @@ class MainFrame extends React.Component {
         this.playerNumber = -1;
         this.myTurn = false;
         this.socket = require('socket.io-client')('http://localhost:8080');
-        this.socket.on('Player Turn', this.updatePlayer);
+        this.socket.on('Player Index', this.updatePlayerIndex);
         this.socket.on('Update Market Cards', this.updateStockCards);
         this.socket.on('Update Stock Market', this.updateStockMarket);
-        this.socket.on('Update Current Player', this.updateCurrentPlayer);
-        this.socket.on('UpdateEverything', this.updateEverything);
+        this.socket.on('Update Players', this.updatePlayerData);
         this.socket.on('Connect', this.updateEverything);
         this.socket.on('buy outcome', this.buyOutcome);
         this.socket.on('sell outcome', this.sellOutcome);
     }
+
     sellOutcome = (data) => {
         if (data == 0) {
             console.log("sold, no errors!");
@@ -77,6 +70,7 @@ class MainFrame extends React.Component {
             console.log("unknown error");
         }
     }
+
     buyOutcome = (data) => {
         if (data === 0) {
             console.log("bought a card, no errors!");
@@ -91,24 +85,39 @@ class MainFrame extends React.Component {
         }
 
     }
-    updatePlayer = (data) => {
+
+    updatePlayerIndex = (data) => {
         //set myTurn
-        if (this.playerNumber == data) {
+        if (this.state.currentPlayer == data) {
             this.myTurn = true;
         }
         else {
             this.myTurn = false;
         }
     }
+
     updateStockCards = (data) => {
+      this.setState({
+         current_market: data
+      });
     }
+
     updateStockMarket = (data) => {
+      this.setState({
+         stock_market: data
+      });
     }
-    updateCurrentPlayer = (data) => {
+
+    updatePlayerData = (data) => {
+      this.setState({
+         players: data
+      });
     }
+
     updateEverything = (data) => {
         this.playerNumber = data;//set the player number
     }
+
    render() {
       return (
          <div>
@@ -117,9 +126,9 @@ class MainFrame extends React.Component {
                turn={this.state.turn}
                players={this.state.players}
                market= {this.state.stock_market}/>
-            <CurrPlayer info={this.state.currentPlayer}/>
+            <CurrPlayer info={this.state.players[this.state.currentPlayer]}/>
             <StockMarket stock_price={this.state.stock_market}/>
-            <PlayerCards playerCards={this.state.currentPlayer.stock}/>
+            <PlayerCards playerCards={this.state.players[this.state.currentPlayer].stock}/>
             <ActionButtons onSkipTurn={this.skipTurn} />
          </div>
       );
