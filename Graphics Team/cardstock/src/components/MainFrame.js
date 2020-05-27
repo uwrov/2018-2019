@@ -78,13 +78,13 @@ class MainFrame extends React.Component {
         }
     }
     buyOutcome = (data) => {
-        if (data == 0) {
+        if (data === 0) {
             console.log("bought a card, no errors!");
-        } else if (data == 1) {
+        } else if (data === 1) {
             console.log("error: index out of bounds!");
-        } else if (data == 2) {
+        } else if (data === 2) {
             console.log("nothing bought, no errors!");
-        } else if (data == 3) {
+        } else if (data === 3) {
             console.log("error: not your turn, cannot buy!");
         } else {
             console.log("unknown error");
@@ -128,11 +128,13 @@ class MainFrame extends React.Component {
    buyStock = (index) => {
       console.log("Stock Bought");
       console.log("Bought: " + this.state.current_market[index]);
+      this.socket.emit("buy card", index);
    }
 
    //End Turn
-   skipTurn = () => {
-
+    skipTurn = () => {
+       console.log("Turn Skipped");
+       this.socket.emit("buy card", -1);//default for skip turn
 
    }
 
