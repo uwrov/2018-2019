@@ -1,0 +1,12 @@
+.playerCards {
+   position: relative;
+   height: 300px;
+   width: 600px;
+   background-color: #9a00f9;
+}
+
+.playerCard {
+   height: 200px;
+   width: 150px;
+   background: #123475;
+}
