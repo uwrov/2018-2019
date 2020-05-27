@@ -111,7 +111,7 @@ class MainFrame extends React.Component {
    render() {
       return (
          <div>
-            <MarketCards market={this.state.current_market}/>
+            <MarketCards market={this.state.current_market} onBuy={this.buyStock}/>
             <GameStat
                turn={this.state.turn}
                players={this.state.players}
@@ -123,6 +123,12 @@ class MainFrame extends React.Component {
          </div>
       );
    }
+
+   buyStock = (index) => {
+      console.log("Stock Bought");
+      console.log("Bought: " + this.state.current_market[index]);
+   }
+
 }
 
 export default MainFrame;
