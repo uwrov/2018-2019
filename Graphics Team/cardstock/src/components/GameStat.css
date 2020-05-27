@@ -1,13 +1,13 @@
 .GameStat {
    background-color: red;
-   width: 320px;
+   width: 220px;
    padding: 10px;
    border: 5px solid gray;
    margin: 0;
    float: left;
    position: absolute;
-   left: 500px;
-   bottom: 10px;
+   left: 1000px;
+   top: 200px;
 }
 
 

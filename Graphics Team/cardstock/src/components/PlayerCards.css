@@ -1,12 +1,26 @@
-.playerCards {
-   position: relative;
-   height: 300px;
-   width: 600px;
-   background-color: #9a00f9;
-}
+
 
 .playerCard {
-   height: 200px;
-   width: 150px;
    background: #123475;
+   width: 150px;
+   height: 250px;
+   float: left;
+   border-color: black;
+}
+
+.playerCards {
+   position: absolute;
+   top: 400px;
+   left: 400px;
+   width: 500px;
+   height: 300px;
+   background-color: #9a00f9;
+   display: flex;
+   justify-content: space-evenly;
+}
+
+.sellButton {
+   text-align: center;
+   background-color: grey;
+   width: 50px;
 }

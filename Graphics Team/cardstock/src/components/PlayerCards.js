@@ -21,7 +21,7 @@ class PlayerCards extends React.Component {
 
          return this.props.playerCards.map((card, index) => {
             return (
-               <Draggable>
+               <Draggable bounds="parent">
                   <div className="playerCard">
                      <h2>Company: {card.company}</h2>
                      <h3># of stocks: {card.stock}</h3>
