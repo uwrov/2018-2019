@@ -2,8 +2,7 @@ import json
 import random
 import math
 from flask import Flask, render_template
-from flask_socketio import SocketIO, send, emit
-
+from flask_socketio import SocketIO, emit
 
 HOST_IP = "localhost"
 HOST_PORT = "4000"
@@ -108,7 +107,7 @@ def create_deck():
         for i in range(20):
             card = MarketCard()
             for company in company_names:
-                card.change_in_stock[company] = random.randint(-5, 5)
+                card.change_in_stock[company] = random.randint(1, 5)
             fluctuation_deck.append(card)
     with open(ACTION_FILE) as file:
         lines = file.readlines()
@@ -318,6 +317,16 @@ def get_stock_market():
 def get_player_index():
     emit('Player Index', json.dumps(player_index))
     return True
+
+
+@sio.on("Buy Outcome", int)
+def get_buy_card():
+    emit('Buy Card', )
+
+
+@sio.on("Sell Outcome", int)
+def get_sell_card():
+    emit('Sell Card', )
 
 
 def main():
