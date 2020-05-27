@@ -1,10 +1,7 @@
 .currPlayer {
    background-color: yellow;
-   width: 320px;
-   padding: 10px;
-   border: 5px solid gray;
-   margin: 0;
-   float: left;
+   width: 200px;
+   height: 300px;
    position: absolute;
-   bottom: 10px;
+   top: 400px;
 }
