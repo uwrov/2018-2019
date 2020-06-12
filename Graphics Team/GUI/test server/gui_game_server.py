@@ -21,9 +21,14 @@ market_deck = []
 stock_graveyard = []
 action_graveyard = []
 
+#player ids generated on the server
+player_ids = []
+player_id_generator = 1 #first id (increment by one)
 # list of players with their respective hand and money
 player_list = []
 
+#ready players
+player_ready = {}
 # list of card in available in market
 market_cards = []
 
@@ -48,13 +53,14 @@ playing_game = True
 class Player:
     def __init__(self, name):
         self.name = name
+        self.ready = 0
         self.money = 20
         self.stock_hand = []
         self.action_hand = []
 
     def __str__(self):
         return str(self.name + " " + str(self.money) + " " + str(self.stock_tostring()) + " " +
-                   str(self.action_tostring()))
+                   str(self.action_tostring()) + " " + str(self.ready))
 
     def stock_tostring(self):
         hand = "["
@@ -97,7 +103,17 @@ class MarketCard:
 # creates the deck of cards by reading the deck.txt file. Each line corresponds
 # to a new cards with the order: comany amount price.
 # The deck size is 50
-
+def check_to_start():
+    global player_ready
+    if len(player_ready.keys()) < 2:
+        print ("not enough players")
+    else:
+        for key in player_ready:
+            if player_ready[key] == 0:
+                print ("not all palyers are ready")
+                return
+        init_Game()#start the game 
+              
 def create_deck():
     with open(DECK_FILE) as file:
         lines = file.readlines()
@@ -319,7 +335,33 @@ def get_player_index():
     emit('Player Index', json.dumps(player_index))
     return True
 
-
+@sio.on("Create Player")
+def create_player(data):
+    global player_ids, player_list,player_ready
+    res = json.loads(data)
+    if res["id"] in player_ids:
+        temp = Player(res["name"])
+        player_list.append(temp)
+        player_ready[res["id"]] = 0 # setting player ready to 0
+        emit("Player List", json.dumps(player_list))
+    else:
+        print ("failed to create player")
+@sio.on("Connect")
+def conn():
+    global player_id_generator, player_ids
+    player_ids.append(player_id_generator)
+    emit ('Connected', player_id_generator)
+    player_id_generator += 1
+@sio.on("Ready")
+def set_ready (data):
+    global player_ready
+    res = json.loads(data)
+    player_ready[res["id"]] = 1
+@sio.on("Not Ready")
+def set_not_ready (data):
+    global player_ready
+    res = json.loads(data)
+    player_ready[res["id"]] = 0
 def main():
     global player_index, playing_game
     create_deck()
