@@ -41,8 +41,6 @@ stock_market = {}
 
 action_deck = []
 
-playing_game = True
-
 
 class Player:
     def __init__(self, name):
@@ -177,7 +175,6 @@ def begin_turn():
 
 
 def action_phase():
-    global playing_game
     print(player_list[player_index].name + " its your turn! What is your action? ")
     print(player_list[player_index])
     action = input()
@@ -330,7 +327,6 @@ def get_sell_card():
 
 
 def main():
-    global player_index, playing_game
     create_deck()
     shuffle_decks()
     add_player('Justin')
