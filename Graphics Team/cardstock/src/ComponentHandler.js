@@ -13,15 +13,25 @@ class ComponentHandler extends React.Component {
       super(props);
 
       this.state.socket = require('socket.io-client')('http://localhost:8080');
+
+      let id = window.localStorage.getItem("id");
+      if(id === null) {
+         this.state.socket.emit("Generate ID");
+      } else {
+         this.state.id = id;
+      }
+      this.state.socket.on("connected", this.setID);
+   }
+
+   setID(id) {
+      this.setState("id": id);
    }
 
    render() {
       return (
          <div>
-            {
-               displayGame();
-               displayLobby();
-            }
+            {this.displayGame()}
+            {this.displayLobby()}
          </div>
       );
    }

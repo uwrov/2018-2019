@@ -19,6 +19,12 @@ class Lobby extends React.Component {
          }
       ]
    }
+   constructor(props) {
+      super(props);
+
+      this.props.socket.on("Player List", this.updatePlayerList);
+
+   }
 
    render() {
       return (
@@ -29,10 +35,17 @@ class Lobby extends React.Component {
                class="createPlayer"
                onClick={() => {this.createPlayer()}}>
             </div>
-            <div>{this.displayList()}</div>
+            <div>
+               <p>List of Players:</p>
+               <ul>{this.displayList()}</ul>
+            </div>
             <div class="ready"></div>
          </div>
       )
+   }
+
+   updatePlayerList = (params) => {
+      
    }
 
    createPlayer = () => {
@@ -44,10 +57,12 @@ class Lobby extends React.Component {
    }
 
    displayList = () => {
-      this.state.playerList.map(function(player){
-         let ready = (player.id == 1)?;
+      let id = this.state.id;
+      return this.state.playerList.map(function(player, index){
+         let ready = (player.ready === 1) ? "Ready" : "Not Ready";
+         let highlight = (id === player.id) ? "This is You" : null;
          return (
-            <li>P{player.id}: {player.name} ({})</li>
+            <li>P{index + 1}: {player.name} ({ready}) {highlight}</li>
          )
       });
    }
