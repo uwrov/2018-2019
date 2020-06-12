@@ -347,7 +347,7 @@ def create_player(data):
         emit("Player List", json.dumps(player_list))
     else:
         print ("failed to create player")
-@sio.on("Connect")
+@sio.on("connect")
 def conn():
     global player_id_generator, player_ids
     player_ids.append(player_id_generator)
