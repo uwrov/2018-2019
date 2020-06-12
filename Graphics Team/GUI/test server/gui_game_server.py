@@ -351,7 +351,7 @@ def create_player(data):
 def conn():
     global player_id_generator, player_ids
     player_ids.append(player_id_generator)
-    emit ('Connected', player_id_generator)
+    emit ('connected', player_id_generator)
     player_id_generator += 1
 @sio.on("Ready")
 def set_ready (data):
