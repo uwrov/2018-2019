@@ -51,8 +51,11 @@ class MainFrame extends React.Component {
         super(props);
         this.playerNumber = -1;
         this.myTurn = false;
-        this.socket = require('socket.io-client')('http://localhost:8080');
 
+        this.socket = this.props.socket;
+        if(this.socket == null) {
+           this.socket = require('socket.io-client')('http://localhost:8080');
+        }
         this.socket.on('Player Turn', this.updatePlayer);
         this.socket.on('Update Market Cards', this.updateMarketCards);
         this.socket.on('Update Stock Market', this.updateStockMarket);
