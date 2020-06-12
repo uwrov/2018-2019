@@ -2,8 +2,7 @@ import json
 import random
 import math
 from flask import Flask, render_template
-from flask_socketio import SocketIO, send, emit
-
+from flask_socketio import SocketIO, emit
 
 HOST_IP = "localhost"
 HOST_PORT = "4000"
@@ -46,8 +45,6 @@ fluctuation_deck = []
 stock_market = {}
 
 action_deck = []
-
-playing_game = True
 
 
 class Player:
@@ -124,7 +121,7 @@ def create_deck():
         for i in range(20):
             card = MarketCard()
             for company in company_names:
-                card.change_in_stock[company] = random.randint(-5, 5)
+                card.change_in_stock[company] = random.randint(1, 5)
             fluctuation_deck.append(card)
     with open(ACTION_FILE) as file:
         lines = file.readlines()
@@ -194,7 +191,6 @@ def begin_turn():
 
 
 def action_phase():
-    global playing_game
     print(player_list[player_index].name + " its your turn! What is your action? ")
     print(player_list[player_index])
     action = input()
@@ -335,6 +331,7 @@ def get_player_index():
     emit('Player Index', json.dumps(player_index))
     return True
 
+
 @sio.on("Create Player")
 def create_player(data):
     global player_ids, player_list,player_ready
@@ -362,8 +359,20 @@ def set_not_ready (data):
     global player_ready
     res = json.loads(data)
     player_ready[res["id"]] = 0
+
+
+@sio.on("Buy Outcome", int)
+def get_buy_card():
+    emit('Buy Card', )
+
+
+@sio.on("Sell Outcome", int)
+def get_sell_card():
+    emit('Sell Card', )
+
+
+
 def main():
-    global player_index, playing_game
     create_deck()
     shuffle_decks()
     add_player('Justin')

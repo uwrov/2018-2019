@@ -134,7 +134,8 @@ class MainFrame extends React.Component {
                market= {this.state.stock_market}/>
             <CurrPlayer info={this.state.players[this.state.currentPlayer]}/>
             <StockMarket stock_price={this.state.stock_market}/>
-            <PlayerCards playerCards={this.state.players[this.state.currentPlayer].stock}/>
+            <PlayerCards playerCards={this.state.players[this.state.currentPlayer].stock}
+                         onSell={this.sellStock}/>
             <ActionButtons onSkipTurn={this.skipTurn} />
          </div>
       );
@@ -143,7 +144,13 @@ class MainFrame extends React.Component {
    buyStock = (index) => {
       console.log("Stock Bought");
       console.log("Bought: " + this.state.current_market[index]);
-       this.socket.emit("buy card", {"playerN":  this.playerNumber, "index":index });
+       this.socket.emit("buy card", {"playerN": this.state.currentPlayer, "index": index });
+   }
+
+   sellStock = (index) => {
+      console.log("Stock Sold");
+      console.log("Sold: " + this.state.players[this.state.currentPlayer].stock[index]);
+       this.socket.emit("sell card", {"playerN": this.state.currentPlayer, "index": index });
    }
 
    //End Turn

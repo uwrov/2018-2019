@@ -1,9 +1,7 @@
 .card {
-
    background-color: green;
    width: 150px;
    height: 250px;
-   float: left;
    border-color: black;
 }
 
