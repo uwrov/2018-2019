@@ -1,6 +1,6 @@
 
 const WebSocket = require('ws');
-var url = "wss://localhost:8080";
+var url = "wss://localhost:4000";
 var protocols = "protocolOne";
 webSocket = new WebSocket(url, protocols);
 //webSocket.send("hello, can you hear me");

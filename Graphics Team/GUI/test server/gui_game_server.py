@@ -57,6 +57,8 @@ class Player:
         self.money = 20
         self.stock_hand = []
         self.action_hand = []
+        self.id = player_id_generator
+        player_id_generator += 1
 
     def __str__(self):
         return str(self.name + " " + str(self.money) + " " + str(self.stock_tostring()) + " " +
@@ -106,13 +108,13 @@ class MarketCard:
 def check_to_start():
     global player_ready
     if len(player_ready.keys()) < 2:
-        print ("not enough players")
+        print("not enough players")
     else:
         for key in player_ready:
             if player_ready[key] == 0:
-                print ("not all palyers are ready")
+                print("not all palyers are ready")
                 return
-        init_Game()#start the game internaly on the server
+        init_Game()  #start the game internaly on the server
         emit("start game")
               
 def create_deck():
@@ -194,38 +196,6 @@ def begin_turn():
         change_stock()
 
 
-def action_phase():
-    global playing_game
-    print(player_list[player_index].name + " its your turn! What is your action? ")
-    print(player_list[player_index])
-    action = input()
-    if action == "exit":
-        return False
-    if int(action) != -1:
-        action_card = player_list[player_index].action_hand.pop(int(action))
-        print(player_list[player_index])
-        print(player_list[player_index].name + " just played " + action_card)
-        return True
-
-
-# move represents the market card the player wants to buy
-# if move == -1 then the player wants to skip buying a cards
-# 0 represents the first card in the market, 1 represents the second card etc...
-def market_phase():
-    print(player_list[player_index].name + " what stock do you want to buy? ")
-    print_market_cards()
-    buy_move = input()
-    buy_move = int(buy_move)
-    buy_card(buy_move)
-    print_market_cards()
-    print(player_list[player_index].name + " what stock do you want to sell? ")
-    print(player_list[player_index])
-    sell_move = input()
-    sell_move = int(sell_move)
-    sell_card(sell_move)
-    print(player_list[player_index])
-
-
 def buy_card(move):
     global turn_phase, market_cards
     if turn_phase == 0:
@@ -304,7 +274,7 @@ def end():
 # Description: Returns current cards in the market in JSON Format
 # Example Response: [{"Company": "Amazoom", "Amount": "1", "Price": "3"}]
 @sio.on("Get Market")
-def get_market_cards():
+def send_market_cards():
     emit('Market Cards', json.dumps(market_cards))
     return True
 
@@ -315,7 +285,7 @@ def get_market_cards():
 # Description: Returns the player's current cards and money in JSON Format
 # Example Response: [{"Name": "Andrew", "Money": "100", "Hand": [...]}]
 @sio.on("Get Player")
-def get_players_data():
+def send_players_data():
     emit('Player Data', json.dumps(player_list))
     return True
 
@@ -326,43 +296,112 @@ def get_players_data():
 
 
 @sio.on("Get Stock Market")
-def get_stock_market():
+def send_stock_market():
     emit('Stock Market', json.dumps(stock_market))
     return True
 
 
 @sio.on("Get Player Index")
-def get_player_index():
+def send_player_index():
     emit('Player Index', json.dumps(player_index))
     return True
 
+
 @sio.on("Create Player")
 def create_player(data):
-    global player_ids, player_list,player_ready
+    global player_ids, player_list, player_ready
     res = json.loads(data)
     if res["id"] in player_ids:
         temp = Player(res["name"])
         player_list.append(temp)
-        player_ready[res["id"]] = 0 # setting player ready to 0
+        player_ready[res["id"]] = 0  # setting player ready to 0
         emit("Player List", json.dumps(player_list))
     else:
-        print ("failed to create player")
+        print("failed to create player")
+
+
 @sio.on("connect")
 def conn():
     global player_id_generator, player_ids
     player_ids.append(player_id_generator)
-    emit ('connected', player_id_generator)
+    emit('connected', player_id_generator)
     player_id_generator += 1
+
+
 @sio.on("Ready")
-def set_ready (data):
+def set_ready(data):
     global player_ready
     res = json.loads(data)
     player_ready[res["id"]] = 1
+
+
 @sio.on("Not Ready")
-def set_not_ready (data):
+def set_not_ready(data):
     global player_ready
     res = json.loads(data)
     player_ready[res["id"]] = 0
+
+
+# To be implemented
+def action_phase():
+    global playing_game
+    print(player_list[player_index].name + " its your turn! What is your action? ")
+    print(player_list[player_index])
+    action = input()
+    if action == "exit":
+        return False
+    if int(action) != -1:
+        action_card = player_list[player_index].action_hand.pop(int(action))
+        print(player_list[player_index])
+        print(player_list[player_index].name + " just played " + action_card)
+        return True
+# move represents the market card the player wants to buy
+# if move == -1 then the player wants to skip buying a cards
+# 0 represents the first card in the market, 1 represents the second card etc...
+# def market_phase():
+#     print(player_list[player_index].name + " what stock do you want to buy? ")
+#     print_market_cards()
+#     buy_move = input()
+#     buy_move = int(buy_move)
+#     buy_card(buy_move)
+#     print_market_cards()
+#     print(player_list[player_index].name + " what stock do you want to sell? ")
+#     print(player_list[player_index])
+#     sell_move = input()
+#     sell_move = int(sell_move)
+#     sell_card(sell_move)
+#     print(player_list[player_index])
+
+
+# move represents the market card the player wants to buy
+# if move == -1 then the player wants to skip buying a cards
+# 0 represents the first card in the market, 1 represents the second card etc...
+@sio.on("Buy Card")
+def buy_player_card(data):
+    print(player_list[player_index].name + " what stock do you want to buy? ")
+    print_market_cards()
+    if data.player.id == player_list[player_index].id:
+        buy_card(int(data.target))
+    print_market_cards()
+    send_game_data()
+
+
+@sio.on("Sell Card")
+def sell_player_card(data):
+    print(player_list[player_index].name + " what stock do you want to sell? ")
+    print(player_list[player_index])
+    if data.player.id == player_list[player_index].id:
+        sell_card(int(data.target))
+    print(player_list[player_index])
+    send_game_data()
+
+
+def send_game_data():
+    send_market_cards()
+    send_players_data()
+    send_stock_market()
+    send_player_index()
+
 
 def main():
     global player_index, playing_game
@@ -385,7 +424,7 @@ def main():
         result = action_phase()
         if not result:
             break
-        market_phase()
+        # market_phase()
         print(player_list[player_index])
         print()
 
