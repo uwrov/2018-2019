@@ -51,14 +51,13 @@ playing_game = True
 
 
 class Player:
-    def __init__(self, name):
+    def __init__(self, name, id=-1):
         self.name = name
         self.ready = 0
         self.money = 20
         self.stock_hand = []
         self.action_hand = []
-        self.id = player_id_generator
-        player_id_generator += 1
+        self.id = id
 
     def __str__(self):
         return str(self.name + " " + str(self.money) + " " + str(self.stock_tostring()) + " " +
@@ -116,7 +115,7 @@ def check_to_start():
                 return
         init_Game()  #start the game internaly on the server
         emit("start game")
-              
+
 def create_deck():
     with open(DECK_FILE) as file:
         lines = file.readlines()
@@ -275,7 +274,7 @@ def end():
 # Example Response: [{"Company": "Amazoom", "Amount": "1", "Price": "3"}]
 @sio.on("Get Market")
 def send_market_cards():
-    emit('Market Cards', json.dumps(market_cards))
+    emit('Market Cards', [ob.__dict__ for ob in market_cards])
     return True
 
 
@@ -284,9 +283,9 @@ def send_market_cards():
 # Returned Data Format: JSON
 # Description: Returns the player's current cards and money in JSON Format
 # Example Response: [{"Name": "Andrew", "Money": "100", "Hand": [...]}]
-@sio.on("Get Player")
+@sio.on("Get Players")
 def send_players_data():
-    emit('Player Data', json.dumps(player_list))
+    emit('Player Data', [ob.__dict__ for ob in player_list])
     return True
 
 
@@ -297,25 +296,24 @@ def send_players_data():
 
 @sio.on("Get Stock Market")
 def send_stock_market():
-    emit('Stock Market', json.dumps(stock_market))
+    emit('Stock Market', [ob.__dict__ for ob in stock_market])
     return True
 
 
 @sio.on("Get Player Index")
 def send_player_index():
-    emit('Player Index', json.dumps(player_index))
+    emit('Player Index', player_index)
     return True
 
 
 @sio.on("Create Player")
 def create_player(data):
     global player_ids, player_list, player_ready
-    res = json.loads(data)
-    if res["id"] in player_ids:
-        temp = Player(res["name"])
+    if data["id"] in player_ids:
+        temp = Player(data["name"])
         player_list.append(temp)
-        player_ready[res["id"]] = 0  # setting player ready to 0
-        emit("Player List", json.dumps(player_list))
+        player_ready[data["id"]] = 0  # setting player ready to 0
+        emit("Player List", [ob.__dict__ for ob in player_list])
     else:
         print("failed to create player")
 
@@ -331,15 +329,13 @@ def conn():
 @sio.on("Ready")
 def set_ready(data):
     global player_ready
-    res = json.loads(data)
-    player_ready[res["id"]] = 1
+    player_ready[data["id"]] = 1
 
 
 @sio.on("Not Ready")
 def set_not_ready(data):
     global player_ready
-    res = json.loads(data)
-    player_ready[res["id"]] = 0
+    player_ready[data["id"]] = 0
 
 
 # To be implemented
@@ -402,15 +398,22 @@ def send_game_data():
     send_stock_market()
     send_player_index()
 
-
-def main():
-    global player_index, playing_game
+def test():
+    sio.run(app, host=HOST_IP, port=HOST_PORT)
     create_deck()
     shuffle_decks()
     add_player('Justin')
-    add_player('Andrew')
-    add_player('Alex')
-    add_player('Chris')
+    set_up_game()
+
+def main():
+    global player_index, playing_game
+    sio.run(app, host=HOST_IP, port=HOST_PORT)
+    create_deck()
+    shuffle_decks()
+    # add_player('Justin')
+    # add_player('Andrew')
+    # add_player('Alex')
+    # add_player('Chris')
 
     set_up_game()
     intro()
@@ -429,4 +432,5 @@ def main():
         print()
 
 
-main()
+# main()
+test()

@@ -22,6 +22,54 @@ socket.on('getPlayerTurn', function (data) {
 })
 */
 
-socket.emit("Get Stock Market", {Target = 0, Player});
+let playerIndexCopy = null;
+let playerListCopy = [];
+let stockMarketCopy = [];
+let marketCardsCopy = [];
+let playerIdCopy = null;
 
-console.log("init");
+
+socket.on('Market Cards', function(market_cards){
+   console.log(market_cards)
+   marketCardsCopy = market_cards
+});
+
+socket.on('Player Data', function(player_list){
+   console.log(player_list)
+   playerListCopy = player_list
+});
+
+socket.on('Player Index', function(player_index){
+   console.log(player_index)
+   playerIndexCopy = player_index
+});
+
+socket.on('Stock Market', function(stock_market){
+   console.log(stock_market)
+   stockMarketCopy = stock_market
+});
+
+socket.on('Player List', function(player_list){
+   console.log(player_list)
+   playerListCopy = player_list
+});
+
+socket.on('connected', function(player_id_generator){
+   console.log(player_id_generator)
+   playerIdCopy = player_id_generator
+});
+
+socket.emit("Get Market");
+socket.emit("Get Players");
+socket.emit("Get Player Index");
+socket.emit("Get Stock Market");
+socket.emit("Create Player", { "id": 1, "name":"Real Justin"});
+socket.emit("connect");
+
+// socket.on(function(data){
+//
+// });
+//
+// socket.emit("Sell Card");
+
+// console.log("init");
