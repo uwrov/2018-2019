@@ -1,38 +1,57 @@
-
+#fullscreen {
+   background-color: red;
+   position: absolute;
+   top: 0px;
+   left: 0px;
+}
 
 .input {
-   font-size: 24px;
+   font-size: 40px;
    top: 150px;
-   left: 400px;
+   left: 300px;
    position: absolute;
+   border-style: solid;
 }
 
 .createPlayer {
-   background-color: yellow;
+   background-color: white;
    width: 150px;
-   height: 50px;
-   border-color: black;
+   height: 25px;
    top: 150px;
-   left: 750px;
+   left: 850px;
    position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
 }
+
+
 
 .display {
-   background-color: green;
-   width: 500px;
+   background-color: white;
+   width: 700px;
    height: 200px;
-   border-color: black;
    top: 250px;
-   left: 400px;
+   left: 300px;
    position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
 }
 
+
+
+
 .ready {
-   background-color: green;
+   background-color: white;
    width: 150px;
-   height: 50px;
-   border-color: black;
+   height: 25px;
    top: 500px;
    left: 575px;
    position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
 }

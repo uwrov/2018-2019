@@ -34,16 +34,16 @@ class Lobby extends React.Component {
             <div
                class="createPlayer"
                onClick={() => {this.createPlayer()}}>
-               <p>Create Players</p>
+               Create Players
             </div>
             <div class="display">
-               <p>List of Players:</p>
+               List of Players:
                <ul>{this.displayList()}</ul>
             </div>
             <div
                class="ready"
                onClick={() => {this.getReady()}}>
-               <p>Ready</p>
+               Ready
             </div>
          </div>
       )
