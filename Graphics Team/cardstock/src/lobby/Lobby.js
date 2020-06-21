@@ -28,24 +28,29 @@ class Lobby extends React.Component {
 
    render() {
       return (
-         <div class="screen">
+         <div>
             <input type="text" placeholder="Enter Name" value={this.state.name}
-                  onChange={this.handleName}></input>
+                  onChange={this.handleName} class="input"></input>
             <div
                class="createPlayer"
                onClick={() => {this.createPlayer()}}>
+               <p>Create Players</p>
             </div>
-            <div>
+            <div class="display">
                <p>List of Players:</p>
                <ul>{this.displayList()}</ul>
             </div>
-            <div class="ready"></div>
+            <div
+               class="ready"
+               onClick={() => {this.getReady()}}>
+               <p>Ready</p>
+            </div>
          </div>
       )
    }
 
    updatePlayerList = (params) => {
-      
+
    }
 
    createPlayer = () => {
@@ -65,6 +70,10 @@ class Lobby extends React.Component {
             <li>P{index + 1}: {player.name} ({ready}) {highlight}</li>
          )
       });
+   }
+
+   getReady = () => {
+      // this function will be called when the ready button is pressed
    }
 
 }
