@@ -16,6 +16,16 @@ class Lobby extends React.Component {
             "id": 1,
             "name": "Andrew",
             "ready": 0
+         },
+         {
+            "id": 2,
+            "name": "Justin",
+            "ready": 0
+         },
+         {
+            "id": 3,
+            "name": "Alex",
+            "ready": 0
          }
       ]
    }
@@ -36,10 +46,7 @@ class Lobby extends React.Component {
                onClick={() => {this.createPlayer()}}>
                Create Players
             </div>
-            <div class="display">
-               List of Players:
-               <ul>{this.displayList()}</ul>
-            </div>
+            <div class="display">{this.displayList()}</div>
             <div
                class="ready"
                onClick={() => {this.getReady()}}>
@@ -64,11 +71,20 @@ class Lobby extends React.Component {
    displayList = () => {
       let id = this.state.id;
       return this.state.playerList.map(function(player, index){
-         let ready = (player.ready === 1) ? "Ready" : "Not Ready";
          let highlight = (id === player.id) ? "This is You" : null;
+         /*
          return (
             <li>P{index + 1}: {player.name} ({ready}) {highlight}</li>
          )
+         */
+         let color = (player.ready === 1) ? ({backgroundColor : '#98FB98'}) : ({backgroundColor : '#FA8072'});
+         return(
+            <div style={color}>
+               <h4>P{index + 1}</h4>
+               <h4>{player.name}</h4>
+               <h5>{highlight}</h5>
+            </div>
+         );
       });
    }
 
