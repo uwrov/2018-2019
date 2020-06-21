@@ -26,6 +26,33 @@
    text-align: center;
 }
 
+.createPlayer:hover {
+   background-color: #F8F8FF;
+   width: 150px;
+   height: 25px;
+   top: 150px;
+   left: 850px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+   cursor: pointer;
+}
+
+.createPlayer:active {
+   background-color: #DCDCDC;
+   width: 150px;
+   height: 25px;
+   top: 152px;
+   left: 850px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+   cursor: pointer;
+}
 
 
 .display {
@@ -41,8 +68,6 @@
 }
 
 
-
-
 .ready {
    background-color: white;
    width: 150px;
@@ -54,4 +79,32 @@
    padding: 10px 10px;
    font-size: 20px;
    text-align: center;
+}
+
+.ready:hover {
+   background-color: #F8F8FF;
+   width: 150px;
+   height: 25px;
+   top: 500px;
+   left: 575px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+   cursor: pointer;
+}
+
+.ready:active {
+   background-color: #DCDCDC;
+   width: 150px;
+   height: 25px;
+   top: 502px;
+   left: 575px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+   cursor: pointer;
 }
