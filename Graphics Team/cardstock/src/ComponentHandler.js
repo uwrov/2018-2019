@@ -24,7 +24,7 @@ class ComponentHandler extends React.Component {
    }
 
    setID(id) {
-      this.setState("id": id);
+      this.setState( { "id": id } );
    }
 
    render() {
