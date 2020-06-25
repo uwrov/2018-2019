@@ -389,24 +389,17 @@ def action_phase():
 # 0 represents the first card in the market, 1 represents the second card etc...
 @sio.on("Buy Card")
 def buy_player_card(data):
-    print(data)
-    print(player_list[player_index].name + " what stock do you want to buy? ")
-    print_market_cards()
     if data["player"]["id"] == player_list[player_index].id:
         if(buy_card(int(data["target"])) != 1):
             send_error("Not Enough Money!")
-    print_market_cards()
     send_game_data()
 
 
 @sio.on("Sell Card")
 def sell_player_card(data):
-    print(player_list[player_index].name + " what stock do you want to sell? ")
-    print(player_list[player_index])
     if data["player"]["id"] == player_list[player_index].id:
         if(sell_card(int(data["target"])) != 1):
             send_error("Error when selling!")
-    print(player_list[player_index])
     send_game_data()
 
 def send_error(msg):
@@ -419,7 +412,6 @@ def send_game_data():
     send_player_index()
 
 def test():
-    print("set up start")
     create_deck()
     shuffle_decks()
     add_player('Justin')
@@ -427,9 +419,6 @@ def test():
     begin_turn()
     update_market_card_price()
     print_market_cards()
-    print_stock_market()
-    print("set up done")
-
     sio.run(app, host=HOST_IP, port=HOST_PORT)
 
 def main():
