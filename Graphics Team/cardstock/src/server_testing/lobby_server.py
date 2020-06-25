@@ -45,6 +45,23 @@ class Player:
         return hand[:-2] + "]"
 
 
+@sio.on("Generate ID")
+def gen_id():
+    global client_id_generator, player_ids
+    emit('ID Confirm', client_id_generator)
+    client_id_generator += 1
+
+
+@sio.on("Previous ID")
+def confirm_id(id):
+    player = get_player_by_id(int(id))
+    if player is None:
+        gen_id()
+    else:
+        emit('ID Confirm', id)
+
+
+
 @sio.on("Create Player")
 def create_player(data):
     global player_list, player_ready
@@ -52,35 +69,32 @@ def create_player(data):
     if player is None:
         temp = Player(data["name"], data["id"])
         player_list.append(temp)
-        emit("Player List", [ob.__dict__ for ob in player_list])
+        send_players_data()
     else:
         player.name = data["name"]
-        emit("Player List", [ob.__dict__ for ob in player_list])
-
-
-@sio.on("connect")
-def conn():
-    global client_id_generator, player_ids
-    emit ('connected', client_id_generator)
-    client_id_generator += 1
+        send_players_data()
 
 
 @sio.on("Ready")
-def set_ready (data):
+def set_ready(data):
     global player_ready
-    player_ready[data["id"]] = 1
+    print(data)
+    player = get_player_by_id(data["id"])
+    player.ready = 1
+    send_players_data()
 
 
 @sio.on("Not Ready")
-def set_not_ready (data):
+def set_not_ready(data):
     global player_ready
     player = get_player_by_id(data["id"])
-    player.ready[data["id"]] = 0
+    player.ready = 0
+    send_players_data()
 
 
 @sio.on("Get Players")
 def send_players_data():
-    emit('Player Data', [ob.__dict__ for ob in player_list])
+    emit('Player List', [ob.__dict__ for ob in player_list], broadcast=True)
     return True
 
 
