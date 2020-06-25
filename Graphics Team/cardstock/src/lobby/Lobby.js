@@ -16,6 +16,16 @@ class Lobby extends React.Component {
             "id": 1,
             "name": "Andrew",
             "ready": 0
+         },
+         {
+            "id": 2,
+            "name": "Justin",
+            "ready": 0
+         },
+         {
+            "id": 3,
+            "name": "Alex",
+            "ready": 0
          }
       ]
    }
@@ -34,18 +44,20 @@ class Lobby extends React.Component {
 
    render() {
       return (
-         <div class="screen">
+         <div>
             <input type="text" placeholder="Enter Name" value={this.state.name}
-                  onChange={this.handleName}></input>
+                  onChange={this.handleName} class="input"></input>
             <div
                class="createPlayer"
                onClick={() => {this.createPlayer()}}>
+               Create Players
             </div>
-            <div>
-               <p>List of Players:</p>
-               <ul>{this.displayList()}</ul>
+            <div class="display">{this.displayList()}</div>
+            <div
+               class="ready"
+               onClick={() => {this.getReady()}}>
+               Ready
             </div>
-            <div class="ready"></div>
          </div>
       )
    }
@@ -64,18 +76,28 @@ class Lobby extends React.Component {
 
    displayList = () => {
       let id = this.state.id;
-      if(this.state.playerList.length !== 0) {
-         return this.state.playerList.map(function(player, index){
-            let ready = (player.ready === 1) ? "Ready" : "Not Ready";
-            let highlight = (id === player.id) ? "This is You" : null;
-            return (
-               <li>P{index + 1}: {player.name} ({ready}) {highlight}</li>
-            )
-         });
-      } else {
-         return "No Players are Ready.";
-      }
+      return this.state.playerList.map(function(player, index){
+         let highlight = (id === player.id) ? "This is You" : null;
+         /*
+         return (
+            <li>P{index + 1}: {player.name} ({ready}) {highlight}</li>
+         )
+         */
+         let color = (player.ready === 1) ? ({backgroundColor : '#98FB98'}) : ({backgroundColor : '#FA8072'});
+         return(
+            <div style={color}>
+               <h4>P{index + 1}</h4>
+               <h4>{player.name}</h4>
+               <h5>{highlight}</h5>
+            </div>
+         );
+      });
    }
+
+   getReady = () => {
+      // this function will be called when the ready button is pressed
+   }
+
 }
 
 export default Lobby;
