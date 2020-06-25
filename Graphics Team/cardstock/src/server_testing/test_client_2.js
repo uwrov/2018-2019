@@ -30,42 +30,65 @@ let playerIdCopy = null;
 
 
 socket.on('Market Cards', function(market_cards){
+   console.log("market cards")
    console.log(market_cards)
    marketCardsCopy = market_cards
 });
 
-socket.on('Player Data', function(player_list){
-   console.log(player_list)
-   playerListCopy = player_list
-});
-
 socket.on('Player Index', function(player_index){
-   console.log(player_index)
    playerIndexCopy = player_index
 });
 
 socket.on('Stock Market', function(stock_market){
+   console.log("stock market ")
    console.log(stock_market)
    stockMarketCopy = stock_market
 });
 
 socket.on('Player List', function(player_list){
-   console.log(player_list)
-   playerListCopy = player_list
+   console.log("player list ");
+   console.log("player list length =" + player_list.length);
+   console.log(JSON.stringify(player_list));
+   playerListCopy = player_list;
+   console.log("playerListCopy = " + JSON.stringify(playerListCopy));
 });
 
 socket.on('connected', function(player_id_generator){
-   console.log(player_id_generator)
    playerIdCopy = player_id_generator
 });
+
+socket.on('error', function(error){
+   console.log("error: " + error.message);
+});
+
 
 socket.emit("Get Market");
 socket.emit("Get Players");
 socket.emit("Get Player Index");
 socket.emit("Get Stock Market");
 socket.emit("Create Player", { "id": 1, "name":"Real Justin"});
-socket.emit("connect");
 
+
+setTimeout(function() {
+   console.log(playerListCopy[0]);
+   socket.emit("Buy Card", { "player": playerListCopy[0], "target":0});
+}, 1000);
+
+console.log(JSON.stringify(playerListCopy[0]));
+
+// setTimeout(function() {
+//    console.log(playerListCopy[0]);
+//    socket.emit("Buy Card", { "player": playerListCopy[0], "target":0});
+// }, 1000);
+
+console.log(JSON.stringify(playerListCopy[0]));
+
+setTimeout(function() {
+   console.log(playerListCopy[0]);
+   socket.emit("Sell Card", { "player": playerListCopy[0], "target":0});
+}, 1000);
+
+console.log(JSON.stringify(playerListCopy[0]));
 // socket.on(function(data){
 //
 // });
