@@ -19,11 +19,17 @@ class Lobby extends React.Component {
          }
       ]
    }
+
    constructor(props) {
       super(props);
+      this.state.id = this.props.id;
 
-      this.props.socket.on("Player List", this.updatePlayerList);
+      this.props.socket.on("Player Data", this.updatePlayerList);
+   }
 
+   componentDidMount() {
+      this.props.socket.emit("Get Players");
+      this.props.socket.emit("Create Player", {"id": this.state.id, "name": "andrew"});
    }
 
    render() {
@@ -45,7 +51,7 @@ class Lobby extends React.Component {
    }
 
    updatePlayerList = (params) => {
-      
+      this.setState({ "playerList": params });
    }
 
    createPlayer = () => {
@@ -58,15 +64,18 @@ class Lobby extends React.Component {
 
    displayList = () => {
       let id = this.state.id;
-      return this.state.playerList.map(function(player, index){
-         let ready = (player.ready === 1) ? "Ready" : "Not Ready";
-         let highlight = (id === player.id) ? "This is You" : null;
-         return (
-            <li>P{index + 1}: {player.name} ({ready}) {highlight}</li>
-         )
-      });
+      if(this.state.playerList.length !== 0) {
+         return this.state.playerList.map(function(player, index){
+            let ready = (player.ready === 1) ? "Ready" : "Not Ready";
+            let highlight = (id === player.id) ? "This is You" : null;
+            return (
+               <li>P{index + 1}: {player.name} ({ready}) {highlight}</li>
+            )
+         });
+      } else {
+         return "No Players are Ready.";
+      }
    }
-
 }
 
 export default Lobby;
