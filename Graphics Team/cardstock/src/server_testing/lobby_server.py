@@ -13,12 +13,12 @@ HOST_IP = "localhost"
 HOST_PORT = "4000"
 
 app = Flask(__name__)
-sio = SocketIO(app)
+sio = SocketIO(app, cors_allowed_origins="*")
 
 
 class Player:
-    def __init__(self, name):
-        self.id = player_id_generator
+    def __init__(self, name, id=-1):
+        self.id = id
         self.name = name
         self.ready = 0
         self.money = 20
@@ -48,15 +48,14 @@ class Player:
 @sio.on("Create Player")
 def create_player(data):
     global player_list, player_ready
-    res = json.loads(data)
-    player = get_player_by_id(res["id"])
+    player = get_player_by_id(data["id"])
     if player is None:
-        temp = Player(res["name"])
+        temp = Player(data["name"], data["id"])
         player_list.append(temp)
-        emit("Player List", json.dumps(player_list))
+        emit("Player List", [ob.__dict__ for ob in player_list])
     else:
-        player.name = res["name"]
-        emit("Player List", json.dumps(player_list))
+        player.name = data["name"]
+        emit("Player List", [ob.__dict__ for ob in player_list])
 
 
 @sio.on("connect")
@@ -69,16 +68,20 @@ def conn():
 @sio.on("Ready")
 def set_ready (data):
     global player_ready
-    res = json.loads(data)
-    player_ready[res["id"]] = 1
+    player_ready[data["id"]] = 1
 
 
 @sio.on("Not Ready")
 def set_not_ready (data):
     global player_ready
-    res = json.loads(data)
-    player = get_player_by_id(res["id"])
-    player.ready = 0
+    player = get_player_by_id(data["id"])
+    player.ready[data["id"]] = 0
+
+
+@sio.on("Get Players")
+def send_players_data():
+    emit('Player Data', [ob.__dict__ for ob in player_list])
+    return True
 
 
 def get_player_by_id(id):
@@ -86,3 +89,11 @@ def get_player_by_id(id):
         if x.id == id:
             return x
     return None
+
+
+def main():
+    sio.run(app, host=HOST_IP, port=HOST_PORT)
+
+
+if __name__ == '__main__':
+    main()

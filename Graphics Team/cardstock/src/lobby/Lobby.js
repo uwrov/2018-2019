@@ -29,11 +29,17 @@ class Lobby extends React.Component {
          }
       ]
    }
+
    constructor(props) {
       super(props);
+      this.state.id = this.props.id;
 
-      this.props.socket.on("Player List", this.updatePlayerList);
+      this.props.socket.on("Player Data", this.updatePlayerList);
+   }
 
+   componentDidMount() {
+      this.props.socket.emit("Get Players");
+      this.props.socket.emit("Create Player", {"id": this.state.id, "name": "andrew"});
    }
 
    render() {
@@ -57,7 +63,7 @@ class Lobby extends React.Component {
    }
 
    updatePlayerList = (params) => {
-
+      this.setState({ "playerList": params });
    }
 
    createPlayer = () => {
