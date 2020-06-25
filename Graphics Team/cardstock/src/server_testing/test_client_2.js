@@ -1,26 +1,4 @@
 var socket = require('socket.io-client')('http://localhost:4000');
-/**
-socket.on('connect', function(){
-   console.log("connected!");
-   setTimeout(() => {socket.emit('message', 'Hello there!')}, 1000);
-});
-socket.on('message', function(data){
-   console.log("data: " + data.hello);
-   setTimeout(() => {
-      socket.emit('message', {'message':'Hello there!'})
-   }, 1000);
-});
-socket.on('disconnect', function(){
-   console.log("disconnected");
-});
-socket.on('requestPlayerTurn', function () {
-    console.log("requested players turn");
-    socket.emit('getPlayersTurn');
-});
-socket.on('getPlayerTurn', function (data) {
-
-})
-*/
 
 let playerIndexCopy = null;
 let playerListCopy = [];
@@ -47,7 +25,6 @@ socket.on('Stock Market', function(stock_market){
 
 socket.on('Player List', function(player_list){
    console.log("player list ");
-   console.log("player list length =" + player_list.length);
    console.log(JSON.stringify(player_list));
    playerListCopy = player_list;
    console.log("playerListCopy = " + JSON.stringify(playerListCopy));
@@ -89,10 +66,3 @@ setTimeout(function() {
 }, 1000);
 
 console.log(JSON.stringify(playerListCopy[0]));
-// socket.on(function(data){
-//
-// });
-//
-// socket.emit("Sell Card");
-
-// console.log("init");

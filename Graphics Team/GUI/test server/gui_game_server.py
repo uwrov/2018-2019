@@ -303,12 +303,6 @@ def send_players_data():
     emit('Player List', [ob.to_dict() for ob in player_list])
     return True
 
-
-# @sio.on("Make Action")
-# def can_make_action():
-#     return
-
-
 @sio.on("Get Stock Market")
 def send_stock_market():
     emit('Stock Market', stock_market)
