@@ -23,11 +23,11 @@ class PlayerCards extends React.Component {
             return (
                <Draggable bounds="parent">
                   <div className="playerCard">
-                     <h2>Company: {card.company}</h2>
-                     <h3># of stocks: {card.stock}</h3>
+                     <h3>Company: {card.company}</h3>
+                     <p># of stocks: {card.stock}</p>
                      <div className="sellButton"
                      onClick={() => {this.handleSell(index)}}>
-                        Sell!
+                        SELL!
                      </div>
                   </div>
                </Draggable>
