@@ -6,7 +6,7 @@ class ComponentHandler extends React.Component {
    state = {
       id: null,
       socket: null,
-      gameStart: false
+      gameStart: true
    }
 
    constructor(props) {

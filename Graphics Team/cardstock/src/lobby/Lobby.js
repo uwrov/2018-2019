@@ -43,7 +43,6 @@ class Lobby extends React.Component {
    render() {
       return (
          <div>
-            <div className="playerid">Player Id: {this.props.id}</div>
             <input type="text" placeholder="Enter Name" value={this.state.name}
                   onChange={this.handleName} class="input"></input>
             <div
@@ -96,7 +95,6 @@ class Lobby extends React.Component {
          return (
             <div style={color}>
                <h4>P{index + 1}</h4>
-               <h4>ID:{player.id}</h4>
                <h4>{player.name}</h4>
                <h5>{highlight}</h5>
             </div>
