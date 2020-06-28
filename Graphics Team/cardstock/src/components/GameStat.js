@@ -29,9 +29,9 @@ class GameStat extends React.Component {
       for(let i = 0; i < players.length; i++) {
          let player = players[i];
          let netWorth = player.money;
-         for(let i = 0; i < player.stock.length; i++) {
-            let stock = player.stock[i];
-            netWorth += stock.stock * market[stock.company];
+         for(let i = 0; i < player["stock_hand"].length; i++) {
+            let stock = player["stock_hand"][i];
+            netWorth += stock.amount * market[stock.company];
          }
          let tup = [player, netWorth];
          sorter.push(tup);

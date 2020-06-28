@@ -18,7 +18,7 @@ class MarketCards extends React.Component {
             <Draggable bounds="parent">
                <div className="card">
                   <h2>Company: {card.company}</h2>
-                  <h3># of stocks: {card.stock}</h3>
+                  <h3># of stocks: {card.amount}</h3>
                   <h3>Price: {card.price}</h3>
                   <div className="buy" onClick={() => {this.handleBuy(index)}}>
                      BUY

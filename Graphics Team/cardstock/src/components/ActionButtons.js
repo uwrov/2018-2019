@@ -18,8 +18,8 @@ class ActionButtons extends React.Component {
    }
 
    handleSkip = () => {
-      if(this.props.onSkipTurn instanceof Function) {
-         this.props.onSkipTurn();
+      if(this.props.onEndTurn instanceof Function) {
+         this.props.onEndTurn();
       } else {
          console.log("Error: no function was supplied!");
       }
