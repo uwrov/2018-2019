@@ -45,7 +45,7 @@ class MainFrame extends React.Component {
         if(this.socket == null) {
            this.socket = require('socket.io-client')('http://localhost:8080');
         }
-        this.socket.on('Player Turn', this.updatePlayer);
+        this.socket.on('Game Turn', this.updateTurn);
         this.socket.on('Market Cards', this.updateMarketCards);
         this.socket.on('Stock Market', this.updateStockMarket);
 
@@ -53,6 +53,7 @@ class MainFrame extends React.Component {
         this.socket.on('Player List', this.updatePlayerData);
 
         this.socket.on('Connect', this.updateEverything);
+
     }
 
     componentDidMount(){
@@ -95,6 +96,12 @@ class MainFrame extends React.Component {
 
     updateEverything = (data) => {
         this.playerNumber = data;//set the player number
+    }
+
+    updateTurn = (data) => {
+        this.setState({
+           turn: data
+        });
     }
 
    render() {

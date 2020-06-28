@@ -303,6 +303,7 @@ def send_stock_market():
 @sio.on("Get Player Index")
 def send_player_index():
     emit('Player Index', player_index, broadcast=True)
+    emit('Game Turn', turn_index, broadcast=True)
     return True
 
 @sio.on("Generate ID")
