@@ -1,6 +1,5 @@
 import React from 'react';
 import './GameStat.css';
-import Draggable from 'react-draggable';
 
 class GameStat extends React.Component {
    // I feel like I can make a field to keep track of
@@ -8,16 +7,15 @@ class GameStat extends React.Component {
    // them at the top...
    render() {
       return (
-         <Draggable grid={[80, 80]}>
-            <div className="GameStat">
-               <h2>Turn number: {this.props.turn}</h2>
-               <ol className="players">
-                  {
-                     this.getPlayersInfo(this.props.market)
-                  }
-               </ol>
-            </div>
-         </Draggable>
+         <div className="GameStat">
+            <h3>Turn number: {this.props.turn}</h3>
+            <ol className="players">
+               {
+                  this.getPlayersInfo(this.props.market)
+               }
+            </ol>
+         </div>
+
       );
    }
 

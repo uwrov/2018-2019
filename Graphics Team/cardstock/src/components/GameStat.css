@@ -1,15 +1,16 @@
 .GameStat {
-   background-color: red;
-   width: 300px;
-   height: 200px;
+   background-color: #E6E6FA;
+   width: 260px;
+   height: 180px;
    position: absolute;
    left: 1000px;
-   top: 200px;
+   top: 0px;
+   padding: 10px 10px;
 }
 
 
 
 .BIGBOY {
    font-weight: bold;
-   color: white;
+   color: #FF7F50;
 }

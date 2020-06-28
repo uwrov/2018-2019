@@ -1,30 +1,48 @@
 
 .playerCard {
-   background: #123475;
+   position: relative;
+   top: 40px;
    width: 150px;
-   height: 250px;
+   height: 200px;
    float: left;
-   border-color: black;
+   border-style: solid;
+   border-radius: 10px;
+   background-color: #F0E68C;
+   padding: 10px 10px;
+}
+
+.playerCard:active {
+   cursor: grab;
 }
 
 .playerCards {
    position: absolute;
    top: 400px;
-   left: 200px;
-   width: 800px;
+   left: 0px;
+   width: 1000px;
    height: 300px;
-   background-color: #9a00f9;
+   background-color: #FF7F50;
    display: flex;
    justify-content: space-evenly;
+
 }
 
 .sellButton {
    text-align: center;
-   background-color: grey;
+   background-color: #D3D3D3;
    width: 50px;
+   margin: auto;
+   border-style: solid;
+   border-width: 2px;
 }
 
-.player {
-   flex: left;
-   background-color:
+.sellButton:hover {
+   background-color: #A9A9A9;
+   cursor: pointer;
+}
+
+.sellButton:active {
+   background-color: #808080;
+   position: relative;
+   top: 2px;
 }

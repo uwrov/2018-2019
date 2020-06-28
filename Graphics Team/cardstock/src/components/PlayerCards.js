@@ -27,7 +27,7 @@ class PlayerCards extends React.Component {
                      <h3># of stocks: {card.amount}</h3>
                      <div className="sellButton"
                      onClick={() => {this.handleSell(index)}}>
-                        Sell!
+                        SELL!
                      </div>
                   </div>
                </Draggable>
