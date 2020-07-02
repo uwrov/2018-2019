@@ -1,12 +1,14 @@
 import React from 'react';
 import Lobby from './lobby/Lobby.js';
 import MainFrame from './components/MainFrame';
+import Results from './results/Results';
 
 class ComponentHandler extends React.Component {
    state = {
       id: null,
       socket: null,
-      gameStart: false
+      gameStart: false,
+      showResults: true
    }
 
    constructor(props) {
@@ -44,6 +46,7 @@ class ComponentHandler extends React.Component {
          <div>
             {this.displayGame()}
             {this.displayLobby()}
+            {this.displayResults()}
          </div>
       );
    }
@@ -56,6 +59,11 @@ class ComponentHandler extends React.Component {
    displayLobby() {
       if(!this.state.gameStart)
          return <Lobby socket={this.state.socket} id={this.state.id} />;
+   }
+
+   displayResults() {
+      if(this.state.showResults && this.state.gameStart)
+         return <Results socket={this.state.socket} id={this.state.id} />;
    }
 }
 
