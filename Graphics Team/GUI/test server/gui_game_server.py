@@ -187,7 +187,7 @@ def change_stock():
         if stock_market[name] < 0:
             stock_market[name] = 0
         stocks_over_time[name].append(stock_market[name])
-    xaxis.append(turn_index)
+    xaxis.append(int(turn_index))
     update_market_card_price()
 
 
@@ -423,7 +423,9 @@ def send_game_data():
 #@sio.on("Get Stock Graph")
 def create_stock_graph():
     for name in stocks_over_time:
-        plt.plot(xaxis, stocks_over_time[name])
+        stock = plt.plot(xaxis, stocks_over_time[name], label=name)
+    plt.legend()
+    plt.xticks(xaxis)
     plt.xlabel("Stock Per Turn")
     plt.ylabel("Stock Price")
     plt.title("Stonks Go Zoom")
