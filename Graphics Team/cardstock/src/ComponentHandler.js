@@ -62,7 +62,7 @@ class ComponentHandler extends React.Component {
    }
 
    displayResults() {
-      if(!this.state.showResults)
+      if(this.state.showResults && this.state.gameStart)
          return <Results socket={this.state.socket} id={this.state.id} />;
    }
 }
