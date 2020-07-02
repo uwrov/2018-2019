@@ -6,7 +6,8 @@ class ComponentHandler extends React.Component {
    state = {
       id: null,
       socket: null,
-      gameStart: true
+      gameStart: true,
+      showResults: true
    }
 
    constructor(props) {
@@ -35,6 +36,7 @@ class ComponentHandler extends React.Component {
          <div>
             {this.displayGame()}
             {this.displayLobby()}
+            {this.displayResults()}
          </div>
       );
    }
@@ -47,6 +49,11 @@ class ComponentHandler extends React.Component {
    displayLobby() {
       if(!this.state.gameStart)
          return <Lobby socket={this.state.socket} id={this.state.id} />;
+   }
+
+   displayResults() {
+      if(!this.state.showResults)
+         return <Results socket={this.state.socket} id={this.state.id} />;
    }
 }
 
