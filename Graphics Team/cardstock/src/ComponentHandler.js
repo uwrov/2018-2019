@@ -1,13 +1,14 @@
 import React from 'react';
 import Lobby from './lobby/Lobby.js';
 import MainFrame from './components/MainFrame';
+import Results from './results/Results';
 
 class ComponentHandler extends React.Component {
    state = {
       id: null,
       socket: null,
       gameStart: false,
-      showResults: false
+      showResults: true
    }
 
    constructor(props) {
