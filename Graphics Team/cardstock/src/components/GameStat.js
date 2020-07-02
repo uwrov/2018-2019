@@ -2,18 +2,22 @@ import React from 'react';
 import './GameStat.css';
 
 class GameStat extends React.Component {
+   state = {
+      current_turn: null
+   };
    // I feel like I can make a field to keep track of
    // the ranking of richest players, and then display
    // them at the top...
    render() {
       return (
          <div className="GameStat">
-            <h3>Turn number: {this.props.turn}</h3>
+            <h3>Round number: {this.props.round}</h3>
             <ol className="players">
                {
                   this.getPlayersInfo(this.props.market)
                }
             </ol>
+            {this.renderCurrentTurn()}
          </div>
 
       );
@@ -50,9 +54,13 @@ class GameStat extends React.Component {
             )
          }
       });
-
    }
 
+   renderCurrentTurn() {
+      return (
+         <h4>It's {this.props.players[this.props.turn_index].name}'s turn!</h4>
+      )
+   }
 
 }
 export default GameStat;

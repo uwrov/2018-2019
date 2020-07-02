@@ -8,7 +8,7 @@ class ComponentHandler extends React.Component {
       id: null,
       socket: null,
       gameStart: false,
-      showResults: true
+      showResults: false
    }
 
    constructor(props) {
