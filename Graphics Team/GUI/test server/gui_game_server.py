@@ -3,7 +3,8 @@ import random
 import math
 from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
-
+import matplotlib
+import matplotlib.pyplot as plt
 
 HOST_IP = "localhost"
 HOST_PORT = "4000"
@@ -29,8 +30,6 @@ market_cards = []
 
 # what turn it is in the game. ends at turn 10
 turn_index = 0
-# 0 = buying phase 1 = selling phase
-turn_phase = 0
 # what player's turn it is in the turn
 player_index = -1
 
@@ -45,6 +44,12 @@ action_deck = []
 playing_game = False
 
 client_id_generator = 1
+
+BASE_PRICE = 3
+xaxis = []
+
+stocks_over_time = {}
+
 
 
 class Player:
@@ -91,7 +96,10 @@ class StockCard:
         self.price = 0
 
     def update_price(self, market_val):
-        self.price = math.ceil(int(self.amount) * int(self.scalar) * int(market_val))
+        self.price = math.ceil(int(self.amount) * float(self.scalar) * int(market_val))
+        if self.price == 0:
+            self.price = BASE_PRICE
+
 
     def __str__(self):
         return self.company + " " + self.amount + " " + str(self.price)
@@ -176,6 +184,10 @@ def change_stock():
     change_card = fluctuation_deck.pop()
     for name in change_card.change_in_stock:
         stock_market[name] += change_card.change_in_stock[name]
+        if stock_market[name] < 0:
+            stock_market[name] = 0
+        stocks_over_time[name].append(stock_market[name])
+    xaxis.append(turn_index)
     update_market_card_price()
 
 
@@ -185,12 +197,12 @@ def update_market_card_price():
 
 
 def next_turn():
-    global market_deck, market_cards, turn_index, player_index, turn_phase
+    global market_deck, market_cards, turn_index, player_index
 
     while len(market_cards) < 5:
         market_cards.append(market_deck.pop(0))
 
-    turn_phase = 0
+    update_market_card_price()
 
     if player_index < len(player_list) - 1:
         player_index += 1
@@ -203,24 +215,22 @@ def next_turn():
 
 
 def buy_card(move):
-    global turn_phase, market_cards
-    if turn_phase == 0:
-        if move >= 0 and move < len(market_cards):
-            card = market_cards.pop(move)
-            if player_list[player_index].money >= int(card.price):
-                player_list[player_index].money -= int(card.price)
-                player_list[player_index].stock_hand.append(card)
-                turn_phase = 1
-                return 1;
-            else:
-                market_cards.append(card)
-                return 0;
+    global market_cards
+    if move >= 0 and move < len(market_cards):
+        card = market_cards.pop(move)
+        if player_list[player_index].money >= int(card.price):
+            player_list[player_index].money -= int(card.price)
+            player_list[player_index].stock_hand.append(card)
+            return 1;
         else:
+            market_cards.append(card)
             return 0;
+    else:
+        return 0;
 
 
 def sell_card(move):
-    global turn_phase, market_cards
+    global market_cards
     if move >= 0 and move < len(player_list[player_index].stock_hand):
         card = player_list[player_index].stock_hand.pop(move)
         card.update_price(stock_market[card.company])
@@ -228,14 +238,6 @@ def sell_card(move):
         return 1;
     else:
         return 0;
-
-
-def print_deck():
-    for card in market_deck:
-        print(card.company, card.amount, card.price)
-    for card in fluctuation_deck:
-        print(card.change_in_stock)
-
 
 def print_stock_market():
     print(stock_market)
@@ -261,15 +263,9 @@ def print_market_cards():
         # print(card.company, card.amount, card.price, end=" ")
         print(card.company + " " + str(card.amount) + " " + str(card.price), end=" | ")
 
-
-def end():
-    print("End results:")
-    print("--------------------")
-    for player in player_list:
-        print(player)
-    print("--------------------")
-    print()
-
+def init_stock_record():
+    for name in company_names:
+        stocks_over_time[name] = []
 
 # API Methods
 
@@ -356,7 +352,6 @@ def get_player_by_id(id):
             return x
     return None
 
-
 # To be implemented
 def action_phase():
     global playing_game
@@ -425,12 +420,25 @@ def send_game_data():
     send_player_index()
     emit("Game State", {"state": playing_game}, broadcast=True)
 
+#@sio.on("Get Stock Graph")
+def create_stock_graph():
+    for name in stocks_over_time:
+        plt.plot(xaxis, stocks_over_time[name])
+    plt.xlabel("Stock Per Turn")
+    plt.ylabel("Stock Price")
+    plt.title("Stonks Go Zoom")
+    plt.grid()
+    plt.savefig('figure.png')
+    plt.show()
+    #emit("Stock Graph", plt)
+
 def init_game():
-    global playing_game
+    global playing_game, player_index
+    player_index = -1
     shuffle_decks()
+    init_stock_record()
     set_up_game()
     next_turn()
-    update_market_card_price()
     playing_game = True
 
 def end_game():
@@ -441,16 +449,20 @@ def end_game():
 
 def test():
     create_deck()
+    init_stock_record()
     shuffle_decks()
     set_up_game()
     next_turn()
-    update_market_card_price()
-    sio.run(app, host=HOST_IP, port=HOST_PORT)
+    next_turn()
+    next_turn()
+    next_turn()
+    next_turn()
+    create_stock_graph()
+    #sio.run(app, host=HOST_IP, port=HOST_PORT)
 
 def main():
     create_deck()
     sio.run(app, host=HOST_IP, port=HOST_PORT)
 
-
-# main()
+#main()
 test()
