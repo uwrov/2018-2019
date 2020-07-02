@@ -1,31 +1,31 @@
 .skipButton {
    position: relative;
-   top: 100px;;
-   left: 100px;;
-   height: 50px;
-   width: 100px;
-   background-color: #9a00f9;
+   margin: auto;
+   top: 50px;
+   height: 20px;
+   width: 80px;
+   background-color: #5F9EA0;
+   border-style: solid;
+   text-align: center;
+   border-width: 2px;
 }
 
 .skipButton:hover {
-   height: 52px;
-   width: 102px;
-   background-color: #8b00f9;
+   background-color: #5f8794;
    cursor: pointer;
 }
 
 .skipButton:active {
-   height: 52px;
-   width: 102px;
-   background-color: #7800f9;
-   cursor: grab;
+   position: relative;
+   top: 52px;
+   background-color: #526d75;
 }
 
 .actionbuttons {
-   background-color: black;
+   background-color: #E6E6F9;
    position: absolute;
-   top: 400px;
+   top: 550px;
    left: 1000px;
-   height: 300px;
-   width: 300px;
+   height: 150px;
+   width: 280px;
 }

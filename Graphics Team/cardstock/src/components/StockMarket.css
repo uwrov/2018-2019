@@ -1,8 +1,9 @@
 .stock_market {
-   background-color: yellow;
-   height: 200px;
-   width: 300px;
+   background-color: #E6E6FA;
+   height: 180px;
+   width: 260px;
    position: absolute;
    left: 1000px;
-   top: 0px;
+   top: 200px;
+   padding: 10px 10px;
 }

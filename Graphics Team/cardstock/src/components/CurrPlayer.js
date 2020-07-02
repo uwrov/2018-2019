@@ -1,20 +1,17 @@
 import React from 'react';
 import './CurrPlayer.css';
-import Draggable from 'react-draggable';
 
 class CurrPlayer extends React.Component {
    render() {
       return (
-         <Draggable grid={[80, 80]}>
-            <div className="currPlayer">
-               <h2>Current Player Info: </h2>
-               <div>
-                  {
-                     this.getPlayers(this.props.info)
-                  }
-               </div>
+         <div className="currPlayer">
+            <h3>Current Player Info: </h3>
+            <div>
+               {
+                  this.getPlayers(this.props.info)
+               }
             </div>
-         </Draggable>
+         </div>
       );
    }
 

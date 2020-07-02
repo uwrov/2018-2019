@@ -12,7 +12,7 @@ DECK_FILE = "deck.txt"
 ACTION_FILE = "action_cards.txt"
 
 app = Flask(__name__)
-sio = SocketIO(app)
+sio = SocketIO(app, cors_allowed_origins="*")
 
 # list of all cards
 market_deck = []
@@ -21,14 +21,9 @@ market_deck = []
 stock_graveyard = []
 action_graveyard = []
 
-#player ids generated on the server
-player_ids = []
-player_id_generator = 1 #first id (increment by one)
 # list of players with their respective hand and money
 player_list = []
 
-#ready players
-player_ready = {}
 # list of card in available in market
 market_cards = []
 
@@ -47,7 +42,9 @@ stock_market = {}
 
 action_deck = []
 
-playing_game = True
+playing_game = False
+
+client_id_generator = 1
 
 
 class Player:
@@ -114,16 +111,15 @@ class MarketCard:
 # to a new cards with the order: comany amount price.
 # The deck size is 50
 def check_to_start():
-    global player_ready
-    if len(player_ready.keys()) < 2:
-        print("not enough players")
+    global player_list
+    if len(player_list) < 2:
+        send_error("Not enough players")
     else:
-        for key in player_ready:
-            if player_ready[key] == 0:
-                print("not all palyers are ready")
+        for player in player_list:
+            if player.ready == 0:
                 return
-        init_Game()  #start the game internaly on the server
-        emit("start game")
+        init_game()  #start the game internaly on the server
+        send_game_data()
 
 def create_deck():
     with open(DECK_FILE) as file:
@@ -171,8 +167,8 @@ def set_up_game():
         stock_market[name] = 5
 
 
-def add_player(name):
-    player_list.append(Player(name))
+def add_player(name, id=-1):
+    player_list.append(Player(name, id))
 
 
 def change_stock():
@@ -188,7 +184,7 @@ def update_market_card_price():
         card.update_price(stock_market[card.company])
 
 
-def begin_turn():
+def next_turn():
     global market_deck, market_cards, turn_index, player_index, turn_phase
 
     while len(market_cards) < 5:
@@ -199,6 +195,8 @@ def begin_turn():
     if player_index < len(player_list) - 1:
         player_index += 1
     else:
+        if turn_index > 10:
+            end_game()
         player_index = 0
         turn_index += 1
         change_stock()
@@ -207,7 +205,7 @@ def begin_turn():
 def buy_card(move):
     global turn_phase, market_cards
     if turn_phase == 0:
-        if move != -1 and move < len(market_cards):
+        if move >= 0 and move < len(market_cards):
             card = market_cards.pop(move)
             if player_list[player_index].money >= int(card.price):
                 player_list[player_index].money -= int(card.price)
@@ -218,22 +216,15 @@ def buy_card(move):
                 market_cards.append(card)
                 return 0;
         else:
-            turn_phase = 1
-            return 1;
+            return 0;
 
 
 def sell_card(move):
     global turn_phase, market_cards
-    if turn_phase == 1:
-        if move != -1 and move < len(player_list[player_index].stock_hand):
-            card = player_list[player_index].stock_hand.pop(move)
-            print(card)
-            card.update_price(stock_market[card.company])
-            print(card)
-            player_list[player_index].money += int(card.price)
-            turn_phase = 1
-        else:
-            turn_phase = 2
+    if move >= 0 and move < len(player_list[player_index].stock_hand):
+        card = player_list[player_index].stock_hand.pop(move)
+        card.update_price(stock_market[card.company])
+        player_list[player_index].money += int(card.price)
         return 1;
     else:
         return 0;
@@ -289,7 +280,7 @@ def end():
 # Example Response: [{"Company": "Amazoom", "Amount": "1", "Price": "3"}]
 @sio.on("Get Market")
 def send_market_cards():
-    emit('Market Cards', [ob.__dict__ for ob in market_cards])
+    emit('Market Cards', [ob.__dict__ for ob in market_cards], broadcast=True)
     return True
 
 
@@ -300,51 +291,70 @@ def send_market_cards():
 # Example Response: [{"Name": "Andrew", "Money": "100", "Hand": [...]}]
 @sio.on("Get Players")
 def send_players_data():
-    emit('Player List', [ob.to_dict() for ob in player_list])
+    emit('Player List', [ob.to_dict() for ob in player_list], broadcast=True)
     return True
 
 @sio.on("Get Stock Market")
 def send_stock_market():
-    emit('Stock Market', stock_market)
+    emit('Stock Market', stock_market, broadcast=True)
     return True
 
 
 @sio.on("Get Player Index")
 def send_player_index():
-    emit('Player Index', player_index)
+    emit('Player Index', player_index, broadcast=True)
+    emit('Game Turn', turn_index, broadcast=True)
     return True
 
+@sio.on("Generate ID")
+def gen_id():
+    global client_id_generator, player_ids
+    emit('ID Confirm', client_id_generator)
+    client_id_generator += 1
+
+
+@sio.on("Previous ID")
+def confirm_id(id):
+    player = get_player_by_id(int(id))
+    if player is None:
+        gen_id()
+    else:
+        emit('ID Confirm', id)
 
 @sio.on("Create Player")
 def create_player(data):
-    global player_ids, player_list, player_ready
-    if data["id"] in player_ids:
-        temp = Player(data["name"])
+    global player_list, player_ready
+    player = get_player_by_id(data["id"])
+    if player is None:
+        temp = Player(data["name"], data["id"])
         player_list.append(temp)
-        player_ready[data["id"]] = 0  # setting player ready to 0
         send_players_data()
     else:
-        print("failed to create player")
-
-
-@sio.on("connect")
-def conn():
-    global player_id_generator, player_ids
-    player_ids.append(player_id_generator)
-    emit('connected', player_id_generator)
-    player_id_generator += 1
+        player.name = data["name"]
+        send_players_data()
 
 
 @sio.on("Ready")
 def set_ready(data):
     global player_ready
-    player_ready[data["id"]] = 1
+    player = get_player_by_id(data["id"])
+    player.ready = 1
+    check_to_start()
+    send_players_data()
 
 
 @sio.on("Not Ready")
 def set_not_ready(data):
     global player_ready
-    player_ready[data["id"]] = 0
+    player = get_player_by_id(data["id"])
+    player.ready = 0
+    send_players_data()
+
+def get_player_by_id(id):
+    for x in player_list:
+        if x.id == id:
+            return x
+    return None
 
 
 # To be implemented
@@ -383,7 +393,7 @@ def action_phase():
 # 0 represents the first card in the market, 1 represents the second card etc...
 @sio.on("Buy Card")
 def buy_player_card(data):
-    if data["player"]["id"] == player_list[player_index].id:
+    if data["id"] == player_list[player_index].id:
         if(buy_card(int(data["target"])) != 1):
             send_error("Not Enough Money!")
     send_game_data()
@@ -391,55 +401,55 @@ def buy_player_card(data):
 
 @sio.on("Sell Card")
 def sell_player_card(data):
-    if data["player"]["id"] == player_list[player_index].id:
+    if data["id"] == player_list[player_index].id:
         if(sell_card(int(data["target"])) != 1):
             send_error("Error when selling!")
+    send_game_data()
+
+@sio.on("End Turn")
+def end_turn(data):
+    if data["id"] == player_list[player_index].id:
+        next_turn()
+    else:
+        send_error("Not your turn!")
     send_game_data()
 
 def send_error(msg):
     emit("error", {"message": msg })
 
+@sio.on("Update Request")
 def send_game_data():
     send_market_cards()
     send_players_data()
     send_stock_market()
     send_player_index()
+    emit("Game State", {"state": playing_game}, broadcast=True)
+
+def init_game():
+    global playing_game
+    shuffle_decks()
+    set_up_game()
+    next_turn()
+    update_market_card_price()
+    playing_game = True
+
+def end_game():
+    global playing_game
+    playing_game = False
+    send_error("GAME OVER :(")
+    player_list.clear()
 
 def test():
     create_deck()
     shuffle_decks()
-    add_player('Justin')
     set_up_game()
-    begin_turn()
+    next_turn()
     update_market_card_price()
-    print_market_cards()
     sio.run(app, host=HOST_IP, port=HOST_PORT)
 
 def main():
-    global player_index, playing_game
-    sio.run(app, host=HOST_IP, port=HOST_PORT)
     create_deck()
-    shuffle_decks()
-    # add_player('Justin')
-    # add_player('Andrew')
-    # add_player('Alex')
-    # add_player('Chris')
-
-    set_up_game()
-    intro()
-    playing_game = True
-
-    change_stock()
-    while playing_game:
-        begin_turn()
-        update_market_card_price()
-        print_stock_market()
-        result = action_phase()
-        if not result:
-            break
-        # market_phase()
-        print(player_list[player_index])
-        print()
+    sio.run(app, host=HOST_IP, port=HOST_PORT)
 
 
 # main()

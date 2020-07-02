@@ -6,8 +6,8 @@ class ComponentHandler extends React.Component {
    state = {
       id: null,
       socket: null,
-      gameStart: true,
-      showResults: true
+      gameStart: false,
+      showResults: false
    }
 
    constructor(props) {
@@ -23,12 +23,21 @@ class ComponentHandler extends React.Component {
          this.state.socket.emit("Previous ID", id);
       }
       this.state.socket.on("ID Confirm", this.setID);
+      this.state.socket.on("Game State", this.checkState);
    }
 
    setID = (id) => {
       window.localStorage.setItem("id", id);
       console.log("id: " + id);
       this.setState( { "id": id } );
+   }
+
+   checkState = (data) => {
+      this.setState( {gameStart: data.state} );
+   }
+
+   componentDidMount(){
+      this.state.socket.emit("Update Request");
    }
 
    render() {
