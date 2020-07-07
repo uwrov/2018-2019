@@ -10,22 +10,30 @@ class Results extends React.Component {
          {
             "id": 0,
             "name": "Chris",
-            "ready": 1
+            "ready": 1,
+            "netWorth": 100,
+            "rank": 1
          },
          {
             "id": 1,
             "name": "Andrew",
-            "ready": 0
+            "ready": 0,
+            "netWorth": 75,
+            "rank": 2
          },
          {
             "id": 2,
             "name": "Justin",
-            "ready": 0
+            "ready": 0,
+            "netWorth": 50,
+            "rank": 3
          },
          {
             "id": 3,
             "name": "Alex",
-            "ready": 0
+            "ready": 0,
+            "netWorth": 25,
+            "rank": 4
          }
       ]
    }
@@ -43,74 +51,50 @@ class Results extends React.Component {
    render() {
       return (
          <div>
-            <input type="text" placeholder="Enter Name" value={this.state.name}
-                  onChange={this.handleName} class="input"></input>
-            <div
-               class="createPlayer"
-               onClick={() => {this.createPlayer()}}>
-               Create Players
+            <div class="ranking">
+               <div class="ranks">
+                  {this.rankPlayers(this.state.playerList)}
+               </div>
             </div>
-            <div class="display">{this.displayList()}</div>
-            <div
-               class="ready"
-               onClick={() => {this.getReady()}}>
-               Ready
-            </div>
+            <div class="button">Play Again!</div>
          </div>
       )
    }
 
-   updatePlayerList = (params) => {
-      for(let i = 0; i < params.length; i++) {
-         if(params[i].id === this.props.id) {
-            this.setState({"index": i});
+   rankPlayers(players) {
+      let maxNet = 0;
+      players.forEach(function(player) {
+         if(player.netWorth > maxNet) {
+            maxNet = player.netWorth;
          }
-      }
-      this.setState({ "playerList": params });
-   }
-
-   createPlayer = () => {
-      console.log("create: " + this.state.name);
-      if(this.state.id !== null) {
-         this.props.socket.emit("Create Player", {"id": this.props.id, "name": this.state.name});
-      } else {
-         console.log("Invalid ID");
-      }
-   }
-
-   handleName = (event) => {
-      this.setState({"name": event.target.value});
-   }
-
-   displayList = () => {
-      let id = this.props.id;
-      return this.state.playerList.map(function(player, index){
-         let highlight = (id === player.id) ? "This is You" : null;
-         /*
-         return (
-            <li>P{index + 1}: {player.name} ({ready}) {highlight}</li>
-         )
-         */
-         let color = (player.ready === 1) ? ({backgroundColor : '#98FB98'}) : ({backgroundColor : '#FA8072'});
-         return (
-            <div style={color}>
-               <h4>P{index + 1}</h4>
-               <h4>{player.name}</h4>
-               <h5>{highlight}</h5>
-            </div>
-         );
       });
-   }
-
-   getReady = () => {
-      if(this.state.index !== null) {
-         // this function will be called when the ready button is pressed
-         if(this.state.playerList[this.state.index].ready === 1) {
-            this.props.socket.emit("Not Ready", { "id": this.props.id });
+      return players.map(function(player) {
+         let rank = "";
+         if(player.rank % 10 === 1) {
+            rank = player.rank + "st";
+         } else if (player.rank % 10 === 2) {
+            rank = player.rank + "nd";
+         } else if (player.rank % 10 === 3) {
+            rank = player.rank + "rd";
          } else {
-            this.props.socket.emit("Ready", { "id": this.props.id });
+            rank = player.rank + "th";
          }
-      }
+         let message = (player.rank === 1) ? "(/ ^-^)/" : null;
+         return(
+            <div class="stats">
+               <p class="winner">{message}</p>
+               <div class="bar" style={{
+                  height : (player.netWorth / maxNet) * 280 + "px",
+                  // attempting to adjust the bar appearance depending on the rank of the player
+                  //filter : "opacity(" + (1 - (player.rank - 1) / players.size) * 100 + "%)"
+               }}></div>
+               <div class="profile">
+                  <p>{rank}: {player.name}</p>
+                  <p>NW: {player.netWorth}</p>
+               </div>
+            </div>
+         )
+      });
    }
 
 }

@@ -8,7 +8,7 @@ class ComponentHandler extends React.Component {
       id: null,
       socket: null,
       gameStart: true,
-      showResults: false
+      showResults: true
    }
 
    constructor(props) {
@@ -52,7 +52,7 @@ class ComponentHandler extends React.Component {
    }
 
    displayGame() {
-      if(this.state.gameStart)
+      if(this.state.gameStart && !this.state.showResults)
          return <MainFrame socket={this.state.socket} id={this.state.id}/>
    }
 
