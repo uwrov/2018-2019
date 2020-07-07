@@ -7,6 +7,10 @@ let marketCardsCopy = [];
 let playerIdCopy = null;
 
 
+socket.on('connect', function(){
+   socket.emit("Get Stock Graph");
+});
+
 socket.on('Market Cards', function(market_cards){
    console.log("market cards")
    console.log(market_cards)
@@ -38,31 +42,35 @@ socket.on('error', function(error){
    console.log("error: " + error.message);
 });
 
+socket.on('Stock Graph', function(image){
+   console.log(image.image.toString("ascii"));
+});
 
-socket.emit("Get Market");
-socket.emit("Get Players");
-socket.emit("Get Player Index");
-socket.emit("Get Stock Market");
-socket.emit("Create Player", { "id": 1, "name":"Real Justin"});
+// socket.emit("Get Market");
+// socket.emit("Get Players");
+// socket.emit("Get Player Index");
+// socket.emit("Get Stock Market");
+// socket.emit("Create Player", { "id": 1, "name":"Real Justin"});
 
 
-setTimeout(function() {
-   console.log(playerListCopy[0]);
-   socket.emit("Buy Card", { "player": playerListCopy[0], "target":0});
-}, 1000);
-
-console.log(JSON.stringify(playerListCopy[0]));
 
 // setTimeout(function() {
 //    console.log(playerListCopy[0]);
 //    socket.emit("Buy Card", { "player": playerListCopy[0], "target":0});
 // }, 1000);
-
-console.log(JSON.stringify(playerListCopy[0]));
-
-setTimeout(function() {
-   console.log(playerListCopy[0]);
-   socket.emit("Sell Card", { "player": playerListCopy[0], "target":0});
-}, 1000);
-
-console.log(JSON.stringify(playerListCopy[0]));
+//
+// console.log(JSON.stringify(playerListCopy[0]));
+//
+// // setTimeout(function() {
+// //    console.log(playerListCopy[0]);
+// //    socket.emit("Buy Card", { "player": playerListCopy[0], "target":0});
+// // }, 1000);
+//
+// console.log(JSON.stringify(playerListCopy[0]));
+//
+// setTimeout(function() {
+//    console.log(playerListCopy[0]);
+//    socket.emit("Sell Card", { "player": playerListCopy[0], "target":0});
+// }, 1000);
+//
+// console.log(JSON.stringify(playerListCopy[0]));
