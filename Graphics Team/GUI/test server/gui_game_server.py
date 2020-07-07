@@ -5,6 +5,9 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
 import matplotlib
 import matplotlib.pyplot as plt
+import base64
+
+matplotlib.use('Agg')
 
 HOST_IP = "localhost"
 HOST_PORT = "4000"
@@ -14,7 +17,6 @@ ACTION_FILE = "action_cards.txt"
 
 app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
-
 # list of all cards
 market_deck = []
 
@@ -420,19 +422,20 @@ def send_game_data():
     send_player_index()
     emit("Game State", {"state": playing_game}, broadcast=True)
 
-#@sio.on("Get Stock Graph")
+@sio.on("Get Stock Graph")
 def create_stock_graph():
     for name in stocks_over_time:
         stock = plt.plot(xaxis, stocks_over_time[name], label=name)
-    plt.legend()
+    plt.legend(loc='upper left')
     plt.xticks(xaxis)
     plt.xlabel("Stock Per Turn")
     plt.ylabel("Stock Price")
     plt.title("Stonks Go Zoom")
     plt.grid()
     plt.savefig('figure.png')
-    plt.show()
-    #emit("Stock Graph", plt)
+    #plt.show()
+    image = open('figure.png', 'rb').read()
+    emit("Stock Graph", {'image': image})
 
 def init_game():
     global playing_game, player_index
@@ -459,8 +462,8 @@ def test():
     next_turn()
     next_turn()
     next_turn()
+    sio.run(app, host=HOST_IP, port=HOST_PORT)
     create_stock_graph()
-    #sio.run(app, host=HOST_IP, port=HOST_PORT)
 
 def main():
     create_deck()
