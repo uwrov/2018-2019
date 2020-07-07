@@ -424,6 +424,7 @@ def send_game_data():
 
 @sio.on("Get Stock Graph")
 def create_stock_graph():
+    plt.close()
     for name in stocks_over_time:
         stock = plt.plot(xaxis, stocks_over_time[name], label=name)
     plt.legend(loc='upper left')
@@ -435,7 +436,8 @@ def create_stock_graph():
     plt.savefig('figure.png')
     #plt.show()
     image = open('figure.png', 'rb').read()
-    emit("Stock Graph", {'image': image})
+    img = base64.b64encode(image);
+    emit("Stock Graph", {'image': img})
 
 def init_game():
     global playing_game, player_index

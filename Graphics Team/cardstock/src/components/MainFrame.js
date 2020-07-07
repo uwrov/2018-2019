@@ -45,14 +45,14 @@ class MainFrame extends React.Component {
       if(this.socket == null) {
          this.socket = require('socket.io-client')('http://localhost:8080');
       }
-      this.socket.on('Game Turn', this.updateRound);
-      this.socket.on('Market Cards', this.updateMarketCards);
-      this.socket.on('Stock Market', this.updateStockMarket);
+      //this.socket.on('Game Turn', this.updateRound);
+      //this.socket.on('Market Cards', this.updateMarketCards);
+      //this.socket.on('Stock Market', this.updateStockMarket);
 
-      this.socket.on('Player Index', this.updatePlayerIndex);
-      this.socket.on('Player List', this.updatePlayerData);
+      //this.socket.on('Player Index', this.updatePlayerIndex);
+      //this.socket.on('Player List', this.updatePlayerData);
 
-      this.socket.on('Connect', this.updateEverything);
+      //this.socket.on('Connect', this.updateEverything);
    }
 
    componentDidMount(){
@@ -109,7 +109,7 @@ class MainFrame extends React.Component {
          players={this.state.players}
          market= {this.state.stock_market}/>
          <CurrPlayer info={this.state.players[this.state.index]}/>
-         <StockMarket stock_price={this.state.stock_market}/>
+         <StockMarket stock_price={this.state.stock_market} socket={this.props.socket}/>
          <PlayerCards playerCards={this.state.players[this.state.index].stock_hand}
          onSell={this.sellStock}/>
          <ActionButtons onEndTurn={this.endTurn} />

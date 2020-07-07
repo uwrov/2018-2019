@@ -5,7 +5,6 @@ class CurrPlayer extends React.Component {
    render() {
       return (
          <div className="currPlayer">
-            <h3>Current Player Info: </h3>
             <div>
                {
                   this.getPlayers(this.props.info)
@@ -18,8 +17,8 @@ class CurrPlayer extends React.Component {
    getPlayers(info) {
       return (
          <div>
-            <p>Name: {info.name}</p>
-            <p>Money: {info.money}</p>
+            <span>Name: {info.name}</span>
+            <span>Money: {info.money}</span>
          </div>
       );
    }

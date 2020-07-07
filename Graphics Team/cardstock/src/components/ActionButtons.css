@@ -1,7 +1,7 @@
 .skipButton {
    position: relative;
    margin: auto;
-   top: 50px;
+   top: 10px;
    height: 20px;
    width: 80px;
    background-color: #5F9EA0;
@@ -24,8 +24,8 @@
 .actionbuttons {
    background-color: #E6E6F9;
    position: absolute;
-   top: 550px;
+   top: 650px;
    left: 1000px;
-   height: 150px;
+   height: 50px;
    width: 280px;
 }
