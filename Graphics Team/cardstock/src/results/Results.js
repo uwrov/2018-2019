@@ -64,7 +64,7 @@ class Results extends React.Component {
    updatePlayerList = (list) => {
       this.setState({ playerList: list });
    }
-   
+
    rankPlayers(players) {
       let maxNet = 0;
       players.forEach(function(player) {
@@ -103,6 +103,7 @@ class Results extends React.Component {
 
    restart = () => {
       // function to restart the game
+      this.props.socket.emit("Reset Server");
    }
 
 }

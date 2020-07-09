@@ -224,6 +224,8 @@ def next_turn():
         turn_index += 1
         change_stock()
 
+    create_stock_graph()
+
 
 def buy_card(move):
     global market_cards
@@ -430,7 +432,7 @@ def send_game_data():
     send_players_data()
     send_stock_market()
     send_player_index()
-    emit("Game State", {"state": playing_game}, broadcast=True)
+    emit("Game State", {"state": playing_game, "results": show_results}, broadcast=True)
 
 @sio.on("Get Stock Graph")
 def create_stock_graph():
@@ -447,7 +449,7 @@ def create_stock_graph():
     #plt.show()
     image = open('figure.png', 'rb').read()
     img = base64.b64encode(image);
-    emit("Stock Graph", {'image': img})
+    emit("Stock Graph", {'image': img}, broadcast=True)
 
 def init_game():
     global playing_game, player_index
@@ -464,6 +466,7 @@ def end_game():
     calc_results()
     #send_error("GAME OVER :(")
     #player_list.clear()
+    send
 
 @sio.on("Reset Server")
 def reset_server():
@@ -509,5 +512,5 @@ def main():
     create_deck()
     sio.run(app, host=HOST_IP, port=HOST_PORT)
 
-#main()
+main()
 test()

@@ -11,7 +11,7 @@ class ComponentHandler extends React.Component {
       socket: null,
       gameStart: true,
       showResults: false,
-      pop: true
+      pop: false
    }
 
    constructor(props) {
@@ -27,7 +27,7 @@ class ComponentHandler extends React.Component {
          this.state.socket.emit("Previous ID", id);
       }
       this.state.socket.on("ID Confirm", this.setID);
-      //this.state.socket.on("Game State", this.checkState);
+      this.state.socket.on("Game State", this.checkState);
    }
 
    setID = (id) => {
@@ -37,7 +37,7 @@ class ComponentHandler extends React.Component {
    }
 
    checkState = (data) => {
-      this.setState( {gameStart: data.state} );
+      this.setState( {gameStart: data.state, showResults: data.results} );
    }
 
    componentDidMount(){
