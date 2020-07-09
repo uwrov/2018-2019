@@ -2,13 +2,15 @@ import React from 'react';
 import Lobby from './lobby/Lobby.js';
 import MainFrame from './components/MainFrame';
 import Results from './results/Results';
+import Pop from './components/Pop';
 
 class ComponentHandler extends React.Component {
    state = {
       id: null,
       socket: null,
       gameStart: true,
-      showResults: true
+      showResults: false,
+      pop: true
    }
 
    constructor(props) {
@@ -47,6 +49,7 @@ class ComponentHandler extends React.Component {
             {this.displayGame()}
             {this.displayLobby()}
             {this.displayResults()}
+            {this.displayPop()}
          </div>
       );
    }
@@ -64,6 +67,11 @@ class ComponentHandler extends React.Component {
    displayResults() {
       if(this.state.showResults && this.state.gameStart)
          return <Results socket={this.state.socket} id={this.state.id} />;
+   }
+
+   displayPop() {
+      if(this.state.pop)
+         return <Pop socket={this.state.socket} id={this.state.id} />;
    }
 }
 
