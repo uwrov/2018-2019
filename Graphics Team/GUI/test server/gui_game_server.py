@@ -6,6 +6,8 @@ from flask_socketio import SocketIO, send, emit
 import matplotlib
 import matplotlib.pyplot as plt
 import base64
+import operator
+
 
 matplotlib.use('Agg')
 
@@ -251,25 +253,6 @@ def sell_card(move):
     else:
         return 0;
 
-def print_stock_market():
-    print(stock_market)
-
-
-def intro():
-    print("Market Cards")
-    print("--------------------")
-    print_market_cards()
-    print("--------------------")
-    print()
-
-    print("Players: name, money, stocks, actions")
-    print("--------------------")
-    for player in player_list:
-        print(player)
-    print("--------------------")
-    print()
-
-
 def print_market_cards():
     for card in market_cards:
         # print(card.company, card.amount, card.price, end=" ")
@@ -441,6 +424,8 @@ def create_stock_graph():
     plt.xticks(xaxis)
     plt.xlabel("Stock Per Turn", fontsize=20)
     plt.ylabel("Stock Price", fontsize=20)
+    plt.xaxis.set_tick_params(labelsize=20)
+    plt.yaxis.set_tick_params(labelsize=20)
     plt.title("Stonks Go Zoom")
     plt.grid()
     plt.savefig('figure.png')
