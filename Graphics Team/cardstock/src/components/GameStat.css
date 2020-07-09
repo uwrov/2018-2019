@@ -1,14 +1,25 @@
 .GameStat {
    background-color: #E6E6FA;
    width: 260px;
-   height: 180px;
+   height: 250px;
    position: absolute;
    left: 1000px;
    top: 0px;
    padding: 10px 10px;
 }
 
+.playerBox {
+   display: inline-block;
+   padding: 5px;
+}
 
+.waitingPlayerBox {
+   background-color: white;
+}
+
+.currentPlayerBox {
+   background-color: green;
+}
 
 .BIGBOY {
    font-weight: bold;

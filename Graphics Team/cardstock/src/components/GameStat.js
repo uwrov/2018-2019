@@ -17,6 +17,7 @@ class GameStat extends React.Component {
                   this.getPlayersInfo(this.props.market)
                }
             </ol>
+            <h4>Turn order:</h4>
             {this.renderCurrentTurn()}
          </div>
 
@@ -56,9 +57,19 @@ class GameStat extends React.Component {
       });
    }
 
-   renderCurrentTurn() {
-      return (
-         <h4>It's {this.props.players[this.props.turn_index].name}'s turn!</h4>
+   renderCurrentTurn = () => {
+      let turn = this.props.turn_index
+      return this.props.players.map(function(player, i) {
+            let playerClass = "waitingPlayerBox"
+            if(i === turn) {
+               playerClass = "currentPlayerBox"
+            }
+            return (
+               <div className={"playerBox " + playerClass}>
+                  <span>{player.name}</span>
+               </div>
+            )
+         }
       )
    }
 

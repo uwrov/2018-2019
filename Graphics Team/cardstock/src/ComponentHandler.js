@@ -26,7 +26,7 @@ class ComponentHandler extends React.Component {
          this.state.socket.emit("Previous ID", id);
       }
       this.state.socket.on("ID Confirm", this.setID);
-      this.state.socket.on("Game State", this.checkState);
+      //this.state.socket.on("Game State", this.checkState);
    }
 
    setID = (id) => {
