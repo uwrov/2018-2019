@@ -10,28 +10,24 @@ class Results extends React.Component {
          {
             "id": 0,
             "name": "Chris",
-            "ready": 1,
             "netWorth": 100,
             "rank": 1
          },
          {
             "id": 1,
             "name": "Andrew",
-            "ready": 0,
             "netWorth": 75,
             "rank": 2
          },
          {
             "id": 2,
             "name": "Justin",
-            "ready": 0,
             "netWorth": 50,
             "rank": 3
          },
          {
             "id": 3,
             "name": "Alex",
-            "ready": 0,
             "netWorth": 25,
             "rank": 4
          }
@@ -41,7 +37,7 @@ class Results extends React.Component {
    constructor(props) {
       super(props);
 
-      this.props.socket.on("Player List", this.updatePlayerList);
+      this.props.socket.on("End Results", this.updatePlayerList);
    }
 
    componentDidMount() {
@@ -65,6 +61,10 @@ class Results extends React.Component {
       )
    }
 
+   updatePlayerList = (list) => {
+      this.setState({ playerList: list });
+   }
+   
    rankPlayers(players) {
       let maxNet = 0;
       players.forEach(function(player) {

@@ -2,6 +2,7 @@ import React from 'react';
 import Lobby from './lobby/Lobby.js';
 import MainFrame from './components/MainFrame';
 import Results from './results/Results';
+import "./ComponentHandler.css";
 import Pop from './components/Pop';
 
 class ComponentHandler extends React.Component {
@@ -45,7 +46,7 @@ class ComponentHandler extends React.Component {
 
    render() {
       return (
-         <div>
+         <div className="componentWindow">
             {this.displayGame()}
             {this.displayLobby()}
             {this.displayResults()}

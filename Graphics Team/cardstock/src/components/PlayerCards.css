@@ -17,10 +17,10 @@
 
 .playerCards {
    position: absolute;
-   top: 400px;
-   left: 0px;
-   width: 1000px;
-   height: 300px;
+   bottom: 0%;
+   left: 0%;
+   width: 80%;
+   height: 40%;
    background-color: #FF7F50;
    display: flex;
    justify-content: space-evenly;
