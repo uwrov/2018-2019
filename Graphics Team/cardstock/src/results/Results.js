@@ -52,7 +52,11 @@ class Results extends React.Component {
                   {this.rankPlayers(this.state.playerList)}
                </div>
             </div>
-            <div class="button">Play Again!</div>
+            <div
+               class="button"
+               onClick={() => {this.restart()}}>
+               Play Again!
+            </div>
          </div>
       )
    }
@@ -95,6 +99,10 @@ class Results extends React.Component {
             </div>
          )
       });
+   }
+
+   restart = () => {
+      // function to restart the game
    }
 
 }
