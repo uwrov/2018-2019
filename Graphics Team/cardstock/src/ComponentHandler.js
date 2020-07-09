@@ -2,13 +2,14 @@ import React from 'react';
 import Lobby from './lobby/Lobby.js';
 import MainFrame from './components/MainFrame';
 import Results from './results/Results';
+import "./ComponentHandler.css";
 
 class ComponentHandler extends React.Component {
    state = {
       id: null,
       socket: null,
       gameStart: true,
-      showResults: true
+      showResults: false
    }
 
    constructor(props) {
@@ -43,7 +44,7 @@ class ComponentHandler extends React.Component {
 
    render() {
       return (
-         <div>
+         <div className="componentWindow">
             {this.displayGame()}
             {this.displayLobby()}
             {this.displayResults()}

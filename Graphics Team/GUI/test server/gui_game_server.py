@@ -464,6 +464,7 @@ def test():
     next_turn()
     next_turn()
     next_turn()
+    next_turn()
     sio.run(app, host=HOST_IP, port=HOST_PORT)
     create_stock_graph()
 
