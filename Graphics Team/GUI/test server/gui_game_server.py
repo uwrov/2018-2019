@@ -44,13 +44,15 @@ stock_market = {}
 action_deck = []
 
 playing_game = False
+show_results = False
 
 client_id_generator = 1
 
 BASE_PRICE = 3
-xaxis = []
+xaxis = [0]
 
 stocks_over_time = {}
+end_player_results = []
 
 
 
@@ -111,6 +113,13 @@ class MarketCard:
     def __init__(self):
         self.change_in_stock = {}
 
+class Player_Results:
+    def __init__(self, id, net_worth, rank):
+        self.name = get_player_by_id(id)
+        self.id = id
+        self.net_worth = 0
+        self.rank = 0
+
 # Game Rules
 # Each turn you can buy a stock or a bond
 # Each turn you can sell to the general market or trade with a player
@@ -156,7 +165,7 @@ def shuffle_decks():
 
 
 # resets the Game
-def set_up_game():
+def return_all_cards():
     global stock_graveyard, market_deck, market_cards, action_deck, action_graveyard
     for p in player_list:
         stock_graveyard += p.stock_hand
@@ -182,7 +191,7 @@ def add_player(name, id=-1):
 
 
 def change_stock():
-    global fluctuation_deck, stock_market
+    global fluctuation_deck, stock_market, xaxis
     change_card = fluctuation_deck.pop()
     for name in change_card.change_in_stock:
         stock_market[name] += change_card.change_in_stock[name]
@@ -235,6 +244,7 @@ def sell_card(move):
     global market_cards
     if move >= 0 and move < len(player_list[player_index].stock_hand):
         card = player_list[player_index].stock_hand.pop(move)
+        stock_graveyard.append(card)
         card.update_price(stock_market[card.company])
         player_list[player_index].money += int(card.price)
         return 1;
@@ -267,7 +277,7 @@ def print_market_cards():
 
 def init_stock_record():
     for name in company_names:
-        stocks_over_time[name] = []
+        stocks_over_time[name] = [5]
 
 # API Methods
 
@@ -429,8 +439,8 @@ def create_stock_graph():
         stock = plt.plot(xaxis, stocks_over_time[name], label=name)
     plt.legend(loc='upper left')
     plt.xticks(xaxis)
-    plt.xlabel("Stock Per Turn")
-    plt.ylabel("Stock Price")
+    plt.xlabel("Stock Per Turn", fontsize=20)
+    plt.ylabel("Stock Price", fontsize=20)
     plt.title("Stonks Go Zoom")
     plt.grid()
     plt.savefig('figure.png')
@@ -444,28 +454,56 @@ def init_game():
     player_index = -1
     shuffle_decks()
     init_stock_record()
-    set_up_game()
+    return_all_cards()
     next_turn()
     playing_game = True
 
 def end_game():
     global playing_game
-    playing_game = False
-    send_error("GAME OVER :(")
+    show_results = True
+    calc_results()
+    #send_error("GAME OVER :(")
+    #player_list.clear()
+
+@sio.on("Reset Server")
+def reset_server():
+    return_all_cards()
+    show_results=False
+    playing_game=False
     player_list.clear()
+
+@sio.on("Get Results")
+def send_results():
+    emit("End Results", end_player_results, broadcast=True)
+
+def calc_results():
+    global end_player_results
+    player_net_worth = {}
+    rank = 1
+    for player in player_list:
+        total = 0
+        for stock in player.stock_hand:
+            total = total + stock.update_price()
+        total = total + player.money
+        player_net_worth[player.id] = total
+    sorted_d = dict(sorted(player_net_worth.items(), key=operator.itemgetter(1),reverse=True))
+    for player in sorted_d:
+        end_player_results.append(Player_Results(player, sorted_d[player], rank))
+        rank = rank + 1
+
+
 
 def test():
     create_deck()
     init_stock_record()
     shuffle_decks()
-    set_up_game()
+    return_all_cards()
     next_turn()
     next_turn()
     next_turn()
-    next_turn()
-    next_turn()
-    sio.run(app, host=HOST_IP, port=HOST_PORT)
-    create_stock_graph()
+    #create_stock_graph()
+    #sio.run(app, host=HOST_IP, port=HOST_PORT)
+    #create_stock_graph()
 
 def main():
     create_deck()
