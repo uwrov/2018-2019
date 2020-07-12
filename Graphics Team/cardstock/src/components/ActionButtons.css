@@ -17,15 +17,15 @@
 
 .skipButton:active {
    position: relative;
-   top: 52px;
+   top: 12px;
    background-color: #526d75;
 }
 
 .actionbuttons {
    background-color: #E6E6F9;
    position: absolute;
-   top: 650px;
-   left: 1000px;
-   height: 50px;
-   width: 280px;
+   bottom: 0%;
+   right: 0%;
+   height: 10%;
+   width: 20%;
 }

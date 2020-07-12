@@ -2,6 +2,7 @@ import React from 'react';
 import Lobby from './lobby/Lobby.js';
 import MainFrame from './components/MainFrame';
 import Results from './results/Results';
+import "./ComponentHandler.css";
 import Pop from './components/Pop';
 
 class ComponentHandler extends React.Component {
@@ -10,7 +11,7 @@ class ComponentHandler extends React.Component {
       socket: null,
       gameStart: true,
       showResults: false,
-      pop: true
+      pop: false
    }
 
    constructor(props) {
@@ -26,7 +27,7 @@ class ComponentHandler extends React.Component {
          this.state.socket.emit("Previous ID", id);
       }
       this.state.socket.on("ID Confirm", this.setID);
-      //this.state.socket.on("Game State", this.checkState);
+      this.state.socket.on("Game State", this.checkState);
    }
 
    setID = (id) => {
@@ -36,7 +37,7 @@ class ComponentHandler extends React.Component {
    }
 
    checkState = (data) => {
-      this.setState( {gameStart: data.state} );
+      this.setState( {gameStart: data.state, showResults: data.results} );
    }
 
    componentDidMount(){
@@ -45,7 +46,7 @@ class ComponentHandler extends React.Component {
 
    render() {
       return (
-         <div>
+         <div className="componentWindow">
             {this.displayGame()}
             {this.displayLobby()}
             {this.displayResults()}

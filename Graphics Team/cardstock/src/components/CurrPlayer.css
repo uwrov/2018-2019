@@ -2,8 +2,8 @@
    width: 200px;
    height: 40px;
    position: absolute;
-   top: 640px;
-   left: 860px;
+   bottom: 0%;
+   right: 15%;
    padding: 10px 10px;
    z-index: 100;
    font-weight: bold;
