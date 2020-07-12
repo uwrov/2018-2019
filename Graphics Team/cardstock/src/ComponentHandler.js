@@ -71,7 +71,6 @@ class ComponentHandler extends React.Component {
 
    displayPop() {
       if(this.state.pop)
-         return <Pop socket={this.state.socket} id={this.state.id} />;
          return <Pop socket={this.state.socket} id={this.state.id}
                   pop={this.resumePop}/>;
    }
