@@ -72,6 +72,14 @@ class ComponentHandler extends React.Component {
    displayPop() {
       if(this.state.pop)
          return <Pop socket={this.state.socket} id={this.state.id} />;
+         return <Pop socket={this.state.socket} id={this.state.id}
+                  pop={this.resumePop}/>;
+   }
+
+   resumePop = () => {
+      this.setState({pop: false});
+      // this is supposed to change the pop field to make the pop up screen
+      // disappear, but it is not doing that.
    }
 }
 

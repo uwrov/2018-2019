@@ -13,9 +13,18 @@ class Pop extends React.Component {
             <div class="box">
                <h1 class="message">{this.state.message}</h1>
                <div class="resume">Resume</div>
+               <div
+                  class="resume"
+                  onClick={() => {this.resume()}}>
+                  resume
+               </div>
             </div>
          </div>
       )
+   }
+
+   resume = () => {
+      this.props.pop();
    }
 }
 
