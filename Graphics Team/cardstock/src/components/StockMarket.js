@@ -29,9 +29,12 @@ class StockMarket extends React.Component {
       return (
          <div className="stock_market">
             <img src={this.state.image_src} alt="Stock Graph"/>
-            <ul>
-               {this.renderStocks()}
-            </ul>
+            <div className="stock_text">
+               <h4>Stock Market</h4>
+               <dl>
+                  {this.renderStocks()}
+               </dl>
+            </div>
          </div>
       )
    }
@@ -39,10 +42,10 @@ class StockMarket extends React.Component {
    renderStocks = () => {
       let list = [];
       for(let key in this.props.stock_price) {
-         let detail = (<li>{key}: ${this.props.stock_price[key]}</li>);
+         let detail = (<dt>{key}: ${this.props.stock_price[key]}</dt>);
          list.push(detail);
       }
-      return list
+      return list;
    }
 }
 

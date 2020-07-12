@@ -9,6 +9,7 @@
    border-radius: 10px;
    background-color: #F0E68C;
    padding: 10px 10px;
+   transform: rotateX(30deg) !important;
 }
 
 .playerCard:active {
@@ -24,6 +25,7 @@
    background-color: #FF7F50;
    display: flex;
    justify-content: space-evenly;
+   perspective: 200px;
 
 }
 

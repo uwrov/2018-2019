@@ -6,10 +6,19 @@
    right: 0%;
    top: 40%;
    padding: 1% 1%;
+
 }
 
 .stock_market img {
    border-radius: 10px;
    width: 98%;
    right: 1%;
+}
+
+.stock_text {
+   color: white;
+   background-color: black;
+   padding: 0% 5%;
+   border-style: solid;
+   border-color: white;
 }

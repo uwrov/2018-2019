@@ -15,11 +15,11 @@ class MarketCards extends React.Component {
    renderCards = () => {
       return this.props.market.map((card, index) => {
          return(
-            <Draggable bounds="parent">
+            <Draggable /*bounds="parent"*/>
                <div className="card">
-                  <h2>Company: {card.company}</h2>
-                  <h3># of stocks: {card.amount}</h3>
-                  <h3>Price: {card.price}</h3>
+                  <h3>Company: {card.company}</h3>
+                  <h4># of stocks: {card.amount}</h4>
+                  <h4>Price: {card.price}</h4>
                   <div className="buy" onClick={() => {this.handleBuy(index)}}>
                      BUY
                   </div>

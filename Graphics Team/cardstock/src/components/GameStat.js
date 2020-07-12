@@ -11,14 +11,18 @@ class GameStat extends React.Component {
    render() {
       return (
          <div className="GameStat">
-            <h3>Round number: {this.props.round}</h3>
-            <ol className="players">
-               {
-                  this.getPlayersInfo(this.props.market)
-               }
-            </ol>
-            <h4>Turn order:</h4>
-            {this.renderCurrentTurn()}
+            <div className="board">
+               <h4 style={{color : "white"}}>Round number: {this.props.round}</h4>
+               <dl className="players">
+                  {
+                     this.getPlayersInfo(this.props.market)
+                  }
+               </dl>
+            </div>
+            <div className="turn">
+               <h4 style={{color : "white"}}>Turn order:</h4>
+               {this.renderCurrentTurn()}
+            </div>
          </div>
 
       );
@@ -42,16 +46,21 @@ class GameStat extends React.Component {
       sorter.sort((a, b) => (a[1] > b[1]) ? 1 : -1);
       sorter.reverse();
       return sorter.map(function(player, i) {
-
+         let order = "th";
          if(i === 0) {
             return (
-               <li className="BIGBOY">
-                  {player[0].name}'s net worth: {player[1]}
-               </li>
+               <dt className="BIGBOY">
+                  {"1st: " + player[0].name}'s NW - {player[1]}
+               </dt>
             );
          } else {
+            if ((i + 1) % 10 === 2) {
+               order = "nd";
+            } else if ((i + 1) % 10 === 3) {
+               order = "rd";
+            }
             return (
-               <li>{player[0].name}'s net worth: {player[1]}</li>
+               <dt>{(i + 1) + order + ": " + player[0].name}'s NW - {player[1]}</dt>
             )
          }
       });

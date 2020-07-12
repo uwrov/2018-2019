@@ -21,10 +21,10 @@ class PlayerCards extends React.Component {
 
          return this.props.playerCards.map((card, index) => {
             return (
-               <Draggable bounds="parent">
+               <Draggable /*bounds="parent"*/>
                   <div className="playerCard">
-                     <h2>Company: {card.company}</h2>
-                     <h3># of stocks: {card.amount}</h3>
+                     <h3>Company: {card.company}</h3>
+                     <h4># of stocks: {card.amount}</h4>
                      <div
                         className="sellButton"
                         onClick={() => {this.handleSell(index)}}>

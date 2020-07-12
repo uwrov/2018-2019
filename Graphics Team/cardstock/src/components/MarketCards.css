@@ -8,6 +8,7 @@
    border-style: solid;
    border-radius: 10px;
    padding: 10px 10px;
+   transform: rotateX(30deg) !important;
 }
 
 .card:active {
@@ -23,6 +24,8 @@
    background-color: #5F9EA0;
    display: flex;
    justify-content: space-evenly;
+
+   perspective: 200px;
 }
 
 .buy {
