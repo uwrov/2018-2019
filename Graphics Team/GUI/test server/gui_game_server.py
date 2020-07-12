@@ -121,8 +121,8 @@ class Player_Results:
     def __init__(self, id, net_worth, rank):
         self.name = get_player_by_id(id).name
         self.id = id
-        self.net_worth = 0
-        self.rank = 0
+        self.net_worth = net_worth
+        self.rank = rank
 
 # Game Rules
 # Each turn you can buy a stock or a bond
@@ -227,6 +227,8 @@ def next_turn():
         else:
             player_index = 0
             turn_index += 1
+            if turn_index == MAX_TURNS:
+                send_pop_up("Last Turn!")
             change_stock()
 
         create_stock_graph()
@@ -411,6 +413,9 @@ def end_turn(data):
 def send_error(msg):
     emit("error", {"message": msg })
 
+def send_pop_up(msg):
+    emit("Pop Up", {"message": msg })
+
 @sio.on("Get Game State")
 def send_game_state():
     emit("Game State", {"state": playing_game, "results": show_results}, broadcast=True)
@@ -476,18 +481,13 @@ def calc_results():
     for player in player_list:
         total = 0
         for stock in player.stock_hand:
-<<<<<<< HEAD
-            total = total + stock.update_price(stock_market[stock.company])
-=======
             total = total + int(stock.amount) * int(stock_market[stock.company])
->>>>>>> adfb63f6ff88dff1da754400f068bc9d370c80ff
         total = total + player.money
         player_net_worth[player.id] = total
     sorted_d = dict(sorted(player_net_worth.items(), key=operator.itemgetter(1),reverse=True))
     for player in sorted_d:
         end_player_results.append(Player_Results(player, sorted_d[player], rank))
         rank = rank + 1
-
 
 
 def test():
