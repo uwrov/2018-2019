@@ -51,7 +51,7 @@ show_results = False
 client_id_generator = 1
 
 BASE_PRICE = 3
-xaxis = [0]
+xaxis = [1]
 
 stocks_over_time = {}
 end_player_results = []
@@ -212,7 +212,7 @@ def update_market_card_price():
 def next_turn():
     global market_deck, market_cards, turn_index, player_index
 
-    if turn_index > 10 and player_index >= len(player_list) - 1:
+    if turn_index > 9 and player_index >= len(player_list) - 1:
         end_game()
     else:
         while len(market_cards) < 5:
@@ -495,5 +495,5 @@ def main():
     create_deck()
     sio.run(app, host=HOST_IP, port=HOST_PORT)
 
-#main()
-test()
+main()
+#test()
