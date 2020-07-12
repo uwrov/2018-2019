@@ -16,8 +16,9 @@ class StockMarket extends React.Component {
 
    setImage = (image) => {
       let typed_array = new Uint8Array(image.image);
-      const string_char = String.fromCharCode.apply(null, typed_array);
-      let imageurl = "data:image/png;base64, " + string_char;
+      const data = typed_array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), '');
+      //const string_char = String.fromCharCode.apply(null, typed_array);
+      let imageurl = "data:image/png;base64, " + data;
       this.setState({ image_src: imageurl });
    }
 

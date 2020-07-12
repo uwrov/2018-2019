@@ -37,11 +37,11 @@ class Results extends React.Component {
    constructor(props) {
       super(props);
 
-      this.props.socket.on("End Results", this.updatePlayerList);
+      this.props.socket.on("End Results", this.updateResultsList);
    }
 
    componentDidMount() {
-      this.props.socket.emit("Get Players");
+      this.props.socket.emit("Get Results");
    }
 
    render() {
@@ -61,7 +61,9 @@ class Results extends React.Component {
       )
    }
 
-   updatePlayerList = (list) => {
+   updateResultsList = (list) => {
+      console.log(list);
+      console.log("uwu");
       this.setState({ playerList: list });
    }
 

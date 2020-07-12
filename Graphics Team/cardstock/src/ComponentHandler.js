@@ -37,6 +37,7 @@ class ComponentHandler extends React.Component {
    }
 
    checkState = (data) => {
+      console.log(data);
       this.setState( {gameStart: data.state, showResults: data.results} );
    }
 
