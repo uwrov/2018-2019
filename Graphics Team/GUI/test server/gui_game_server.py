@@ -447,7 +447,6 @@ def end_game():
     global playing_game
     show_results = True
     calc_results()
-    #send_error("GAME OVER :(")
     #player_list.clear()
     send_results()
 
@@ -469,7 +468,7 @@ def calc_results():
     for player in player_list:
         total = 0
         for stock in player.stock_hand:
-            total = total + stock.update_price()
+            total = total + stock.update_price(stock_market[stock.company])
         total = total + player.money
         player_net_worth[player.id] = total
     sorted_d = dict(sorted(player_net_worth.items(), key=operator.itemgetter(1),reverse=True))
