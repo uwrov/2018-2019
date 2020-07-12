@@ -17,6 +17,8 @@ HOST_PORT = "4000"
 DECK_FILE = "deck.txt"
 ACTION_FILE = "action_cards.txt"
 
+MAX_TURNS = 2
+
 app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
 # list of all cards
@@ -33,7 +35,7 @@ player_list = []
 market_cards = []
 
 # what turn it is in the game. ends at turn 10
-turn_index = 0
+turn_index = 1
 # what player's turn it is in the turn
 player_index = -1
 
@@ -51,7 +53,7 @@ show_results = False
 client_id_generator = 1
 
 BASE_PRICE = 3
-xaxis = [0]
+xaxis = [1]
 
 stocks_over_time = {}
 end_player_results = []
@@ -117,10 +119,10 @@ class MarketCard:
 
 class Player_Results:
     def __init__(self, id, net_worth, rank):
-        self.name = get_player_by_id(id)
+        self.name = get_player_by_id(id).name
         self.id = id
-        self.net_worth = 0
-        self.rank = 0
+        self.net_worth = net_worth
+        self.rank = rank
 
 # Game Rules
 # Each turn you can buy a stock or a bond
@@ -212,21 +214,24 @@ def update_market_card_price():
 def next_turn():
     global market_deck, market_cards, turn_index, player_index
 
-    while len(market_cards) < 5:
-        market_cards.append(market_deck.pop(0))
-
-    update_market_card_price()
-
-    if player_index < len(player_list) - 1:
-        player_index += 1
+    if turn_index > MAX_TURNS and player_index >= len(player_list) - 1:
+        end_game()
     else:
-        if turn_index > 10:
-            end_game()
-        player_index = 0
-        turn_index += 1
-        change_stock()
+        while len(market_cards) < 5:
+            market_cards.append(market_deck.pop(0))
 
-    create_stock_graph()
+        update_market_card_price()
+
+        if player_index < len(player_list) - 1:
+            player_index += 1
+        else:
+            player_index = 0
+            turn_index += 1
+            if turn_index == MAX_TURNS:
+                send_pop_up("Last Turn!")
+            change_stock()
+
+        create_stock_graph()
 
 
 def buy_card(move):
@@ -408,13 +413,20 @@ def end_turn(data):
 def send_error(msg):
     emit("error", {"message": msg })
 
+def send_pop_up(msg):
+    emit("Pop Up", {"message": msg })
+
+@sio.on("Get Game State")
+def send_game_state():
+    emit("Game State", {"state": playing_game, "results": show_results}, broadcast=True)
+
 @sio.on("Update Request")
 def send_game_data():
     send_market_cards()
     send_players_data()
     send_stock_market()
     send_player_index()
-    emit("Game State", {"state": playing_game, "results": show_results}, broadcast=True)
+    send_game_state()
 
 @sio.on("Get Stock Graph")
 def create_stock_graph():
@@ -428,10 +440,10 @@ def create_stock_graph():
     plt.title("Stonks Go Zoom", fontsize=20)
     plt.grid()
     plt.savefig('figure.png')
-    plt.show()
+    #plt.show()
     image = open('figure.png', 'rb').read()
     img = base64.b64encode(image);
-    #emit("Stock Graph", {'image': img}, broadcast=True)
+    emit("Stock Graph", {'image': img}, broadcast=True)
 
 def init_game():
     global playing_game, player_index
@@ -443,15 +455,16 @@ def init_game():
     playing_game = True
 
 def end_game():
-    global playing_game
+    global playing_game, show_results
     show_results = True
     calc_results()
-    #send_error("GAME OVER :(")
     #player_list.clear()
-    send
+    send_game_state()
+    send_results()
 
 @sio.on("Reset Server")
 def reset_server():
+    global playing_game, show_results
     return_all_cards()
     show_results=False
     playing_game=False
@@ -459,7 +472,7 @@ def reset_server():
 
 @sio.on("Get Results")
 def send_results():
-    emit("End Results", end_player_results, broadcast=True)
+    emit("End Results", [p.__dict__ for p in end_player_results], broadcast=True)
 
 def calc_results():
     global end_player_results
@@ -468,14 +481,13 @@ def calc_results():
     for player in player_list:
         total = 0
         for stock in player.stock_hand:
-            total = total + stock.update_price()
+            total = total + int(stock.amount) * int(stock_market[stock.company])
         total = total + player.money
         player_net_worth[player.id] = total
     sorted_d = dict(sorted(player_net_worth.items(), key=operator.itemgetter(1),reverse=True))
     for player in sorted_d:
         end_player_results.append(Player_Results(player, sorted_d[player], rank))
         rank = rank + 1
-
 
 
 def test():
@@ -486,13 +498,13 @@ def test():
     next_turn()
     next_turn()
     next_turn()
-    create_stock_graph()
-    #sio.run(app, host=HOST_IP, port=HOST_PORT)
     #create_stock_graph()
+    sio.run(app, host=HOST_IP, port=HOST_PORT)
+    create_stock_graph()
 
 def main():
     create_deck()
     sio.run(app, host=HOST_IP, port=HOST_PORT)
 
-#main()
-test()
+main()
+#test()
