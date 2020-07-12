@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import base64
 import operator
 
-
+#need to disable to use plt.show()
 matplotlib.use('Agg')
 
 HOST_IP = "localhost"
@@ -257,7 +257,6 @@ def sell_card(move):
 
 def print_market_cards():
     for card in market_cards:
-        # print(card.company, card.amount, card.price, end=" ")
         print(card.company + " " + str(card.amount) + " " + str(card.price), end=" | ")
 
 def init_stock_record():
@@ -426,15 +425,13 @@ def create_stock_graph():
     plt.xticks(xaxis)
     plt.xlabel("Stock Per Turn", fontsize=20)
     plt.ylabel("Stock Price", fontsize=20)
-    plt.xaxis.set_tick_params(labelsize=20)
-    plt.yaxis.set_tick_params(labelsize=20)
-    plt.title("Stonks Go Zoom")
+    plt.title("Stonks Go Zoom", fontsize=20)
     plt.grid()
     plt.savefig('figure.png')
-    #plt.show()
+    plt.show()
     image = open('figure.png', 'rb').read()
     img = base64.b64encode(image);
-    emit("Stock Graph", {'image': img}, broadcast=True)
+    #emit("Stock Graph", {'image': img}, broadcast=True)
 
 def init_game():
     global playing_game, player_index
@@ -489,7 +486,7 @@ def test():
     next_turn()
     next_turn()
     next_turn()
-    #create_stock_graph()
+    create_stock_graph()
     #sio.run(app, host=HOST_IP, port=HOST_PORT)
     #create_stock_graph()
 
@@ -497,5 +494,5 @@ def main():
     create_deck()
     sio.run(app, host=HOST_IP, port=HOST_PORT)
 
-main()
+#main()
 test()
