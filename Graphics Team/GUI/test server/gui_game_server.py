@@ -33,7 +33,7 @@ player_list = []
 market_cards = []
 
 # what turn it is in the game. ends at turn 10
-turn_index = 0
+turn_index = 1
 # what player's turn it is in the turn
 player_index = -1
 
@@ -212,21 +212,22 @@ def update_market_card_price():
 def next_turn():
     global market_deck, market_cards, turn_index, player_index
 
-    while len(market_cards) < 5:
-        market_cards.append(market_deck.pop(0))
-
-    update_market_card_price()
-
-    if player_index < len(player_list) - 1:
-        player_index += 1
+    if turn_index > 10 and player_index >= len(player_list) - 1:
+        end_game()
     else:
-        if turn_index > 10:
-            end_game()
-        player_index = 0
-        turn_index += 1
-        change_stock()
+        while len(market_cards) < 5:
+            market_cards.append(market_deck.pop(0))
 
-    create_stock_graph()
+        update_market_card_price()
+
+        if player_index < len(player_list) - 1:
+            player_index += 1
+        else:
+            player_index = 0
+            turn_index += 1
+            change_stock()
+
+        create_stock_graph()
 
 
 def buy_card(move):
@@ -428,10 +429,10 @@ def create_stock_graph():
     plt.title("Stonks Go Zoom", fontsize=20)
     plt.grid()
     plt.savefig('figure.png')
-    plt.show()
+    #plt.show()
     image = open('figure.png', 'rb').read()
     img = base64.b64encode(image);
-    #emit("Stock Graph", {'image': img}, broadcast=True)
+    emit("Stock Graph", {'image': img}, broadcast=True)
 
 def init_game():
     global playing_game, player_index
@@ -486,9 +487,9 @@ def test():
     next_turn()
     next_turn()
     next_turn()
-    create_stock_graph()
-    #sio.run(app, host=HOST_IP, port=HOST_PORT)
     #create_stock_graph()
+    sio.run(app, host=HOST_IP, port=HOST_PORT)
+    create_stock_graph()
 
 def main():
     create_deck()
