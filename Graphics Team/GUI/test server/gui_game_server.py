@@ -449,7 +449,7 @@ def end_game():
     calc_results()
     #send_error("GAME OVER :(")
     #player_list.clear()
-    send
+    send_results()
 
 @sio.on("Reset Server")
 def reset_server():
