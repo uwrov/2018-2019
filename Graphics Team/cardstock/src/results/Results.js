@@ -10,25 +10,25 @@ class Results extends React.Component {
          {
             "id": 0,
             "name": "Chris",
-            "netWorth": 100,
+            "net_worth": 100,
             "rank": 1
          },
          {
             "id": 1,
             "name": "Andrew",
-            "netWorth": 75,
+            "net_worth": 75,
             "rank": 2
          },
          {
             "id": 2,
             "name": "Justin",
-            "netWorth": 50,
+            "net_worth": 50,
             "rank": 3
          },
          {
             "id": 3,
             "name": "Alex",
-            "netWorth": 25,
+            "net_worth": 25,
             "rank": 4
          }
       ]
@@ -70,8 +70,8 @@ class Results extends React.Component {
    rankPlayers(players) {
       let maxNet = 0;
       players.forEach(function(player) {
-         if(player.netWorth > maxNet) {
-            maxNet = player.netWorth;
+         if(player.net_worth > maxNet) {
+            maxNet = player.net_worth;
          }
       });
       return players.map(function(player) {
@@ -90,13 +90,13 @@ class Results extends React.Component {
             <div class="stats">
                <p class="winner">{message}</p>
                <div class="bar" style={{
-                  height : (player.netWorth / maxNet) * 280 + "px",
+                  height : (player.net_worth / maxNet) * 280 + "px",
                   // attempting to adjust the bar appearance depending on the rank of the player
                   //filter : "opacity(" + (1 - (player.rank - 1) / players.size) * 100 + "%)"
                }}></div>
                <div class="profile">
                   <p>{rank}: {player.name}</p>
-                  <p>NW: {player.netWorth}</p>
+                  <p>Net: {player.net_worth}</p>
                </div>
             </div>
          )
