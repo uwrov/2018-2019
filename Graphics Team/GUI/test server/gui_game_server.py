@@ -469,6 +469,7 @@ def reset_server():
     show_results=False
     playing_game=False
     player_list.clear()
+    send_game_state()
 
 @sio.on("Get Results")
 def send_results():
