@@ -70,7 +70,6 @@ class Lobby extends React.Component {
    }
 
    createPlayer = () => {
-      console.log("create: " + this.state.name);
       if(this.state.id !== null) {
          this.props.socket.emit("Create Player", {"id": this.props.id, "name": this.state.name});
       } else {

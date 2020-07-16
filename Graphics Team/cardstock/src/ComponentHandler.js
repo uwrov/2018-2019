@@ -11,7 +11,8 @@ class ComponentHandler extends React.Component {
       socket: null,
       gameStart: true,
       showResults: false,
-      pop: false
+      pop: false,
+      message: ""
    }
 
    constructor(props) {
@@ -28,16 +29,16 @@ class ComponentHandler extends React.Component {
       }
       this.state.socket.on("ID Confirm", this.setID);
       this.state.socket.on("Game State", this.checkState);
+      this.state.socket.on("Pop Up", this.updatePop)
+      this.state.socket.on("error", this.updatePop)
    }
 
    setID = (id) => {
       window.localStorage.setItem("id", id);
-      console.log("id: " + id);
       this.setState( { "id": id } );
    }
 
    checkState = (data) => {
-      console.log(data);
       this.setState( {gameStart: data.state, showResults: data.results} );
    }
 
@@ -74,13 +75,18 @@ class ComponentHandler extends React.Component {
    displayPop() {
       if(this.state.pop)
          return <Pop socket={this.state.socket} id={this.state.id}
-                  pop={this.resumePop}/>;
+                  pop={this.resumePop} message={this.state.message}/>;
    }
 
    resumePop = () => {
       this.setState({pop: false});
       // this is supposed to change the pop field to make the pop up screen
       // disappear, but it is not doing that.
+   }
+
+   updatePop = (data) => {
+      console.log(data);
+      this.setState({pop: true, message: data.message})
    }
 }
 

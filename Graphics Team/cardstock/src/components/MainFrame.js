@@ -86,7 +86,6 @@ class MainFrame extends React.Component {
             this.setState({"index": i});
          }
       }
-      console.log(data);
    }
 
    updateEverything = (data) => {
@@ -122,20 +121,15 @@ class MainFrame extends React.Component {
    }
 
    buyStock = (index) => {
-      console.log("Stock Bought");
-      console.log("Bought: " + this.state.current_market[index]);
       this.socket.emit("Buy Card", {"id": this.props.id, "target": index });
    }
 
    sellStock = (index) => {
-      console.log("Stock Sold");
-      console.log("Sold: " + this.state.players[this.state.index].stock_hand[index]);
       this.socket.emit("Sell Card", {"id": this.props.id, "target": index });
    }
 
    //End Turn
    endTurn = () => {
-      console.log("Turn Skipped");
       this.socket.emit("End Turn", { "id": this.props.id});//default for skip turn
 
    }

@@ -7,6 +7,11 @@ class Pop extends React.Component {
       //change message if: error when buying card, last turn
    }
 
+   constructor(props) {
+      super(props);
+      this.state.message = props.message;
+   }
+
    render() {
       return (
          <div>

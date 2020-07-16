@@ -62,8 +62,6 @@ class Results extends React.Component {
    }
 
    updateResultsList = (list) => {
-      console.log(list);
-      console.log("uwu");
       this.setState({ playerList: list });
    }
 

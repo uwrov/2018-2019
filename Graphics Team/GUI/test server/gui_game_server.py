@@ -17,7 +17,7 @@ HOST_PORT = "4000"
 DECK_FILE = "deck.txt"
 ACTION_FILE = "action_cards.txt"
 
-MAX_TURNS = 2
+MAX_TURNS = 10
 
 app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
@@ -214,7 +214,7 @@ def update_market_card_price():
 def next_turn():
     global market_deck, market_cards, turn_index, player_index
 
-    if turn_index > MAX_TURNS and player_index >= len(player_list) - 1:
+    if turn_index > (MAX_TURNS - 1) and player_index >= len(player_list) - 1:
         end_game()
     else:
         while len(market_cards) < 5:
@@ -414,7 +414,8 @@ def send_error(msg):
     emit("error", {"message": msg })
 
 def send_pop_up(msg):
-    emit("Pop Up", {"message": msg })
+    print("POPPING UP!")
+    emit("Pop Up", {"message": msg }, broadcast=True)
 
 @sio.on("Get Game State")
 def send_game_state():
@@ -430,7 +431,10 @@ def send_game_data():
 
 @sio.on("Get Stock Graph")
 def create_stock_graph():
-    plt.close()
+    try:
+        plt.close()
+    except Exception as e:
+        print()
     for name in stocks_over_time:
         stock = plt.plot(xaxis, stocks_over_time[name], label=name)
     plt.legend(loc='upper left')
@@ -446,7 +450,8 @@ def create_stock_graph():
     emit("Stock Graph", {'image': img}, broadcast=True)
 
 def init_game():
-    global playing_game, player_index
+    global playing_game, player_index, turn_index
+    turn_index = 1
     player_index = -1
     shuffle_decks()
     init_stock_record()
@@ -464,14 +469,15 @@ def end_game():
 
 @sio.on("Reset Server")
 def reset_server():
-    global playing_game, show_results
+    global playing_game, show_results, xaxis, stocks_over_time
     return_all_cards()
     show_results=False
     playing_game=False
     player_list.clear()
     end_player_results.clear()
-    plt.clear()
-    send_game_state()
+    xaxis = [1]
+    stocks_over_time = {}
+    send_game_data()
 
 @sio.on("Get Results")
 def send_results():
