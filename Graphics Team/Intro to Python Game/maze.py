@@ -1,4 +1,3 @@
-import numpy as np
 import os
 import time
 import queue
@@ -9,6 +8,13 @@ Compass = {
     "South": 2,
     "West": 3
 }
+
+
+def to_matrix(maze):
+    matrix = []
+    for s in maze:
+        matrix.append(list(s))
+    return matrix
 
 
 class Maze:
@@ -56,35 +62,15 @@ class Maze:
                             print(self.maze[y][x], end=" ")
                     print()
 
-    def update_maze(self):
-        if self.is_running:
-            for y in range(0, len(self.maze)):
-                if self.is_running:
-                    for x in range(0, len(self.maze[y])):
-                        if self.player.x == x and self.player.y == y:
-                            if self.maze[y][x] == "1":
-                                self.is_running = False
-                                break
-                            elif self.maze[y][x] == "E":
-                                self.is_running = False
-                                break
 
     def update(self):
         if self.is_running:
-            self.player.BFS([
+            self.player.bfs([
                 self.maze[self.player.y - 1][self.player.x],
                 self.maze[self.player.y][self.player.x + 1],
                 self.maze[self.player.y + 1][self.player.x],
                 self.maze[self.player.y][self.player.x - 1]
             ])
-    def get_neighbors(self):
-        return [self.maze[self.player.y - 1][self.player.x],
-                self.maze[self.player.y][self.player.x + 1],
-                self.maze[self.player.y + 1][self.player.x],
-                self.maze[self.player.y][self.player.x - 1]
-               ]
-
-
 
 class Player:
     solutionPath = queue.Queue()
@@ -93,7 +79,7 @@ class Player:
         self.y = y
         self.history = []
         self.lastMove = 0
-        # solutionPath = self.findPath(Maze().update())
+        self.path = None
 
     def display_player(self):
         return 'P'
@@ -136,10 +122,6 @@ class Player:
             self.x -= 1
             self.history.append("W")
             self.lastMove = Compass["West"]
-
-
-
-
 
     def bad_solve(self, directions):
         north = directions[0]
@@ -187,70 +169,72 @@ class Player:
                     self.x += 1
                     self.history.append("E")
 
-    def findPath(self,directions):
-        maze = Maze()
+    def bfs(self, directions):
+        if self.path is None:
+            self.path = list(BFS().solution_moves)
+        move = self.path.pop(0)
+        if move == 'N':
+            self.y -= 1
+            self.history.append("N")
+        elif move == 'E':
+            self.x += 1
+            self.history.append("E")
+        elif move == 'S':
+            self.y += 1
+            self.history.append("S")
+        elif move == 'W':
+            self.x -= 1
+            self.history.append("W")
+
+
+class BFS:
+    def __init__(self):
+        self.player = Player()
+        self.maze = to_matrix(Maze().maze)
+        self.solution_moves = None
+        self.find_path()
+
+    def find_path(self):
         nums = queue.Queue()
-        path = queue.Queue()
-        path.put("")
         nums.put("")
         add = ""
-        add2 = ""
-        while maze.is_running:
+        the_maze = self.maze
+        while not self.is_end(the_maze, add):
             add = nums.get()
-            print("add"+add)
-            add2 = path.get()
-            print("add2"+add2)
-            count = 0
-            for p in directions:
-                if p == ' ' or p == 'E':
-                    put = add + p
-                    put2 = add2 + self.get_direction(count)
-                    print("put" + put)
-                    print("put2"+put2)
+            for j in ["N", "E", "S", "W"]:
+                put = add + j
+                if self.is_valid(the_maze, put):
                     nums.put(put)
-                    path.put(put)
-                    self.get_move(count)
-                    maze.get_neighbors()
-                    maze.update_maze()
-                count += 1
-        return path
 
-    def BFS(self, directions):
-        global solutionPath
-        solutionPath = self.findPath(directions)
-        print(solutionPath)
-        for p in solutionPath:
-            if p == 'N':
-                self.y -= 1
-                self.history.append("N")
-            elif p == Compass["East"]:
-                self.x += 1
-                self.history.append("E")
-            elif p == 'S':
-                self.y += 1
-                self.history.append("S")
-            elif p == 'W':
-                self.x -= 1
-                self.history.append("W")
+    def is_valid(self, maze, moves):
+        i, j = self.get_location(maze, moves)
+        if not (0 <= i < len(maze[0]) and 0 <= j < len(maze)):
+            return False
+        elif maze[j][i] == "1":
+            return False
+        return True
 
-    def get_direction(self, count):
-        if count == 0:
-            return 'N'
-        elif count == 1:
-            return 'E'
-        elif count == 2:
-            return 'S'
-        else:
-            return 'W'
-    def get_move(self, count):
-        if count == 0:
-            self.y -= 1
-        elif count == 1:
-            self.x += 1
-        elif count == 2:
-            self.y += 1
-        else:
-            self.x -= 1
+    def is_end(self, maze, moves):
+        i, j = self.get_location(maze, moves)
+        if maze[j][i] == "E":
+            print("Found: " + moves)
+            self.solution_moves = list(moves)
+            return True
+        return False
+
+    def get_location(self, maze, moves):
+        i = self.player.x
+        j = self.player.y
+        for move in moves:
+            if move == "W":
+                i -= 1
+            elif move == "E":
+                i += 1
+            elif move == "N":
+                j -= 1
+            elif move == "S":
+                j += 1
+        return i, j
 
 def main():
     maze = Maze()
