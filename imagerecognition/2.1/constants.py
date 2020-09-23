@@ -1,5 +1,6 @@
+""" Contains a few constants our solution uses
+"""
 from enum import Enum
-
 
 class InBoundTol(Enum):
     LOWER_BOUND = 0

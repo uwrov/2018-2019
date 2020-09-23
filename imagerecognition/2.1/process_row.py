@@ -1,21 +1,30 @@
+"""Process a single row of the reef
+
+# --- Process an image to find a grid
+# --- Explore each of the cells found in the grid
+"""
 import numpy as np
 from imutils import contours
 import cv2
 from constants import CntSizeTol as size_tols
-
-# Hi! This script will
-# --- Process an image to find a grid
-# --- Explore each of the cells found in the grid
-
 
 def main():
     img = cv2.imread('images/section_obj.png')
     process_row(img)
 
 
-# Takes in a row, returns a list of cells in the row
-# cells[0] is leftmost cell, cells[2] is rightmost cell
+
 def process_row(img):
+    """Separates cells within the same row
+
+    Args:
+        img: image of the row which this function will segment
+
+    Returns:
+        A list of images called cells of length 3.
+        cells[0] -> leftmost cell
+        cells[2] -> rightmost cell
+    """
     # === process images and isolate contents of cells ===
     grid = isolate_grid_lines(img)
     grid = fix_lines(grid)
@@ -31,6 +40,7 @@ def process_row(img):
 
 
 # Returns dict full of color bounds
+# Move to constants?
 def _get_bounds():
     return {
         'pink': [np.array([130, 25, 160]), np.array([170, 255, 255])],
@@ -39,8 +49,16 @@ def _get_bounds():
     }
 
 
-# Returns color-masked image, with colors defined in get_bounds
 def isolate_grid_lines(img):
+    """
+    Returns color-masked image, with colors defined in get_bounds
+
+    Args:
+        img: image to run cv on
+
+    Returns:
+        An image with only pink, blue, and yellow
+    """
     # convert rgb image to hsv for color isolation
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     bounds = _get_bounds()
@@ -54,16 +72,24 @@ def isolate_grid_lines(img):
     return sum(masks.values())
 
 
-# Helper method which creates color masks of an hsv encoded image
 def _make_mask(lower, upper, hsv):
+    # I'm lazy okay
     mask = cv2.inRange(hsv, lower, upper)
 
     return cv2.GaussianBlur(mask, (3, 3), 0)
 
 
-# Repairs gaps in grid lines,
-# not perfect but increases tolerance of box recognition
 def fix_lines(img):
+    """Repair small gaps in grid lines
+
+    Not perfect but slightly increases tolerance of box recognition
+
+    Args:
+        img: image to repair
+    
+    Returns:
+        A slightly repaired image
+    """
     # Fixes horizontal and vertical lines
     # TODO: Find appropriate iteration amount which isn't magic
     vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 5))
@@ -78,6 +104,16 @@ def fix_lines(img):
 
 # Returns a list of contours of the cells in the row
 def identify_cells(img, grid):
+    """Separates and packages the cells in a row
+
+    Args:
+        img: raw image
+        grid: masked image from isolate_grid_lines
+
+    Returns:
+        A list of cells. The cells are snipped from img,
+        using grid to inform how cells are differentiated.
+    """
     # Find the contours of the image
     invert = 255 - grid.copy()
     cnts = cv2.findContours(invert, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_KCOS)

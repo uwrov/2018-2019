@@ -1,3 +1,8 @@
+"""Keeps ROV path straight
+
+Will detect angle between blue rail and vertical center of frame,
+then tell control to correct the angle if outside of a given tolerance
+"""
 import cv2
 import numpy as np
 
@@ -5,8 +10,20 @@ import numpy as np
 # then it will find the angle between the vertical
 # and a blue line displayed on screen.
 
+# TODO: Refactor code to make easier to be called on externally,
+#       Consider merging with control_height.py?
 
 def course_correct(frame, tol):
+    """Corrects ROV course based on cv
+
+    Args:
+        frame: current frame the camera is sending
+        tol: tolerance (in degrees) we are willing to not course correct on
+
+    Effects:
+        will publish to /surface/task21/angle with instructions on how
+        to correct the course of the ROV when applicable.
+    """
     angle = find_angle(frame, False)
 
     if angle < 0 - tol:
@@ -18,7 +35,16 @@ def course_correct(frame, tol):
 
 
 def find_angle(frame, deg):
-    width, height, _ = frame.shape
+    """Finds the angle between blue rail and central vertical
+
+    Args:
+        frame: image frame which contains the blue rails
+        deg: Outputs in degrees when true, radians otherwise
+
+    Returns:
+        A number representing the angle between one of the
+        blue rails and the vertical
+    """
 
     # convert rgb image to hsv for color isolation
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)

@@ -1,29 +1,39 @@
+"""Isolates rows of the coral reef as video feed goes on
+
+This should be one of the drivers of the process
+Consider running with a lower framerate
+
+Hello, currently this script will :
+-- Isolate and draw Pink Lines
+-- Identify what kind of lines a pink line is (vertical vs horizontal)
+-- Define what we want the increment barrier to be
+"""
+
 import cv2
 import numpy as np
 from constants import InBoundTol as bound_tols
 
-# Hello, currently this script will :
-# -- Isolate and draw Pink Lines
-# -- Identify what kind of lines a pink line is (vertical vs horizontal)
-# -- Define what we want the increment barrier to be
-
 
 def main():
     # process_vid()
-    rows = find_row('images/section.png')
+    img = cv2.imread('images/section.png')
+    isRow = find_row(img)
 
-    for row in rows:
-        cv2.imshow('a', row)
-        cv2.waitKey()
+    print(isRow)
 
-    cv2.destroyAllWindows()
+    cv2.imshow(img)
+    cv2.waitKey()
+
+    cv2.destroyAllWindows()    
 
 
 def process_feed(src):
+    """Driver used for testing
+    """
     cam = cv2.VideoCapture(src)
 
     while(True):
-        ret, frame = cam.read()
+        _, frame = cam.read()
 
         # Using this requries some slight modification in process_img
         rows = []
@@ -42,8 +52,15 @@ def process_feed(src):
     cv2.destroyAllWindows()
 
 
-def find_row(filename='images/raw_grid.png'):
-    img = cv2.imread(filename)
+def find_row(img):
+    """Identifies if there is a row contained within the given image frame
+
+    Args:
+        img: image to check if a row is contained inside
+    
+    Returns:
+        True when image is a new row, false otherwise
+    """
     height, width, _ = img.shape
     theta_tol = 0.01
     top = find_grid(img[0:height//2, 0:width], theta_tol)
@@ -61,8 +78,7 @@ def find_row(filename='images/raw_grid.png'):
 
     # if both are in bound, then we are looking at a new row,
     # pass back this row up to the top
-    if top_at_bound and bot_at_bound:
-        yield img
+    return top_at_bound and bot_at_bound
 
 
 # Draws all polar lines in a given collection onto
@@ -82,8 +98,17 @@ def draw_lines(lines, img, color, width=2):
         cv2.line(img, (x1, y1), (x2, y2), color, width)
 
 
-# returns a list of the pink mason lines found in the given image/frame
 def find_grid(img, tol, offset=0):
+    """Isolates the pink gridlines which separate cells
+
+    Args:
+        img: image to search through
+        tol: how similar we are willing the lines to be
+        offset: correction we need to apply to get lines in correct place
+
+    Returns:
+        List of pink mason lines found in image
+    """
     # convert rgb image to hsv for color isolation
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -160,10 +185,13 @@ def find_grid(img, tol, offset=0):
         return filtered_lines
 
 
-# returns true if one line in a given collection is
-# an expected distance away from a specified y-coordinate,
-# within a given tolerance
+
 def check_bound(lines, expected, frame_end, tol=[0, 10]):
+    """
+    returns true if one line in a given collection is
+    an expected distance away from a specified y-coordinate,
+    within a given tolerance
+    """
     for line in lines:
         rho, _ = line[0]
         actual = abs(rho - frame_end)

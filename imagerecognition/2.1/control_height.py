@@ -1,8 +1,19 @@
+"""Keeps ROV at fixed height above the coral reef
+
+Finds the two blue rails and attempts to ensure they
+are always at the same distance from each other.
+
+Should probably be run in its own thread
+"""
+
+# TODO: Refactor code to make it easier to be called on externally
+
 import cv2
 import numpy as np
 
 
 def main():
+    # Use this for testing!
     # Grab video feed from source
     cap = cv2.VideoCapture("http://10.18.223.105:8080/video/mjpeg")
 
@@ -37,7 +48,14 @@ def main():
             break
 
         
-def rect_on_blue(mask, img):        
+def rect_on_blue(mask, img):
+    """
+    Args:
+        mask:
+        img:
+
+    Returns:
+    """    
     bluecnts = cv2.findContours(mask.copy(),
                         cv2.RETR_EXTERNAL,
                         cv2.CHAIN_APPROX_SIMPLE)[-2]
@@ -56,27 +74,7 @@ def rect_on_blue(mask, img):
         else:
             print ('true')    
     
-    return img
-
-
-
-
-    
-            
-        
-
-        
-
-    
-        # if len(bluecnts) > 0:
-        #     blue_area = max(bluecnts, key=cv2.contourArea)
-        #     x, y, w, h = cv2.boundingRect(blue_area)
-        #     cv2.line(frame, (x, y+h//2), (x+w, y+h//2), (0,255,0), 2)
-        #     cv2.rectangle(frame, (x, y), (x+w, y+h), (0,255,0), 2)
-        
-
-                
-
+    return img           
 
 
 if __name__ == '__main__':
