@@ -42,7 +42,7 @@ def process_feed(src):
     cv2.destroyAllWindows()
 
 
-def find_row(filename='raw_grid.png'):
+def find_row(filename='images/raw_grid.png'):
     img = cv2.imread(filename)
     height, width, _ = img.shape
     theta_tol = 0.01
@@ -50,7 +50,7 @@ def find_row(filename='raw_grid.png'):
     bot = find_grid(img[height//2:height, 0:width], theta_tol, height//2)
 
     # put lines on the image (for visual confirmation)
-    # draw_lines(top + bot, img, (0, 0, 255))
+    draw_lines(top + bot, img, (0, 0, 255))
 
     # check if we are looking at a new row
     expected = height//6  # TODO: find a new way to see expected height

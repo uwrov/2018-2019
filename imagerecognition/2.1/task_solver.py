@@ -14,7 +14,7 @@ def main():
 
     # run video until we have gathered all rows
     while(True):
-        ret, frame = cam.read()
+        _, frame = cam.read()
 
         # ====== Ensure that ROV is on track =====
         course_correct(frame, 10)

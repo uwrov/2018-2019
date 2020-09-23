@@ -9,10 +9,12 @@ from constants import CntSizeTol as size_tols
 
 
 def main():
-    img = cv2.imread('images/section.png')
+    img = cv2.imread('images/section_obj.png')
     process_row(img)
 
 
+# Takes in a row, returns a list of cells in the row
+# cells[0] is leftmost cell, cells[2] is rightmost cell
 def process_row(img):
     # === process images and isolate contents of cells ===
     grid = isolate_grid_lines(img)
@@ -93,7 +95,7 @@ def identify_cells(img, grid):
             rect = cv2.boundingRect(c)
             x, y, w, h = rect
 
-            cells.append(img[y:y+h, x:x+h])
+            cells.append(img[y:y+h, x:x+w])
 
     return cells
 

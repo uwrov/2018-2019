@@ -7,5 +7,5 @@ class InBoundTol(Enum):
 
 
 class CntSizeTol(Enum):
-    LOWER_BOUND = 8600
+    LOWER_BOUND = 15000
     UPPER_BOUND = 150000
