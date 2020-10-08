@@ -29,7 +29,7 @@ def trim_to_size(img1, img2):
     img2 = cv2.resize(img2, (h_min,w_min))
     return img1, img2
 
-# align the before and after picture to make suref
+# align the before and after picture to make sure
 # they are in the same orientation when comparing
 # color
 def alignImages(align, ref):
@@ -105,35 +105,60 @@ def drawing_bounding_boxes(x, y, w, h, tp, img):
     return img
 
 # THESE IMAGES MUST BE IN GRAYSCALE!!
-#
 def classify_change_types(ref_w, ref_p, new_w, new_p, img2):
-    scale = 2
-    # Masks of areas where there is coral
+    scale = 2 #I don't think this is ever used
+
+    # "stitches" white and pink parts into a full coral image
     ref_wp = cv2.bitwise_or(ref_w, ref_p)
     new_wp = cv2.bitwise_or(new_w, new_p)
-
     cv2.imshow("ref_wp", ref_wp)
-    #cv2.imshow("new_wp", new_wp)
-    # Get masks of background color (areas where there is no pink/white)
-    ref_b = cv2.bitwise_not(ref_wp) # white = background color
-    new_b = cv2.bitwise_not(new_wp)
+    cv2.imshow("new_wp", new_wp)
 
+    # inverts the "stitched" images
+    # white = background color
+    ref_b = cv2.bitwise_not(ref_wp) #never actually used
+    new_b = cv2.bitwise_not(new_wp)
+    cv2.imshow("ref_b", ref_b)
     cv2.imshow("new_b", new_b)
-    
-    # Growth: New pink/white in ref background areas
+
+    # Growth
+    # white in any place coral has ever existed
+    # combines new and old coral to have one big happy coral
     growth = cv2.bitwise_or(new_wp, ref_wp)
+    cv2.imshow("growth", growth)
+    # where old and "growth" differ
+    # filters out any lack of change
+    # white where growth occured
     shiftedGrowth = cv2.bitwise_xor(ref_wp, growth)
     shiftedGrowth = cv2.GaussianBlur(shiftedGrowth, (5, 5), 0)
-    
-    # Damage: New background in ref pink/white
+
+    # Note: the above process for determining growth seems a bit convoluted
+    # I think we can just do the opposite of "damage"
+    # new_growth = cv2.bitwise_and(ref_b, new_wp)
+    # cv2.imshow("growth?", new_growth)
+    # This appears to have the same result as above
+
+    # Damage
+    # compares inverted new coral and regular old coral
+    # white in places where damage occured
     damage = cv2.bitwise_and(new_b, ref_wp)
 
-    # Bleaching: New white in ref pink
+    # Bleaching
+    # compares new white coral and old pink coral
+    # white where bleaching occured
     bleaching = cv2.bitwise_and(new_w, ref_p)
 
-    # Recovery: New pink in ref white
+    # Recovery
+    # compares new pink coral and old white coral
+    # white where recovery occured
     recovery = cv2.bitwise_and(new_p, ref_w)
-    
+
+    # Drawing bounding boxes
+    # I think that the boxes are drawn according to the tiny reference images provided
+    # but they're drawn on a big final image so things look wonky
+    # it also only works for recovery (and possibly damage since there's none of that in this example)
+    # but I think that's because the other images weren't very distinct in where growth/damage occured
+
     ret, thresh = cv2.threshold(shiftedGrowth, 127, 255, 0)#growth
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
@@ -145,8 +170,8 @@ def classify_change_types(ref_w, ref_p, new_w, new_p, img2):
         if(h/w > 1 and h/w < 2 and area > 2000):
             img2 = drawing_bounding_boxes(x, y, w, h, 'growth', img2)
     cv2.imshow('shiftedGrowth', shiftedGrowth)
-    
-    ret, thresh = cv2.threshold(damage, 127, 255, 0)
+
+    ret, thresh = cv2.threshold(damage, 127, 255, 0)#damage
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     damage = cv2.cvtColor(damage, cv2.COLOR_GRAY2BGR)
@@ -155,9 +180,9 @@ def classify_change_types(ref_w, ref_p, new_w, new_p, img2):
         area = cv2.contourArea(c)
         if(h/w > 1 and h/w < 2 and area > 2000):
             img2 = drawing_bounding_boxes(x, y, w, h, 'damage', img2)
-    #cv2.imshow("damage", damage)
+    cv2.imshow("damage", damage)
 
-    ret, thresh = cv2.threshold(bleaching, 127, 255, 0)
+    ret, thresh = cv2.threshold(bleaching, 127, 255, 0)#bleaching
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     bleaching = cv2.cvtColor(bleaching, cv2.COLOR_GRAY2BGR)
@@ -166,9 +191,9 @@ def classify_change_types(ref_w, ref_p, new_w, new_p, img2):
         area = cv2.contourArea(c)
         if(h/w > 1 and h/w < 5):
             img2 = drawing_bounding_boxes(x, y, w, h, 'bleaching', img2)
-    #cv2.imshow("bleaching", bleaching)
+    cv2.imshow("bleaching", bleaching)
 
-    ret, thresh = cv2.threshold(recovery, 127, 255, 0)
+    ret, thresh = cv2.threshold(recovery, 127, 255, 0)#recovery
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     recovery = cv2.cvtColor(recovery, cv2.COLOR_GRAY2BGR)
@@ -177,30 +202,44 @@ def classify_change_types(ref_w, ref_p, new_w, new_p, img2):
         area = cv2.contourArea(c)
         if(h/w > 1 and h/w < 5):
             img2 = drawing_bounding_boxes(x, y, w, h, 'recovery', img2)
-    #cv2.imshow("recovery", recovery)
-    cv2.imshow('new_wp', img2)
+    cv2.imshow("recovery", recovery)
 
-img1 = cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/coral1_mod.png")
-img2 = cv2.imread("/home/margot/Documents/2018-2019/imagerecognition/images/coral2.PNG")
+    cv2.imshow('final', img2)
+
+# get images
+img1 = cv2.imread("old_coral.png")
+img2 = cv2.imread("new_coral.png")
+# resize images
 img1, img2 = trim_to_size(img1, img2)
-cv2.imshow("image1", resize(img1, 480))
-cv2.imshow("image2", resize(img2, 480))
+# show resized images
+#cv2.imshow("image1", resize(img1, 480))
+#cv2.imshow("image2", resize(img2, 480))
 
+# realign second image to better compare with first image
 img2_aligned = alignImages(img2, img1)
-cv2.imshow("aligned 2", resize(img2_aligned, 480))
+# show realigned image
+#cv2.imshow("aligned 2", resize(img2_aligned, 480))
 
+# resize realigned image
+# this is the big final image that the bounding boxes will be drawn on
 res = cv2.resize(img2_aligned,(820,710), interpolation = cv2.INTER_LINEAR)
 
+# converts the corals to black and white images,
+# with either the white part or the pink part
+# displayed as white and the rest blacked out
 img1_w, img1_p = binarization(img1)
 img2_w, img2_p = binarization(img2_aligned)
 new_wp = cv2.bitwise_or(img2_w, img2_p)
 new_wp  = cv2.cvtColor(new_wp, cv2.COLOR_GRAY2BGR)
+# white coral shown
 cv2.imshow("img1_w", img1_w)
 cv2.imshow("img2_w", img2_w)
+# pink coral shown
 cv2.imshow("img1_p", img1_p)
 cv2.imshow("img2_p", img2_p)
 
-
+# determine any changes between the first and second images
+# and draw bounding boxes on final image
 classify_change_types(img1_w, img1_p, img2_w, img2_p, res) #Use this to test the new input
 #classify_change_types(img3, img4, img5, img6) #Use this to test using sample input
 
