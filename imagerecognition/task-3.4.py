@@ -158,6 +158,7 @@ def classify_change_types(ref_w, ref_p, new_w, new_p, img2):
     # but they're drawn on a big final image so things look wonky
     # it also only works for recovery (and possibly damage since there's none of that in this example)
     # but I think that's because the other images weren't very distinct in where growth/damage occured
+    # could also be factored into a helper function, but I don't wanna do that rn
 
     ret, thresh = cv2.threshold(shiftedGrowth, 127, 255, 0)#growth
     cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
