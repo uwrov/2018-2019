@@ -1,0 +1,53 @@
+
+.board {
+   width: 95%;
+   height: 45%;
+   background-color: black;
+   padding: 1% 1%;
+   border-style: solid;
+   border-color: white;
+}
+
+.GameStat {
+   background-color: black;
+   width: 18%;
+   height: 38%;
+   position: absolute;
+   right: 0%;
+   top: 0%;
+   padding: 1% 1%;
+}
+
+
+.players {
+   color: white;
+}
+
+.playerBox {
+   display: inline-block;
+   padding: 5px;
+   border-style: solid;
+   border-color: white;
+}
+
+.turn {
+   width: 95%;
+   height: 45%;
+   background-color: black;
+   padding: 1% 1%;
+   border-style: solid;
+   border-color: white;
+}
+
+.waitingPlayerBox {
+   background-color: white;
+}
+
+.currentPlayerBox {
+   background-color: green;
+}
+
+.BIGBOY {
+   font-weight: bold;
+   color: green;
+}

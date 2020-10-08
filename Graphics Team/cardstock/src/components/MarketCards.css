@@ -1,0 +1,48 @@
+.card {
+   position: relative;
+   top: 70px;
+   background-color: #F0E68C;
+   width: 150px;
+   height: 200px;
+   border-color: black;
+   border-style: solid;
+   border-radius: 10px;
+   padding: 10px 10px;
+}
+
+.card:active {
+   cursor: grab;
+}
+
+.cardMarket {
+   position: absolute;
+   top: 0%;
+   left: 0%;
+   width: 80%;
+   height: 60%;
+   background-color: #5F9EA0;
+   display: flex;
+   justify-content: space-evenly;
+
+   perspective: 200px;
+}
+
+.buy {
+   text-align: center;
+   background-color: #D3D3D3;
+   width: 50px;
+   margin: auto;
+   border-style: solid;
+   border-width: 2px;
+}
+
+.buy:hover {
+   background-color: #A9A9A9;
+   cursor: pointer;
+}
+
+.buy:active {
+   background-color: #808080;
+   position: relative;
+   top: 2px;
+}

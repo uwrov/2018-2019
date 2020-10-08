@@ -20,5 +20,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="json-20190722" level="project" />
+    <orderEntry type="library" name="junit" level="project" />
   </component>
 </module>

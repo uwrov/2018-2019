@@ -1,0 +1,65 @@
+
+.ranking {
+   position: absolute;
+   top: 145px;
+   left: 340px;
+   height: 400px;
+   width: 600px;
+   background-color: white;
+   border-style: solid;
+
+}
+
+.stats {
+   position: relative;
+   background-color: white;
+   padding: 5px 30px;
+   margin: 0px 5px;
+   height: 390px;
+   width: 80px;
+   float: left;
+}
+
+.bar {
+   margin: auto;
+   position: absolute;
+   height: 100px;
+   width: 50px;
+   background-color: red;
+   bottom: 80px;
+   left: 45px;
+   border-style: solid;
+}
+
+.winner {
+   text-align: center;
+   margin:auto;
+}
+
+.profile {
+   position: absolute;
+   bottom: 0px;
+}
+
+.button {
+   position: absolute;
+   left: 600px;
+   top: 590px;
+   height: 20px;
+   width: 100px;
+   border-style: solid;
+   text-align: center;
+   background-color: #FAEBD7;
+}
+
+.button:hover {
+   background-color: #FFE4C4;
+}
+
+.button:active {
+   background-color: #DEB887;
+   top: 592px;
+}
+
+height: 690px;
+width: 1280px;

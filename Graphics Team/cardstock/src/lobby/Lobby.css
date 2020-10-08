@@ -1,0 +1,119 @@
+#fullscreen {
+   background-color: red;
+   position: absolute;
+   top: 0px;
+   left: 0px;
+}
+
+.input {
+   font-size: 40px;
+   top: 150px;
+   left: 300px;
+   position: absolute;
+   border-style: solid;
+}
+
+.createPlayer {
+   background-color: white;
+   width: 150px;
+   height: 25px;
+   top: 150px;
+   left: 850px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+}
+
+.createPlayer:hover {
+   background-color: #F8F8FF;
+   width: 150px;
+   height: 25px;
+   top: 150px;
+   left: 850px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+   cursor: pointer;
+}
+
+.createPlayer:active {
+   background-color: #DCDCDC;
+   width: 150px;
+   height: 25px;
+   top: 152px;
+   left: 850px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+   cursor: pointer;
+}
+
+
+.display {
+   background-color: white;
+   width: 700px;
+   height: 200px;
+   top: 250px;
+   left: 300px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   display: flex;
+   justify-content: space-evenly;
+}
+
+.display > div {
+   background-color: black;
+   width: 100px;
+   height: 150px;
+   border-style: solid;
+   padding: 10px 10px;
+}
+
+
+.ready {
+   background-color: white;
+   width: 150px;
+   height: 25px;
+   top: 500px;
+   left: 575px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+}
+
+.ready:hover {
+   background-color: #F8F8FF;
+   width: 150px;
+   height: 25px;
+   top: 500px;
+   left: 575px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+   cursor: pointer;
+}
+
+.ready:active {
+   background-color: #DCDCDC;
+   width: 150px;
+   height: 25px;
+   top: 502px;
+   left: 575px;
+   position: absolute;
+   border-style: solid;
+   padding: 10px 10px;
+   font-size: 20px;
+   text-align: center;
+   cursor: pointer;
+}

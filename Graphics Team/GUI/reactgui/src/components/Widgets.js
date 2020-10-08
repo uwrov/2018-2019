@@ -7,7 +7,10 @@ class Widgets extends React.Component {
    render() {
       return (
          <div id="widgets">
-            <MiniCam camPorts={this.props.camPorts} ip={this.props.ip}/>
+            <MiniCam
+              ports={this.props.camPorts} 
+              ip={this.props.ip}
+              mainIndex={this.props.mainIndex}/>
          </div>
       );
    }

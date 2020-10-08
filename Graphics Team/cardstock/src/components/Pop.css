@@ -1,0 +1,33 @@
+.box {
+   position: absolute;
+   top: 145px;
+   left: 340px;
+   height: 400px;
+   width: 600px;
+   background-color: white;
+   border-style: solid;
+}
+
+.message{
+   text-align: center;
+}
+
+.resume {
+   position: relative;
+   left: 250px;
+   top: 240px;
+   height: 20px;
+   width: 100px;
+   border-style: solid;
+   text-align: center;
+   background-color: #FAEBD7;
+}
+
+.resume:hover {
+   background-color: #FFE4C4;
+}
+
+.resume:active {
+   background-color: #DEB887;
+   top: 242px;
+}
