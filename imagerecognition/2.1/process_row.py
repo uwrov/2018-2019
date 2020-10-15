@@ -6,12 +6,14 @@
 import numpy as np
 from imutils import contours
 import cv2
+import pickle
 from constants import CntSizeTol as size_tols
 
 def main():
     img = cv2.imread('images/section_obj.png')
-    process_row(img)
-
+    row_list = process_row(img)
+    with open('list.pkl', 'wb+') as f:
+        pickle.dump(row_list, f)
 
 
 def process_row(img):
@@ -30,7 +32,7 @@ def process_row(img):
     grid = fix_lines(grid)
     cells = identify_cells(img, grid)
 
-    draw_cells(img, cells)
+    # draw_cells(img, cells)
 
     # cv2.imshow('grid', grid)
     # cv2.waitKey(0)
