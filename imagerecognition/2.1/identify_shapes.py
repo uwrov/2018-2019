@@ -23,19 +23,17 @@ def identify_shapes(row):
     """
 
     names = []
+    
     i = 0
     for img in row:
         shape = process_img(img, str(i))
         names.append(shape)
         i = i + 1
 
-    print(names)
-
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    shape = "empty"
-    pass
+    return names
 
 def process_img(img, name):
     grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -62,7 +60,7 @@ def process_img(img, name):
 
     print(name + " - binary")
 
-    shape = "no item"
+    shape = "empty"
     for c in cnts:
         shape = shape_detector(c);
     return shape
