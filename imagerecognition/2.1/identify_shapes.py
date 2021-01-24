@@ -9,6 +9,7 @@
 
 import cv2
 import pickle
+import imutils
 
 def identify_shapes(row):
     """Identifies the shapes in the row
@@ -24,9 +25,11 @@ def identify_shapes(row):
     names = []
     i = 0
     for img in row:
-        #cv2.imshow(str(i), img)
-        process_img(img, str(i))
+        shape = process_img(img, str(i))
+        names.append(shape)
         i = i + 1
+
+    print(names)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
@@ -36,17 +39,48 @@ def identify_shapes(row):
 
 def process_img(img, name):
     grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imshow(name, grayscale)
-   # threshold = cv2.threshold(grayscale, 127, 255, cv2.THRESH_BINARY)
-   # cnts = cv2.findContours(threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-   # cnts = imutils.grab_contours(cnts)
-    _, binary = cv2.threshold(grayscale, 127, 255, cv2.THRESH_BINARY)
-    thresh = cv2.adaptiveThreshold(grayscale, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    cv2.imshow(name + "2", thresh)
 
-    thresh2 = cv2.threshold(thresh, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    #cv2.imshow(name + "3", thresh2)
+    (h, w) = grayscale.shape[:2]
+    height = int(h/2)
+    width = int(w/2)
+    color = grayscale[height, width]
 
+    thresh = 185
+    _, binary = cv2.threshold(grayscale, thresh, 255, cv2.THRESH_BINARY)
+    if color < thresh:
+        thresh = color + 15
+        _, binary = cv2.threshold(grayscale, thresh, 255, cv2.THRESH_BINARY_INV)
+    else:
+        if color < 195 and color > 175:
+            thresh = 255
+        else:
+            thresh = color - 15
+        _, binary = cv2.threshold(grayscale, thresh, 255, cv2.THRESH_BINARY)
+
+    cnts = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+
+    print(name + " - binary")
+
+    shape = "no item"
+    for c in cnts:
+        shape = shape_detector(c);
+    return shape
+
+def shape_detector(cnts):
+    shape = "unidentified"
+    peri = cv2.arcLength(cnts, True)
+    approx = cv2.approxPolyDP(cnts, 0.04 * peri, True)
+
+    if len(approx) == 10:
+        shape = "star"
+    elif len(approx) == 4:
+        shape = "square"
+    else:
+        shape = "idk fam"
+
+    print(shape)
+    return shape
 
 if __name__ == '__main__':
     # Test driver
