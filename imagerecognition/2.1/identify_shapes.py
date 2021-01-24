@@ -23,7 +23,7 @@ def identify_shapes(row):
     """
 
     names = []
-    
+
     i = 0
     for img in row:
         shape = process_img(img, str(i))
@@ -45,7 +45,7 @@ def process_img(img, name):
 
     thresh = 185
     _, binary = cv2.threshold(grayscale, thresh, 255, cv2.THRESH_BINARY)
-    if color < thresh:
+    if color < thresh - 10:
         thresh = color + 15
         _, binary = cv2.threshold(grayscale, thresh, 255, cv2.THRESH_BINARY_INV)
     else:
