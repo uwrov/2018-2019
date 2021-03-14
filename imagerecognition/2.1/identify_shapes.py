@@ -38,7 +38,6 @@ def identify_shapes(row):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    print(names)
     return names
 
 def get_shapes(img):
