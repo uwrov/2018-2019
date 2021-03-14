@@ -183,7 +183,6 @@ def get_area(img):
             The area of the white part of the image
     """
     area = cv2.countNonZero(img)
-    cv2.imshow("area: " + str(area), img)
     return area
 
 def get_shape(area, color):
