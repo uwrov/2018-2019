@@ -49,6 +49,7 @@ for i in range(cols):
     vert_lines.append(coord)
     [x1, y1, x2, y2] = vert_lines[i]
     cv2.line(grid, (x1,y1), (x2,y2), (0,0,0), 1)
+cv2.line(grid, (length-1,0), (length-1,width-1), (0,0,0), 1)
 
 horiz_lines = []
 for i in range(rows):
@@ -56,6 +57,7 @@ for i in range(rows):
     horiz_lines.append(coord)
     [x1, y1, x2, y2] = horiz_lines[i]
     cv2.line(grid, (x1,y1), (x2,y2), (0,0,0), 1)
+cv2.line(grid, (0,width-1), (length-1,width-1), (0,0,0), 1)
 
 cv2.imshow('grid', grid)
 cv2.waitKey(0)
