@@ -54,9 +54,9 @@ def make_grid():
 
     return grid
 
-def map_shapes(grid):
+def map_shapes(grid, grid_names):
     for x_coord in range(COLS):
-        row = gridNames[x_coord]
+        row = grid_names[x_coord]
         shape = identify_shapes(row)
         for y_coord in range(ROWS):
             x = SCALE * x_coord + int(SCALE/4)
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     sponge = cv2.imread("sponge.png", cv2.IMREAD_COLOR)
     empty = cv2.imread("empty.png", cv2.IMREAD_COLOR)
 
-    gridNames = [
+    grid_names = [
         [empty, empty, empty],
         [empty, star, empty],
         [empty, empty, cf],
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     pool = side_of_pool()
     grid = make_grid()
-    grid = map_shapes(grid)
+    grid = map_shapes(grid, grid_names)
     final_img = attach_imgs([pool, grid])
 
     #cv2.imwrite('grid.jpg', final_img)
