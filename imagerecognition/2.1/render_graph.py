@@ -55,15 +55,36 @@ def make_grid():
     return grid
 
 def map_shapes(grid, grid_names):
+    coral1 = None
+    coral2 = None
+    radius = int(SCALE * 3 / 10)
     for x_coord in range(COLS):
         row = grid_names[x_coord]
         shape = identify_shapes(row)
         for y_coord in range(ROWS):
-            x = SCALE * x_coord + int(SCALE/4)
-            y = SCALE * y_coord + int(SCALE/4)
+            x = SCALE * x_coord + int(SCALE/2)
+            y = SCALE * y_coord + int(SCALE/2)
             currShape = shape[y_coord]
             if currShape != "empty":
-                cv2.putText(grid, currShape, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 1, cv2.LINE_AA)
+                #cv2.putText(grid, currShape, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 1, cv2.LINE_AA)
+                if currShape == "star":
+                    cv2.circle(grid,(x,y), radius, (255,0,0), -1)
+                if currShape == "sponge":
+                    cv2.circle(grid,(x,y), radius, (0,255,0), -1)
+                if currShape == "coral fragment":
+                    cv2.circle(grid,(x,y), radius, (0,255,255), -1)
+                if currShape == "coral":
+                    if coral1 is None:
+                        coral1 = (x,y)
+                    else:
+                        coral2 = (x,y)
+                        c1x, c1y = coral1
+                        c2x, c2y = coral2
+                        centerx = int((c1x + c2x)/2)
+                        centery = int((c1y + c2y)/2)
+                        lengths = (radius * 2, radius)
+                        # TODO: adgust lengths by orientation
+                        cv2.ellipse(grid,(centerx,centery),lengths,0,0,360,(0,0,255),-1)
     return grid
 
 def attach_imgs(imgs):
@@ -95,7 +116,7 @@ if __name__ == '__main__':
     grid = map_shapes(grid, grid_names)
     final_img = attach_imgs([pool, grid])
 
-    #cv2.imwrite('grid.jpg', final_img)
+    # #cv2.imwrite('grid.jpg', final_img)
     cv2.imshow('grid', final_img)
 
     cv2.waitKey(0)
