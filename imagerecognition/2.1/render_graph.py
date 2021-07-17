@@ -83,7 +83,8 @@ def map_shapes(grid, grid_names):
                         centerx = int((c1x + c2x)/2)
                         centery = int((c1y + c2y)/2)
                         lengths = (radius * 2, radius)
-                        # TODO: adgust lengths by orientation
+                        if (c1x - c2x == 0):
+                            lengths = (radius, radius * 2)
                         cv2.ellipse(grid,(centerx,centery),lengths,0,0,360,(0,0,255),-1)
     return grid
 
@@ -106,8 +107,10 @@ if __name__ == '__main__':
         [empty, empty, empty],
         [empty, empty, star],
         [empty, empty, empty],
-        [cf, empty, coral],
-        [empty, empty, coral],
+        #[cf, empty, coral],
+        [cf, empty, empty],
+        #[empty, empty, coral],
+        [empty, coral, coral],
         [empty, sponge, empty]
         ]
 
@@ -116,7 +119,7 @@ if __name__ == '__main__':
     grid = map_shapes(grid, grid_names)
     final_img = attach_imgs([pool, grid])
 
-    # #cv2.imwrite('grid.jpg', final_img)
-    cv2.imshow('grid', final_img)
+    cv2.imwrite('grid.jpg', final_img)
+    #cv2.imshow('grid', final_img)
 
     cv2.waitKey(0)
